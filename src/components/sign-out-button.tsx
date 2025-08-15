@@ -1,0 +1,77 @@
+// "use client";
+
+import { useCallback } from "react";
+import { toast } from "sonner";
+// import { useRouter } from '@/routes/hooks";
+import Button from "@mui/material/Button";
+// import { useAuthContext } from '@/auth/hooks";
+// import type { ButtonProps } from "@mui/material/Button";
+// import type { SxProps, Theme } from "@mui/material/styles";
+
+// import { useAuth0 } from '@auth0/auth0-react';
+// import { CONFIG } from '@/global-config';
+// import { signOut as jwtSignOut } from '@/auth/context/jwt/action';
+// import { signOut as amplifySignOut } from '@/auth/context/amplify/action';
+// import { signOut as supabaseSignOut } from '@/auth/context/supabase/action';
+// import { signOut as firebaseSignOut } from '@/auth/context/firebase/action';
+
+// ----------------------------------------------------------------------
+
+// const signOut =
+//   (CONFIG.auth.method === 'supabase' && supabaseSignOut) ||
+//   (CONFIG.auth.method === 'firebase' && firebaseSignOut) ||
+//   (CONFIG.auth.method === 'amplify' && amplifySignOut) ||
+//   jwtSignOut;
+
+// ----------------------------------------------------------------------
+
+interface SignOutButtonProps {
+  onClose?: () => void;
+  sx?: SxProps<Theme>;
+}
+
+export function SignOutButton({
+  onClose,
+  sx,
+  ...other
+}: SignOutButtonProps & Omit<ButtonProps, "onClick">) {
+  const router = useRouter();
+  const { checkUserSession } = useAuthContext();
+  // const { logout: signOutAuth0 } = useAuth0();
+
+  const handleLogout = useCallback(async () => {
+    try {
+      await checkUserSession?.();
+      onClose?.();
+      router.refresh();
+    } catch (error) {
+      console.error(error);
+      toast.error("Unable to logout!");
+    }
+  }, [checkUserSession, onClose, router]);
+
+  // const handleLogoutAuth0 = useCallback(async () => {
+  //   try {
+  //     await signOutAuth0();
+  //     onClose?.();
+  //     router.refresh();
+  //   } catch (error) {
+  //     console.error(error);
+  //     toast.error('Unable to logout!');
+  //   }
+  // }, [onClose, router, signOutAuth0]);
+
+  return (
+    <Button
+      fullWidth
+      variant="outlined"
+      size="large"
+      color="error"
+      onClick={handleLogout}
+      sx={sx}
+      {...other}
+    >
+      Logout
+    </Button>
+  );
+}

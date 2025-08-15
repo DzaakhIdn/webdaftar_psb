@@ -1,0 +1,25 @@
+import { useState, useEffect, useCallback } from 'react';
+import type { EmblaCarouselType } from 'embla-carousel-react';
+
+// ----------------------------------------------------------------------
+
+export function useCarouselProgress(mainApi?: EmblaCarouselType | null) {
+  const [scrollProgress, setScrollProgress] = useState(0);
+
+  const onScroll = useCallback((_mainApi: EmblaCarouselType) => {
+    const progress = Math.max(0, Math.min(1, _mainApi.scrollProgress()));
+
+    setScrollProgress(progress * 100);
+  }, []);
+
+  useEffect(() => {
+    if (!mainApi) return;
+
+    onScroll(mainApi);
+    mainApi.on('reInit', onScroll);
+    mainApi.on('scroll', onScroll);
+  }, [mainApi, onScroll]);
+
+  return { value: scrollProgress } as const;
+}
+
