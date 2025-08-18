@@ -16,19 +16,42 @@ import { Theme } from "@emotion/react";
 
 // ----------------------------------------------------------------------
 
+// Helper function to check if data is NavSection array
+function isNavSectionArray(
+  arr: NavItem[] | NavSection[] | undefined
+): arr is NavSection[] {
+  if (!arr || arr.length === 0) return false;
+  return (arr as any[])[0] && "items" in (arr as any[])[0];
+}
+
+// Helper function to convert data to NavSection format
+function toNavSectionData(
+  data: NavItem[] | NavSection[] | undefined
+): NavSection[] {
+  if (!data || data.length === 0) return [];
+  if (isNavSectionArray(data)) return data;
+  // If it's NavItem[], wrap it in a single section
+  return [{ items: data }];
+}
+
 interface NavItem {
   title: string;
   path?: string;
   icon?: React.ReactNode;
   children?: NavItem[];
   roles?: string[];
+  allowedRoles?: string[];
+  caption?: string;
+}
+
+interface NavSection {
   subheader?: string;
-  items?: NavItem[];
+  items: NavItem[];
 }
 
 interface NavMobileProps {
   sx?: SxProps<Theme>;
-  data?: NavItem[];
+  data?: NavItem[] | NavSection[];
   open?: boolean;
   slots?: {
     topArea?: JSX.Element;
@@ -94,7 +117,7 @@ export function NavMobile({
 
       <Scrollbar fillContent>
         <NavSectionVertical
-          data={data ?? []}
+          data={toNavSectionData(data)}
           checkPermissions={checkPermissions}
           sx={{ px: 2, flex: "1 1 auto" }}
           {...other}

@@ -1,5 +1,3 @@
-export * from './mini';
-
 export * from './utils';
 
 export * from './styles';

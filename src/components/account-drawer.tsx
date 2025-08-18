@@ -147,7 +147,7 @@ export function AccountDrawer({
     <>
       <AccountButton
         onClick={onOpen}
-        photoURL="/path/to/static/avatar.jpg"
+        photoURL={undefined}
         displayName="John Doe"
         sx={sx}
         {...other}
@@ -209,11 +209,9 @@ export function AccountDrawer({
           >
             {[1, 2, 3].map((index) => (
               <Tooltip key={index} title={`Switch to: User ${index}`}>
-                <Avatar
-                  alt={`User ${index}`}
-                  src={`/path/to/static/avatar${index}.jpg`}
-                  onClick={() => {}}
-                />
+                <Avatar alt={`User ${index}`} onClick={() => {}}>
+                  {`U${index}`}
+                </Avatar>
               </Tooltip>
             ))}
 

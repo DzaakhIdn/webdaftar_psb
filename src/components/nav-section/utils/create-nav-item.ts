@@ -4,11 +4,10 @@ import { cloneElement, ReactNode } from "react";
 import { RouterLink } from "@/routes/components";
 import React from "react";
 
-
 // ----------------------------------------------------------------------
 export interface CreateNavItemProps {
   path: string; // path URL atau route
-  icon?: string; // bisa berupa React component
+  icon?: string | ReactNode; // bisa berupa string atau React component
   info?: string | [string, any]; // info tambahan, opsional
   depth?: number; // level kedalaman menu
   render?: {
@@ -61,7 +60,8 @@ export function createNavItem({
     const [key, value] = info;
     const element = render.navInfo(value)[key];
 
-    renderInfo = element && React.isValidElement(element) ? cloneElement(element) : null;
+    renderInfo =
+      element && React.isValidElement(element) ? cloneElement(element) : null;
   } else {
     renderInfo = info;
   }

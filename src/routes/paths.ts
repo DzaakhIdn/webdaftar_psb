@@ -1,7 +1,7 @@
 // import kebabCase from "es-toolkit/compat/kebabCase";
 
 const ROOTS = {
-    DASHBOARD: "/dashboard",
+    DASHBOARD: "",
     ACCOUNT: "/account",
 
 }

@@ -1,19 +1,18 @@
-'use client';
+"use client";
 
-import { mergeClasses } from 'minimal-shared/utils';
+import { mergeClasses } from "minimal-shared/utils";
 
-import { styled, type SxProps } from '@mui/material/styles';
-import GlobalStyles from '@mui/material/GlobalStyles';
+import { styled, type SxProps, type Theme } from "@mui/material/styles";
+import GlobalStyles from "@mui/material/GlobalStyles";
 
-import { layoutClasses } from './classes';
-import { layoutSectionVars } from './css-vars';
-import { Theme } from '@emotion/react';
-import { JSX } from 'react';
+import { layoutClasses } from "./classes";
+import { layoutSectionVars } from "./css-vars";
+import { JSX } from "react";
 
 // ----------------------------------------------------------------------
 
 type LayoutSectionProps = {
-  sx?: SxProps<Theme>;
+  sx?: SxProps<Theme> | SxProps<Theme>[];
   cssVars?: Record<string, string | number>;
   children?: React.ReactNode;
   footerSection?: JSX.Element | null;
@@ -34,8 +33,14 @@ export function LayoutSection({
   ...other
 }: LayoutSectionProps) {
   const inputGlobalStyles = (
-    <GlobalStyles styles={(theme) => ({ body: { ...layoutSectionVars(theme), ...cssVars } })} />
+    <GlobalStyles
+      styles={(theme) => ({
+        body: { ...layoutSectionVars(theme), ...cssVars },
+      })}
+    />
   );
+
+  const rootSx = Array.isArray(sx) ? sx : sx ? [sx] : [];
 
   return (
     <>
@@ -44,7 +49,7 @@ export function LayoutSection({
       <LayoutRoot
         id="root__layout"
         className={mergeClasses([layoutClasses.root, className])}
-        sx={sx}
+        sx={rootSx as SxProps<Theme>}
         {...other}
       >
         {sidebarSection ? (
@@ -70,10 +75,10 @@ export function LayoutSection({
 
 // ----------------------------------------------------------------------
 
-const LayoutRoot = styled('div')``;
+const LayoutRoot = styled("div")``;
 
-const LayoutSidebarContainer = styled('div')(() => ({
-  display: 'flex',
-  flex: '1 1 auto',
-  flexDirection: 'column',
+const LayoutSidebarContainer = styled("div")(() => ({
+  display: "flex",
+  flex: "1 1 auto",
+  flexDirection: "column",
 }));

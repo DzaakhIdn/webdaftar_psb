@@ -1,13 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useBoolean } from 'minimal-shared/hooks';
-import { mergeClasses } from 'minimal-shared/utils';
+import { useBoolean } from "minimal-shared/hooks";
+import { mergeClasses } from "minimal-shared/utils";
 
-import Collapse from '@mui/material/Collapse';
-import { useTheme } from '@mui/material/styles';
+import Collapse from "@mui/material/Collapse";
+import { useTheme } from "@mui/material/styles";
 
-import { NavList } from './nav-list';
-import { Nav, NavUl, NavLi, NavSubheader } from '../components';
-import { navSectionClasses, navSectionCssVars } from '../styles';
+import { NavList } from "./nav-list";
+import { Nav, NavUl, NavLi, NavSubheader } from "../components";
+import { navSectionClasses, navSectionCssVars } from "../styles";
 
 // ----------------------------------------------------------------------
 
@@ -17,16 +17,16 @@ interface NavSectionVerticalProps {
     subheader?: string;
     items: Array<any>;
   }>;
-  render?: (item: any) => React.ReactNode;
+  render?: string;
   className?: string;
   slotProps?: Record<string, any>;
-  checkPermissions?: (path: string) => boolean;
+  checkPermissions?: (roles: string[] | undefined) => boolean;
   enabledRootRedirect?: boolean;
   cssVars?: Record<string, any>;
 }
 
 export function NavSectionVertical({
-  sx, 
+  sx,
   data,
   render,
   className,
@@ -46,7 +46,7 @@ export function NavSectionVertical({
       sx={[{ ...cssVars }, ...(Array.isArray(sx) ? sx : [sx])]}
       {...other}
     >
-      <NavUl sx={{ flex: '1 1 auto', gap: 'var(--nav-item-gap)' }}>
+      <NavUl sx={{ flex: "1 1 auto", gap: "var(--nav-item-gap)" }}>
         {data.map((group) => (
           <Group
             key={group.subheader ?? group.items[0].title}
@@ -64,24 +64,32 @@ export function NavSectionVertical({
 }
 
 // ----------------------------------------------------------------------
-interface GroupProps {  items: Array<any>;
-  render?: (item: any) => React.ReactNode;
+interface GroupProps {
+  items: Array<any>;
+  render?: string;
   subheader?: string;
   slotProps?: Record<string, any>;
   checkPermissions?: (item: any) => boolean;
   enabledRootRedirect?: boolean;
 }
 
-function Group({ items, render, subheader, slotProps, checkPermissions, enabledRootRedirect }: GroupProps) {
+function Group({
+  items,
+  render,
+  subheader,
+  slotProps,
+  checkPermissions,
+  enabledRootRedirect,
+}: GroupProps) {
   const groupOpen = useBoolean(true);
 
   const renderContent = () => (
-    <NavUl sx={{ gap: 'var(--nav-item-gap)' }}>
+    <NavUl sx={{ gap: "var(--nav-item-gap)" }}>
       {items.map((list) => (
         <NavList
           key={list.title}
           data={list}
-          renderItem={render}
+          render={render}
           depth={1}
           slotProps={slotProps}
           checkPermissions={checkPermissions}
@@ -98,7 +106,6 @@ function Group({ items, render, subheader, slotProps, checkPermissions, enabledR
           <NavSubheader
             data-title={subheader}
             open={groupOpen.value}
-            onClick={groupOpen.onToggle}
             sx={slotProps?.subheader}
           >
             {subheader}

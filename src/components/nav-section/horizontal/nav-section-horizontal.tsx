@@ -1,12 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { mergeClasses } from 'minimal-shared/utils';
+import { mergeClasses } from "minimal-shared/utils";
 
-import { useTheme } from '@mui/material/styles';
+import { useTheme } from "@mui/material/styles";
 
-import { NavList } from './nav-list';
-import { Scrollbar } from '../../scrollbar';
-import { Nav, NavUl, NavLi } from '../components';
-import { navSectionClasses, navSectionCssVars } from '../styles';
+import { NavList } from "./nav-list";
+import { Scrollbar } from "../../scrollbar";
+import { Nav, NavUl, NavLi } from "../components";
+import { navSectionClasses, navSectionCssVars } from "../styles";
 
 // ----------------------------------------------------------------------
 
@@ -24,7 +24,7 @@ type NavGroup = {
 type NavSectionProps = {
   sx?: any;
   data: NavGroup[];
-  render?: (item: NavItem) => React.ReactNode;
+  render?: (title: string, icon?: React.ReactNode) => React.ReactNode;
   className?: string;
   slotProps?: Record<string, any>;
   checkPermissions?: (path: string) => boolean;
@@ -51,7 +51,9 @@ export function NavSectionHorizontal({
   return (
     <Scrollbar
       sx={{ height: 1 }}
-      slotProps={{ contentSx: { height: 1, display: 'flex', alignItems: 'center' } }}
+      slotProps={{
+        contentSx: { height: 1, display: "flex", alignItems: "center" },
+      }}
     >
       <Nav
         className={mergeClasses([navSectionClasses.horizontal, className])}
@@ -59,16 +61,16 @@ export function NavSectionHorizontal({
           () => ({
             ...cssVars,
             height: 1,
-            mx: 'auto',
-            display: 'flex',
-            alignItems: 'center',
-            minHeight: 'var(--nav-height)',
+            mx: "auto",
+            display: "flex",
+            alignItems: "center",
+            minHeight: "var(--nav-height)",
           }),
           ...(Array.isArray(sx) ? sx : [sx]),
         ]}
         {...other}
       >
-        <NavUl sx={{ flexDirection: 'row', gap: 'var(--nav-item-gap)' }}>
+        <NavUl sx={{ flexDirection: "row", gap: "var(--nav-item-gap)" }}>
           {data.map((group) => (
             <Group
               key={group.subheader ?? group.items[0].title}
@@ -90,17 +92,24 @@ export function NavSectionHorizontal({
 
 type GroupProps = {
   items: NavItem[];
-  render?: string;
+  render?: (title: string, icon?: React.ReactNode) => React.ReactNode;
   cssVars: Record<string, any>;
   slotProps?: Record<string, any>;
   checkPermissions?: (path: string) => boolean;
   enabledRootRedirect?: boolean;
 };
 
-function Group({ items, render, cssVars, slotProps, checkPermissions, enabledRootRedirect }: GroupProps) {
+function Group({
+  items,
+  render,
+  cssVars,
+  slotProps,
+  checkPermissions,
+  enabledRootRedirect,
+}: GroupProps) {
   return (
     <NavLi>
-      <NavUl sx={{ flexDirection: 'row', gap: 'var(--nav-item-gap)' }}>
+      <NavUl sx={{ flexDirection: "row", gap: "var(--nav-item-gap)" }}>
         {items.map((list) => (
           <NavList
             key={list.title}

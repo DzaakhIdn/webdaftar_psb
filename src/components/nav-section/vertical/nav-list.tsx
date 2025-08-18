@@ -1,13 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useBoolean } from 'minimal-shared/hooks';
-import { useRef, useEffect, useCallback } from 'react';
-import { isActiveLink, isExternalLink } from 'minimal-shared/utils';
+import { useBoolean } from "minimal-shared/hooks";
+import { useRef, useEffect, useCallback } from "react";
+import { isActiveLink, isExternalLink } from "minimal-shared/utils";
 
-import { usePathname } from '@/routes/hooks';
+import { usePathname } from "@/routes/hooks";
 
-import { NavItem } from './nav-item';
-import { navSectionClasses } from '../styles';
-import { NavUl, NavLi, NavCollapse } from '../components';
+import { NavItem } from "./nav-item";
+import { navSectionClasses } from "../styles";
+import { NavUl, NavLi, NavCollapse } from "../components";
 // import { SxProps } from '@mui/material/styles';
 
 // ----------------------------------------------------------------------
@@ -19,7 +19,7 @@ export interface NavListProps {
     icon?: React.ReactNode;
     children?: any[];
     info?: any;
-    caption?: string;    
+    caption?: string;
     disabled?: boolean;
     allowedRoles?: string[];
   };
@@ -33,7 +33,14 @@ export interface NavListProps {
   enabledRootRedirect?: boolean;
 }
 
-export function NavList({ data, depth, render, slotProps, checkPermissions, enabledRootRedirect }: NavListProps) {
+export function NavList({
+  data,
+  depth,
+  render,
+  slotProps,
+  checkPermissions,
+  enabledRootRedirect,
+}: NavListProps) {
   const pathname = usePathname();
   const navItemRef = useRef(null);
 
@@ -82,7 +89,13 @@ export function NavList({ data, depth, render, slotProps, checkPermissions, enab
 
   const renderCollapse = () =>
     !!data.children && (
-      <NavCollapse mountOnEnter unmountOnExit depth={depth} in={open} data-group={data.title}>
+      <NavCollapse
+        mountOnEnter
+        unmountOnExit
+        depth={depth}
+        in={open}
+        data-group={data.title}
+      >
         <NavSubList
           data={data.children}
           render={render}
@@ -95,14 +108,24 @@ export function NavList({ data, depth, render, slotProps, checkPermissions, enab
     );
 
   // Hidden item by role
-  if (data.allowedRoles && checkPermissions && checkPermissions(data.allowedRoles)) {
+  if (
+    data.allowedRoles &&
+    checkPermissions &&
+    checkPermissions(data.allowedRoles)
+  ) {
     return null;
   }
 
   return (
     <NavLi
       disabled={data.disabled}
-      sx={{...(!!data.children && {[`& .${navSectionClasses.li}`]: { '&:first-of-type': { mt: 'var(--nav-item-gap)' } },}),}}
+      sx={{
+        ...(!!data.children && {
+          [`& .${navSectionClasses.li}`]: {
+            "&:first-of-type": { mt: "var(--nav-item-gap)" },
+          },
+        }),
+      }}
     >
       {renderNavItem()}
       {renderCollapse()}
@@ -123,9 +146,16 @@ interface NavSubListProps {
   enabledRootRedirect?: boolean;
 }
 
-function NavSubList({ data, render, depth = 0, slotProps, checkPermissions, enabledRootRedirect }: NavSubListProps) {
+function NavSubList({
+  data,
+  render,
+  depth = 0,
+  slotProps,
+  checkPermissions,
+  enabledRootRedirect,
+}: NavSubListProps) {
   return (
-    <NavUl sx={{ gap: 'var(--nav-item-gap)' }}>
+    <NavUl sx={{ gap: "var(--nav-item-gap)" }}>
       {data.map((list: any) => (
         <NavList
           key={list.title}

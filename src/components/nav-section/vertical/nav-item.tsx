@@ -61,14 +61,17 @@ export function NavItem({
 }: NavItemProps) {
   const navItem = createNavItem({
     path,
-    icon: icon ? String(icon) : undefined,
+    icon: icon,
     info: info ? String(info) : undefined,
     depth,
-    render: typeof render === 'function' ? render as {
-      (): React.ReactNode;
-      navIcon?: Record<string, React.ReactNode>;
-      navInfo?: (value: any) => Record<string, React.ReactNode>;
-    } : undefined,
+    render:
+      typeof render === "function"
+        ? (render as {
+            (): React.ReactNode;
+            navIcon?: Record<string, React.ReactNode>;
+            navInfo?: (value: any) => Record<string, React.ReactNode>;
+          })
+        : undefined,
     hasChild,
     externalLink,
     enabledRootRedirect,
@@ -254,11 +257,13 @@ const ItemTexts = styled("span")({
   ...navItemStyles.texts,
 });
 
-const ItemTitle = styled("span", { shouldForwardProp })<{ active?: boolean }>(({ theme }) => ({
-  ...navItemStyles.title(theme),
-  ...theme.typography.body2,
-  fontWeight: theme.typography.fontWeightMedium,
-}));
+const ItemTitle = styled("span", { shouldForwardProp })<{ active?: boolean }>(
+  ({ theme }) => ({
+    ...navItemStyles.title(theme),
+    ...theme.typography.body2,
+    fontWeight: theme.typography.fontWeightMedium,
+  })
+);
 
 const ItemCaptionText = styled("span", { shouldForwardProp })({
   ...navItemStyles.captionText,

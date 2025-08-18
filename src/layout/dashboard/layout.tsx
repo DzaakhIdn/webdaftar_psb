@@ -1,40 +1,32 @@
-'use client';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+"use client";
 
-import { merge } from 'es-toolkit';
-import { useBoolean } from 'minimal-shared/hooks';
+import { merge } from "es-toolkit";
+import { useBoolean } from "minimal-shared/hooks";
 
-import Box from '@mui/material/Box';
-import Alert from '@mui/material/Alert';
-import { SxProps, Theme, useTheme } from '@mui/material/styles';
-import { iconButtonClasses } from '@mui/material/IconButton';
+import Box from "@mui/material/Box";
+import Alert from "@mui/material/Alert";
+import { SxProps, Theme, useTheme, Breakpoint } from "@mui/material/styles";
+import { iconButtonClasses } from "@mui/material/IconButton";
 
-// import { allLangs } from 'src/locales';
-// import { _contacts, _notifications } from 'src/_mock';
+import type { ReactNode } from "react";
 
-// import { Logo } from 'src/components/logo';
-import { useSettingsContext } from '@/components/settings';
-import { useMockedUser } from '@/auth/use-mocked-user';
+import { useSettingsContext } from "@/components/settings";
+import { useMockedUser } from "@/auth/use-mocked-user";
 
-import { NavMobile } from './nav-mobile';
-import { VerticalDivider } from './content';
-import { NavVertical } from './nav-vertical';
-import { layoutClasses } from '../core/classes';
-import { NavHorizontal } from './nav-horizontal';
-import { _account } from '../nav-config-account';
-import { MainSection } from '../core/main-section';
-// import { Searchbar } from '../components/searchbar';
-// import { _workspaces } from '../nav-config-workspace';
-import { MenuButton } from '@/components/menu-button';
-import { HeaderSection } from '../core/header-section';
-import { LayoutSection } from '../core/layout-section';
-import { AccountDrawer } from '@/components/account-drawer';
-// import { SettingsButton } from '../components/settings-button';
-// import { LanguagePopover } from '../components/language-popover';
-// import { ContactsPopover } from '../components/contacts-popover';
-// import { WorkspacesPopover } from '../components/workspaces-popover';
-import { navData as dashboardNavData } from '../nav-config-dashboard';
-import { dashboardLayoutVars, dashboardNavColorVars } from './css-vars';
-// import { NotificationsDrawer } from '../components/notifications-drawer';
+import { NavMobile } from "./nav-mobile";
+// import { VerticalDivider } from "./content";
+import { NavVertical } from "./nav-vertical";
+import { layoutClasses } from "../core/classes";
+// import { NavHorizontal } from './nav-horizontal';
+import { _account } from "../nav-config-account";
+import { MainSection } from "../core/main-section";
+import { MenuButton } from "@/components/menu-button";
+import { HeaderSection } from "../core/header-section";
+import { LayoutSection } from "../core/layout-section";
+import { AccountDrawer } from "@/components/account-drawer";
+import { navData as dashboardNavData } from "../nav-config-dashboard";
+import { dashboardLayoutVars, dashboardNavColorVars } from "./css-vars";
 
 // ------------------------------------------------------
 // Type Definitions
@@ -58,15 +50,32 @@ interface NavSection {
 interface DashboardLayoutProps {
   sx?: SxProps<Theme> | SxProps<Theme>[];
   cssVars?: Record<string, string | number>;
-  children?: React.ReactNode;
+  children?: ReactNode;
   slotProps?: {
     header?: Partial<React.ComponentProps<typeof HeaderSection>>;
     main?: Partial<React.ComponentProps<typeof MainSection>>;
     nav?: {
-      data?: NavSection[];
+      data?: NavItem[] | NavSection[];
     };
   };
-  layoutQuery?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
+  layoutQuery?: Breakpoint;
+}
+
+// ------------------------------------------------------
+// Helpers
+// ------------------------------------------------------
+
+function isNavSectionArray(
+  arr: NavItem[] | NavSection[] | undefined
+): arr is NavSection[] {
+  if (!arr || arr.length === 0) return false;
+  // elemen pertama punya "items" -> NavSection
+  return (arr as any[])[0] && "items" in (arr as any[])[0];
+}
+
+function toNavItems(data: NavItem[] | NavSection[] | undefined): NavItem[] {
+  if (!data || data.length === 0) return [];
+  return isNavSectionArray(data) ? data.flatMap((s) => s.items) : data;
 }
 
 // ------------------------------------------------------
@@ -76,36 +85,46 @@ export function DashboardLayout({
   cssVars,
   children,
   slotProps,
-  layoutQuery = 'lg',
+  layoutQuery = "lg",
 }: DashboardLayoutProps) {
   const theme = useTheme();
   const { user } = useMockedUser();
   const settings = useSettingsContext();
 
-  const navVars = dashboardNavColorVars(theme, settings.state.navColor, settings.state.navLayout);
+  const navVars = dashboardNavColorVars(
+    theme,
+    settings.state.navColor,
+    settings.state.navLayout
+  );
 
   const { value: open, onFalse: onClose, onTrue: onOpen } = useBoolean();
 
-  const navData = slotProps?.nav?.data ?? dashboardNavData;
+  // biarkan dashboardNavData bertipe campuran juga
+  const rawNavData: NavItem[] | NavSection[] =
+    (slotProps?.nav?.data as NavItem[] | NavSection[] | undefined) ??
+    (dashboardNavData as any);
 
-  const isNavMini = settings.state.navLayout === 'mini';
-  const isNavHorizontal = settings.state.navLayout === 'horizontal';
-  const isNavVertical = isNavMini || settings.state.navLayout === 'vertical';
+  // FLATTEN KE NavItem[]
+  const navItems: NavItem[] = toNavItems(rawNavData);
+
+  const isNavMini = settings.state.navLayout === "mini";
+  const isNavHorizontal = settings.state.navLayout === "horizontal";
+  const isNavVertical = isNavMini || settings.state.navLayout === "vertical";
 
   const canDisplayItemByRole = (allowedRoles?: string[]) =>
-    !allowedRoles?.includes(user?.role ?? '');
+    !allowedRoles?.includes(user?.role ?? "");
 
   const renderHeader = () => {
     const headerSlotProps = {
       container: {
-        maxWidth: false,
+        maxWidth: false as const,
         sx: {
           ...(isNavVertical && { px: { [layoutQuery]: 5 } }),
           ...(isNavHorizontal && {
-            bgcolor: 'var(--layout-nav-bg)',
-            height: { [layoutQuery]: 'var(--layout-nav-horizontal-height)' },
+            bgcolor: "var(--layout-nav-bg)",
+            height: { [layoutQuery]: "var(--layout-nav-horizontal-height)" },
             [`& .${iconButtonClasses.root}`]: {
-              color: 'var(--layout-nav-text-secondary-color)',
+              color: "var(--layout-nav-text-secondary-color)",
             },
           }),
         },
@@ -114,13 +133,13 @@ export function DashboardLayout({
 
     const headerSlots = {
       topArea: (
-        <Alert severity="info" sx={{ display: 'none', borderRadius: 0 }}>
+        <Alert severity="info" sx={{ display: "none", borderRadius: 0 }}>
           This is an info Alert.
         </Alert>
       ),
       // bottomArea: isNavHorizontal ? (
       //   <NavHorizontal
-      //     data={navData}
+      //     data={navItems}
       //     layoutQuery={layoutQuery}
       //     cssVars={navVars.section}
       //     checkPermissions={canDisplayItemByRole}
@@ -130,45 +149,54 @@ export function DashboardLayout({
         <>
           <MenuButton
             onClick={onOpen}
-            sx={{ mr: 1, ml: -1, [theme.breakpoints.up(layoutQuery)]: { display: 'none' } }}
+            sx={{
+              mr: 1,
+              ml: -1,
+              [theme.breakpoints.up(layoutQuery)]: { display: "none" },
+            }}
           />
           <NavMobile
-            data={navData}
+            data={rawNavData}
             open={open}
             onClose={onClose}
             cssVars={navVars.section}
             checkPermissions={canDisplayItemByRole}
           />
+          {/* Logo + Divider disembunyikan saat horizontal */}
           {/* {isNavHorizontal && (
             <>
               <Box
-              sx={{
-                display: 'none',
-                width: 40,
-                height: 40,
-                bgcolor: 'primary.main',
-                borderRadius: 1,
-                alignItems: 'center',
-                justifyContent: 'center',
-                color: 'white',
-                fontWeight: 'bold',
-                fontSize: '1.2rem',
-                [theme.breakpoints.up(layoutQuery)]: { 
-                display: 'flex'
-                },
-              }}
+                sx={{
+                  display: 'none',
+                  width: 40,
+                  height: 40,
+                  bgcolor: 'primary.main',
+                  borderRadius: 1,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: 'white',
+                  fontWeight: 'bold',
+                  fontSize: '1.2rem',
+                  [theme.breakpoints.up(layoutQuery)]: { display: 'flex' },
+                }}
               >
-              LOGO
+                LOGO
               </Box>
               <VerticalDivider
-              sx={{ [theme.breakpoints.up(layoutQuery)]: { display: 'flex' } }}
+                sx={{ [theme.breakpoints.up(layoutQuery)]: { display: 'flex' } }}
               />
             </>
           )} */}
         </>
       ),
       rightArea: (
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 0, sm: 0.75 } }}>
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            gap: { xs: 0, sm: 0.75 },
+          }}
+        >
           <AccountDrawer data={_account} />
         </Box>
       ),
@@ -188,15 +216,15 @@ export function DashboardLayout({
 
   const renderSidebar = () => (
     <NavVertical
-      data={navData}
+      data={navItems}
       isNavMini={isNavMini}
       layoutQuery={layoutQuery}
       cssVars={navVars.section}
       checkPermissions={canDisplayItemByRole}
       onToggleNav={() =>
         settings.setField(
-          'navLayout',
-          settings.state.navLayout === 'vertical' ? 'mini' : 'vertical'
+          "navLayout",
+          settings.state.navLayout === "vertical" ? "mini" : "vertical"
         )
       }
     />
@@ -204,7 +232,26 @@ export function DashboardLayout({
 
   const renderFooter = () => null;
 
-  const renderMain = () => <MainSection {...slotProps?.main}>{children}</MainSection>;
+  const renderMain = () => (
+    <MainSection {...slotProps?.main}>{children}</MainSection>
+  );
+
+  const rootSx = [
+    {
+      [`& .${layoutClasses.sidebarContainer}`]: {
+        [theme.breakpoints.up(layoutQuery)]: {
+          pl: isNavMini
+            ? "var(--layout-nav-mini-width)"
+            : "var(--layout-nav-vertical-width)",
+          transition: theme.transitions.create(["padding-left"], {
+            easing: "var(--layout-transition-easing)",
+            duration: "var(--layout-transition-duration)",
+          }),
+        },
+      },
+    },
+    ...(Array.isArray(sx) ? sx : sx ? [sx] : []),
+  ];
 
   return (
     <LayoutSection
@@ -212,22 +259,7 @@ export function DashboardLayout({
       sidebarSection={isNavHorizontal ? null : renderSidebar()}
       footerSection={renderFooter()}
       cssVars={{ ...dashboardLayoutVars(theme), ...navVars.layout, ...cssVars }}
-      sx={[
-        {
-          [`& .${layoutClasses.sidebarContainer}`]: {
-            [theme.breakpoints.up(layoutQuery)]: {
-              pl: isNavMini
-                ? 'var(--layout-nav-mini-width)'
-                : 'var(--layout-nav-vertical-width)',
-              transition: theme.transitions.create(['padding-left'], {
-                easing: 'var(--layout-transition-easing)',
-                duration: 'var(--layout-transition-duration)',
-              }),
-            },
-          },
-        },
-        ...(Array.isArray(sx) ? sx : sx ? [sx] : []),
-      ]}
+      sx={rootSx}
     >
       {renderMain()}
     </LayoutSection>
