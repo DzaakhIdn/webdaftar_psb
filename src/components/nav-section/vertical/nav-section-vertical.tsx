@@ -2,27 +2,24 @@
 import { useBoolean } from "minimal-shared/hooks";
 import { mergeClasses } from "minimal-shared/utils";
 
-import Collapse from "@mui/material/Collapse";
-import { useTheme } from "@mui/material/styles";
+import { useTheme, SxProps, Theme } from "@mui/material/styles";
 
 import { NavList } from "./nav-list";
-import { Nav, NavUl, NavLi, NavSubheader } from "../components";
+import { Nav, NavUl, NavLi, NavSubheader, NavCollapse } from "../components";
 import { navSectionClasses, navSectionCssVars } from "../styles";
 
 // ----------------------------------------------------------------------
 
 interface NavSectionVerticalProps {
-  sx?: any;
-  data: Array<{
-    subheader?: string;
-    items: Array<any>;
-  }>;
-  render?: string;
+  sx?: SxProps<Theme>;
+  data?: any[];
+  render?: any;
   className?: string;
-  slotProps?: Record<string, any>;
+  slotProps?: any;
   checkPermissions?: (roles: string[] | undefined) => boolean;
   enabledRootRedirect?: boolean;
-  cssVars?: Record<string, any>;
+  cssVars?: Record<string, string | number>;
+  [key: string]: any;
 }
 
 export function NavSectionVertical({
@@ -47,11 +44,11 @@ export function NavSectionVertical({
       {...other}
     >
       <NavUl sx={{ flex: "1 1 auto", gap: "var(--nav-item-gap)" }}>
-        {data.map((group) => (
+        {data?.map((group: any, index: number) => (
           <Group
-            key={group.subheader ?? group.items[0].title}
+            key={group.subheader ?? group.items?.[0]?.title ?? `group-${index}`}
             subheader={group.subheader}
-            items={group.items}
+            items={group.items || []}
             render={render}
             slotProps={slotProps}
             checkPermissions={checkPermissions}
@@ -64,12 +61,13 @@ export function NavSectionVertical({
 }
 
 // ----------------------------------------------------------------------
+
 interface GroupProps {
-  items: Array<any>;
-  render?: string;
+  items: any[];
+  render?: any;
   subheader?: string;
-  slotProps?: Record<string, any>;
-  checkPermissions?: (item: any) => boolean;
+  slotProps?: any;
+  checkPermissions?: (roles: string[] | undefined) => boolean;
   enabledRootRedirect?: boolean;
 }
 
@@ -85,7 +83,7 @@ function Group({
 
   const renderContent = () => (
     <NavUl sx={{ gap: "var(--nav-item-gap)" }}>
-      {items.map((list) => (
+      {items.map((list: any) => (
         <NavList
           key={list.title}
           data={list}
@@ -106,12 +104,15 @@ function Group({
           <NavSubheader
             data-title={subheader}
             open={groupOpen.value}
+            onClick={groupOpen.onToggle}
             sx={slotProps?.subheader}
           >
             {subheader}
           </NavSubheader>
 
-          <Collapse in={groupOpen.value}>{renderContent()}</Collapse>
+          <NavCollapse in={groupOpen.value}>
+            {renderContent()}
+          </NavCollapse>
         </>
       ) : (
         renderContent()

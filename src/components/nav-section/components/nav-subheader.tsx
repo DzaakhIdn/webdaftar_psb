@@ -1,23 +1,29 @@
 import { mergeClasses } from "minimal-shared/utils";
 
 import { styled } from "@mui/material/styles";
+import type { SxProps, Theme } from "@mui/material/styles";
 import ListSubheader from "@mui/material/ListSubheader";
 
 import { navSectionClasses } from "../styles";
 import { Iconify, iconifyClasses } from "../../iconify";
 
 // ----------------------------------------------------------------------
-export interface NavSubheaderProps {
+
+interface NavSubheaderProps {
   open?: boolean;
   children?: React.ReactNode;
+  sx?: SxProps<Theme>;
   className?: string;
+  onClick?: () => void;
+  "data-title"?: string;
 }
 
 export const NavSubheader = styled(
-  ({ open, children, className, ...other }: NavSubheaderProps) => (
+  ({ open, children, className, onClick, ...other }: NavSubheaderProps) => (
     <ListSubheader
       disableSticky
       component="div"
+      onClick={onClick}
       {...other}
       className={mergeClasses([navSectionClasses.subheader, className])}
     >

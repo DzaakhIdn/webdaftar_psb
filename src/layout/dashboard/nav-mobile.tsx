@@ -119,7 +119,7 @@ export function NavMobile({
         <NavSectionVertical
           data={toNavSectionData(data)}
           checkPermissions={checkPermissions}
-          sx={{ px: 2, flex: "1 1 auto" }}
+          sx={{ px: 0, flex: "1 1 auto" }}
           {...other}
         />
       </Scrollbar>

@@ -1,12 +1,14 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import React from "react";
 import { varAlpha, mergeClasses } from "minimal-shared/utils";
 
 import Box from "@mui/material/Box";
-import { Breakpoint, styled, SxProps } from "@mui/material/styles";
+import { Breakpoint, styled, SxProps, Theme } from "@mui/material/styles";
 
-// import { Logo } from 'src/components/logo';
+import { Logo } from "@/components/logo";
 import { Scrollbar } from "@/components/scrollbar";
 import { NavSectionVertical } from "@/components/nav-section";
+import { NavSectionMini } from "@/components/nav-section/mini";
 
 import { layoutClasses } from "../core/classes";
 // import { NavUpgrade } from '../components/nav-upgrade';
@@ -19,28 +21,35 @@ interface NavItem {
   path?: string;
   icon?: React.ReactNode;
   children?: NavItem[];
-  [key: string]: any;
+  roles?: string[];
+  allowedRoles?: string[];
+  caption?: string;
 }
 
-interface navSection {
+interface NavSection {
   subheader?: string;
   items: NavItem[];
 }
 
 interface NavVerticalProps {
-  sx?: SxProps;
-  data: navSection[] | NavItem[];
+  sx?: SxProps<Theme>;
+  data?: NavItem[] | NavSection[];
   slots?: {
     topArea?: React.ReactNode;
     bottomArea?: React.ReactNode;
   };
   cssVars?: Record<string, string | number>;
   className?: string;
+  isNavMini?: boolean;
   onToggleNav?: () => void;
   checkPermissions?: (roles: string[] | undefined) => boolean;
-  layoutQuery: Breakpoint;
-  [key: string]: any;
+  layoutQuery?: Breakpoint;
 }
+
+type OtherProps = Omit<
+  React.HTMLAttributes<HTMLDivElement>,
+  keyof NavVerticalProps
+>;
 
 export function NavVertical({
   sx,
@@ -48,18 +57,77 @@ export function NavVertical({
   slots,
   cssVars,
   className,
+  isNavMini,
   onToggleNav,
   checkPermissions,
-  layoutQuery,
+  layoutQuery = "md",
   ...other
-}: NavVerticalProps) {
-  const sections: navSection[] =
-    Array.isArray(data) && "title" in (data[0] || {})
-      ? [{ items: data as NavItem[] }] // kalau NavItem[] → bungkus
-      : (data as navSection[]);
+}: NavVerticalProps & OtherProps) {
+  const renderNavVertical = () => (
+    <>
+      {slots?.topArea ?? (
+        <Box sx={{ pl: 3.5, pt: 2.5, pb: 1 }}>
+          <Logo />
+        </Box>
+      )}
+
+      <Scrollbar fillContent>
+        <NavSectionVertical
+          data={(data || []) as Array<{ subheader?: string; items: any[] }>}
+          cssVars={cssVars}
+          checkPermissions={checkPermissions}
+          sx={{ px: 2, flex: "1 1 auto" }}
+        />
+
+        {slots?.bottomArea}
+      </Scrollbar>
+    </>
+  );
+
+  const renderNavMini = () => (
+    <>
+      {slots?.topArea ?? (
+        <Box sx={{ display: "flex", justifyContent: "center", py: 2.5 }}>
+          <Logo />
+        </Box>
+      )}
+
+      <NavSectionMini
+        data={
+          (data || []) as Array<{
+            subheader?: string;
+            items: Array<{
+              title: string;
+              path?: string;
+              icon?: React.ReactNode;
+              info?: React.ReactNode;
+              caption?: string;
+              disabled?: boolean;
+              children?: any[];
+              allowedRoles?: string[];
+            }>;
+          }>
+        }
+        cssVars={cssVars}
+        checkPermissions={checkPermissions}
+        sx={[
+          (theme) => ({
+            ...theme.mixins.hideScrollY,
+            pb: 2,
+            px: 0.5,
+            flex: "1 1 auto",
+            overflowY: "auto",
+          }),
+        ]}
+      />
+
+      {slots?.bottomArea}
+    </>
+  );
 
   return (
     <NavRoot
+      isNavMini={isNavMini}
       layoutQuery={layoutQuery}
       className={mergeClasses([
         layoutClasses.nav.root,
@@ -70,6 +138,7 @@ export function NavVertical({
       {...other}
     >
       <NavToggleButton
+        isNavMini={isNavMini}
         onClick={onToggleNav}
         sx={[
           (theme) => ({
@@ -78,18 +147,7 @@ export function NavVertical({
           }),
         ]}
       />
-      <>
-        {slots?.topArea ?? <Box sx={{ pl: 3.5, pt: 2.5, pb: 1 }}></Box>}
-
-        <Scrollbar fillContent>
-          <NavSectionVertical
-            data={sections}
-            cssVars={cssVars}
-            checkPermissions={checkPermissions}
-            sx={{ px: 2, flex: "1 1 auto" }}
-          />
-        </Scrollbar>
-      </>
+      {isNavMini ? renderNavMini() : renderNavVertical()}
     </NavRoot>
   );
 }
@@ -97,13 +155,14 @@ export function NavVertical({
 // ----------------------------------------------------------------------
 
 interface NavRootProps {
+  isNavMini?: boolean;
   layoutQuery?: Breakpoint;
 }
 
 const NavRoot = styled("div", {
   shouldForwardProp: (prop) =>
-    !["layoutQuery", "sx"].includes(prop as string),
-})<NavRootProps>(({ layoutQuery = "md", theme }) => ({
+    !["isNavMini", "layoutQuery", "sx"].includes(prop as string),
+})<NavRootProps>(({ isNavMini, layoutQuery = "md", theme }) => ({
   top: 0,
   left: 0,
   height: "100%",
@@ -112,7 +171,9 @@ const NavRoot = styled("div", {
   flexDirection: "column",
   zIndex: "var(--layout-nav-zIndex)",
   backgroundColor: "var(--layout-nav-bg)",
-  width: "var(--layout-nav-vertical-width)",
+  width: isNavMini
+    ? "var(--layout-nav-mini-width)"
+    : "var(--layout-nav-vertical-width)",
   borderRight: `1px solid var(--layout-nav-border-color, ${varAlpha(
     theme.vars.palette.grey["500Channel"],
     0.12

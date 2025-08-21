@@ -1,43 +1,61 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import { useEffect, useCallback } from 'react';
-import { usePopoverHover } from 'minimal-shared/hooks';
-import { isActiveLink, isExternalLink } from 'minimal-shared/utils';
+import { useEffect, useCallback, useState } from "react";
+import { usePopoverHover } from "minimal-shared/hooks";
+import { isActiveLink, isExternalLink } from "minimal-shared/utils";
 
-import { useTheme } from '@mui/material/styles';
-import { popoverClasses } from '@mui/material/Popover';
+import { useTheme, SxProps, Theme } from "@mui/material/styles";
 
-import { usePathname } from '@/routes/hooks';
+import { usePathname } from "@/routes/hooks";
 
-import { NavItem } from './nav-item';
-import { navSectionClasses } from '../styles';
-import { NavUl, NavLi, NavDropdown, NavDropdownPaper } from '../components';
+import { NavItem } from "./nav-item";
+import { navSectionClasses } from "../styles";
+import { NavUl, NavLi, NavDropdown, NavDropdownPaper } from "../components";
 
 // ----------------------------------------------------------------------
 
-interface NavData {
+interface NavItemData {
   title: string;
-  path: string;
-  icon?: string | React.ReactNode;
+  path?: string;
+  icon?: React.ReactNode;
   info?: React.ReactNode;
   caption?: string;
   disabled?: boolean;
-  children?: NavData[];
+  children?: NavItemData[];
+  roles?: string[];
   allowedRoles?: string[];
 }
 
 interface NavListProps {
-  data: NavData;
-  depth: number;
-  render?: (title: string, icon?: React.ReactNode) => React.ReactNode;
-  cssVars?: Record<string, any>;
+  data: NavItemData;
+  depth?: number;
+  render?: {
+    navIcon?: Record<string, React.ReactNode>;
+    navInfo?: (value: unknown) => Record<string, React.ReactElement>;
+  };
+  cssVars?: Record<string, string | number>;
   slotProps?: {
-    rootItem?: Record<string, any>;
-    subItem?: Record<string, any>;
+    rootItem?: {
+      sx?: SxProps<Theme>;
+      icon?: SxProps<Theme>;
+      texts?: SxProps<Theme>;
+      title?: SxProps<Theme>;
+      caption?: SxProps<Theme>;
+      info?: SxProps<Theme>;
+      arrow?: SxProps<Theme>;
+    };
+    subItem?: {
+      sx?: SxProps<Theme>;
+      icon?: SxProps<Theme>;
+      texts?: SxProps<Theme>;
+      title?: SxProps<Theme>;
+      caption?: SxProps<Theme>;
+      info?: SxProps<Theme>;
+      arrow?: SxProps<Theme>;
+    };
     dropdown?: {
-      paper?: Record<string, any>;
+      paper?: SxProps<Theme>;
     };
   };
-  checkPermissions?: (roles: string[]) => boolean;
+  checkPermissions?: (roles: string[] | undefined) => boolean;
   enabledRootRedirect?: boolean;
 }
 
@@ -53,12 +71,25 @@ export function NavList({
   const theme = useTheme();
 
   const pathname = usePathname();
+  const [mounted, setMounted] = useState(false);
 
-  const isActive = isActiveLink(pathname, data.path, !!data.children);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
-  const { open, onOpen, onClose, anchorEl, elementRef: navItemRef } = usePopoverHover();
+  const isActive = mounted
+    ? isActiveLink(pathname, data.path || "", !!data.children)
+    : false;
 
-  const isRtl = theme.direction === 'rtl';
+  const {
+    open,
+    onOpen,
+    onClose,
+    anchorEl,
+    elementRef: navItemRef,
+  } = usePopoverHover();
+
+  const isRtl = theme.direction === "rtl";
   const id = open ? `${data.title}-popover` : undefined;
 
   useEffect(() => {
@@ -80,10 +111,10 @@ export function NavList({
       ref={navItemRef}
       aria-describedby={id}
       // slots
-      title={data.title}
       path={data.path}
       icon={data.icon}
       info={data.info}
+      title={data.title}
       caption={data.caption}
       // state
       active={isActive}
@@ -93,9 +124,10 @@ export function NavList({
       depth={depth}
       render={render}
       hasChild={!!data.children}
-      externalLink={isExternalLink(data.path)}
+      externalLink={isExternalLink(data.path || "")}
       enabledRootRedirect={enabledRootRedirect}
       // styles
+      className=""
       slotProps={depth === 1 ? slotProps?.rootItem : slotProps?.subItem}
       // actions
       onMouseEnter={handleOpenMenu}
@@ -110,16 +142,14 @@ export function NavList({
         id={id}
         open={open}
         anchorEl={anchorEl}
-        anchorOrigin={
-          depth === 1
-            ? { vertical: 'bottom', horizontal: isRtl ? 'right' : 'left' }
-            : { vertical: 'center', horizontal: isRtl ? 'left' : 'right' }
-        }
-        transformOrigin={
-          depth === 1
-            ? { vertical: 'top', horizontal: isRtl ? 'right' : 'left' }
-            : { vertical: 'center', horizontal: isRtl ? 'right' : 'left' }
-        }
+        anchorOrigin={{
+          vertical: "center",
+          horizontal: isRtl ? "left" : "right",
+        }}
+        transformOrigin={{
+          vertical: "center",
+          horizontal: isRtl ? "right" : "left",
+        }}
         slotProps={{
           paper: {
             onMouseEnter: handleOpenMenu,
@@ -127,10 +157,7 @@ export function NavList({
             className: navSectionClasses.dropdown.root,
           },
         }}
-        sx={{
-          ...cssVars,
-          [`& .${popoverClasses.paper}`]: { ...(depth === 1 && { pt: 1, ml: -0.75 }) },
-        }}
+        sx={{ ...cssVars }}
       >
         <NavDropdownPaper
           className={navSectionClasses.dropdown.paper}
@@ -150,7 +177,11 @@ export function NavList({
     );
 
   // Hidden item by role
-  if (data.allowedRoles && checkPermissions && checkPermissions(data.allowedRoles)) {
+  if (
+    data.allowedRoles &&
+    checkPermissions &&
+    checkPermissions(data.allowedRoles)
+  ) {
     return null;
   }
 
@@ -169,6 +200,41 @@ export function NavList({
 
 // ----------------------------------------------------------------------
 
+interface NavSubListProps {
+  data: NavItemData[];
+  render?: {
+    navIcon?: Record<string, React.ReactNode>;
+    navInfo?: (value: unknown) => Record<string, React.ReactElement>;
+  };
+  cssVars?: Record<string, string | number>;
+  depth?: number;
+  slotProps?: {
+    rootItem?: {
+      sx?: SxProps<Theme>;
+      icon?: SxProps<Theme>;
+      texts?: SxProps<Theme>;
+      title?: SxProps<Theme>;
+      caption?: SxProps<Theme>;
+      info?: SxProps<Theme>;
+      arrow?: SxProps<Theme>;
+    };
+    subItem?: {
+      sx?: SxProps<Theme>;
+      icon?: SxProps<Theme>;
+      texts?: SxProps<Theme>;
+      title?: SxProps<Theme>;
+      caption?: SxProps<Theme>;
+      info?: SxProps<Theme>;
+      arrow?: SxProps<Theme>;
+    };
+    dropdown?: {
+      paper?: SxProps<Theme>;
+    };
+  };
+  checkPermissions?: (roles: string[] | undefined) => boolean;
+  enabledRootRedirect?: boolean;
+}
+
 function NavSubList({
   data,
   render,
@@ -177,18 +243,10 @@ function NavSubList({
   slotProps,
   checkPermissions,
   enabledRootRedirect,
-}: {
-  data: NavData[];
-  render?: (title: string, icon?: React.ReactNode) => React.ReactNode;
-  cssVars?: Record<string, any>;
-  depth?: number;
-  slotProps?: NavListProps['slotProps'];
-  checkPermissions?: (roles: string[]) => boolean;
-  enabledRootRedirect?: boolean;
-}) {
+}: NavSubListProps) {
   return (
     <NavUl sx={{ gap: 0.5 }}>
-      {data.map((list: any) => (
+      {data.map((list) => (
         <NavList
           key={list.title}
           data={list}

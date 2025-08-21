@@ -1,7 +1,14 @@
 // TypeScript declarations to extend MUI theme with custom mixins and properties
 
 import "@mui/material/styles";
+import "@mui/material/Chip";
 import { ThemeOptions } from "@mui/material/styles";
+
+declare module "@mui/material/Chip" {
+  interface ChipPropsVariantOverrides {
+    soft: true;
+  }
+}
 
 declare module "@mui/material/styles" {
   interface Mixins {

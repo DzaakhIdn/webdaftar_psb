@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { varAlpha } from "minimal-shared/utils";
 import Box from "@mui/material/Box";
 import Link from "@mui/material/Link";
@@ -70,9 +71,9 @@ export function AccountDrawer({
   sx,
   ...other
 }: AccountDrawerProps) {
-  const open = false;
-  const onClose = () => {};
-  const onOpen = () => {};
+  const [open, setOpen] = useState(false);
+  const onClose = () => setOpen(false);
+  const onOpen = () => setOpen(true);
 
   const renderAvatar = () => (
     <AnimateBorder

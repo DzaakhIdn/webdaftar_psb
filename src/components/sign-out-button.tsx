@@ -1,12 +1,11 @@
-// "use client";
+"use client";
 
 import { useCallback } from "react";
 import { toast } from "sonner";
-// import { useRouter } from '@/routes/hooks";
+import { useRouter } from "@/routes/hooks";
 import Button from "@mui/material/Button";
-// import { useAuthContext } from '@/auth/hooks";
-// import type { ButtonProps } from "@mui/material/Button";
-// import type { SxProps, Theme } from "@mui/material/styles";
+import type { ButtonProps } from "@mui/material/Button";
+import type { SxProps, Theme } from "@mui/material/styles";
 
 // import { useAuth0 } from '@auth0/auth0-react';
 // import { CONFIG } from '@/global-config';
@@ -36,19 +35,18 @@ export function SignOutButton({
   ...other
 }: SignOutButtonProps & Omit<ButtonProps, "onClick">) {
   const router = useRouter();
-  const { checkUserSession } = useAuthContext();
-  // const { logout: signOutAuth0 } = useAuth0();
 
   const handleLogout = useCallback(async () => {
     try {
-      await checkUserSession?.();
+      // For now, just simulate logout since we're using mocked user
       onClose?.();
+      toast.success("Logged out successfully!");
       router.refresh();
     } catch (error) {
       console.error(error);
       toast.error("Unable to logout!");
     }
-  }, [checkUserSession, onClose, router]);
+  }, [onClose, router]);
 
   // const handleLogoutAuth0 = useCallback(async () => {
   //   try {

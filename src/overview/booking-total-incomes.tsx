@@ -9,6 +9,7 @@ import { CONFIG } from "@/global-config";
 import { Iconify } from "@/components/iconify";
 import { SvgColor } from "@/components/svg-color";
 import { Chart, useChart } from "@/components/chart";
+import { AnimateCountUp } from "@/components/animate";
 
 // ----------------------------------------------------------------------
 
@@ -64,6 +65,20 @@ export function BookingTotalIncomes({
     ...chart.options,
   });
 
+  // Validate chart data
+  const chartSeries =
+    Array.isArray(chart.series) && chart.series.length > 0
+      ? [{ name: "Income", data: chart.series }]
+      : [{ name: "Income", data: [] }];
+
+  // Debug logging
+  console.log("BookingTotalIncomes - Chart data:", {
+    series: chart.series,
+    categories: chart.categories,
+    chartSeries,
+    chartOptions,
+  });
+
   const renderTrending = () => (
     <Box
       sx={{
@@ -116,7 +131,15 @@ export function BookingTotalIncomes({
         <div>
           <Box sx={{ mb: 1, typography: "subtitle2" }}>{title}</Box>
 
-          <Box sx={{ typography: "h3" }}>{fCurrency(total)}</Box>
+          <Box sx={{ typography: "h3" }}>
+            <AnimateCountUp
+              to={total}
+              duration={2}
+              toFixed={0}
+              unit="$"
+              sx={{ typography: "h3" }}
+            />
+          </Box>
         </div>
 
         {renderTrending()}
@@ -124,7 +147,7 @@ export function BookingTotalIncomes({
 
       <Chart
         type="line"
-        series={chart.series}
+        series={chartSeries}
         options={chartOptions}
         sx={{ height: 120 }}
       />

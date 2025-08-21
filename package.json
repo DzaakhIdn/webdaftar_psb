@@ -11,6 +11,7 @@
   "dependencies": {
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
+    "@hookform/resolvers": "^5.2.1",
     "@mui/material": "^7.3.1",
     "apexcharts": "^5.3.3",
     "dayjs": "^1.11.13",
@@ -19,15 +20,19 @@
     "es-toolkit": "^1.39.9",
     "format-number": "^3.0.0",
     "format-time": "^1.0.0",
+    "framer-motion": "^12.23.12",
     "minimal-shared": "^1.0.15",
     "motion": "^12.23.12",
     "next": "15.4.6",
     "react": "19.1.0",
     "react-apexcharts": "^1.7.0",
     "react-dom": "19.1.0",
+    "react-hook-form": "^7.62.0",
+    "react-phone-number-input": "^3.4.12",
     "simplebar-react": "^3.3.2",
     "sonner": "^2.0.7",
-    "stylis-plugin-rtl": "^2.1.1"
+    "stylis-plugin-rtl": "^2.1.1",
+    "zod": "^4.0.17"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",

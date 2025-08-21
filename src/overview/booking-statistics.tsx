@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 
 import Card from "@mui/material/Card";
 import CardHeader from "@mui/material/CardHeader";
@@ -24,12 +24,56 @@ interface BookingStatisticsProps {
   sx?: Record<string, unknown>;
 }
 
-export function BookingStatistics({ title, subheader, chart, sx, ...other }: BookingStatisticsProps) {
+export function BookingStatistics({
+  title,
+  subheader,
+  chart,
+  sx,
+  ...other
+}: BookingStatisticsProps) {
   const theme = useTheme();
 
-  const [selectedSeries, setSelectedSeries] = useState("Yearly");
+  const [selectedSeries, setSelectedSeries] = useState(() => {
+    // Initialize with the first available series to prevent hydration issues
+    return chart.series?.[0]?.name || "Yearly";
+  });
 
   const currentSeries = chart.series.find((i) => i.name === selectedSeries);
+
+  // Ensure selectedSeries is valid after mount to prevent hydration issues
+  useEffect(() => {
+    if (chart.series && chart.series.length > 0) {
+      const validSeries = chart.series.find((i) => i.name === selectedSeries);
+      if (!validSeries) {
+        setSelectedSeries(chart.series[0].name);
+      }
+    }
+  }, [chart.series, selectedSeries]);
+
+  // Early return if no data to prevent hydration issues
+  if (
+    !chart.series ||
+    chart.series.length === 0 ||
+    !currentSeries ||
+    !currentSeries.data ||
+    currentSeries.data.length === 0
+  ) {
+    return (
+      <Card sx={sx} {...other}>
+        <CardHeader title={title} subheader={subheader} sx={{ mb: 3 }} />
+        <div
+          style={{
+            height: 320,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          Loading chart data...
+        </div>
+      </Card>
+    );
+  }
 
   const chartColors = [
     theme.palette.primary.dark,
@@ -37,12 +81,53 @@ export function BookingStatistics({ title, subheader, chart, sx, ...other }: Boo
   ];
 
   const chartOptions = useChart({
-  colors: chartColors,
-  stroke: { width: 2, colors: ["transparent"] },
-  xaxis: { categories: currentSeries?.categories },
-  tooltip: { y: { formatter: (value: number) => `${value}` } },
-  ...chart.options,
-});
+    colors: chartColors,
+    stroke: { width: 2, colors: ["transparent"] },
+    xaxis: {
+      categories: currentSeries?.categories || [],
+      type: "category",
+    },
+    yaxis: {
+      labels: {
+        formatter: (value: number) => Math.round(value).toString(),
+      },
+    },
+    tooltip: {
+      y: {
+        formatter: (value: number) => `${Math.round(value)}`,
+      },
+    },
+    plotOptions: {
+      bar: {
+        horizontal: false,
+        columnWidth: "55%",
+        endingShape: "rounded",
+      },
+    },
+    dataLabels: {
+      enabled: false,
+    },
+    // Exclude potentially problematic options from chart.options
+    ...(chart.options && typeof chart.options === "object"
+      ? {
+          ...Object.fromEntries(
+            Object.entries(chart.options).filter(
+              ([key, value]) =>
+                ![
+                  "xaxis",
+                  "yaxis",
+                  "plotOptions",
+                  "dataLabels",
+                  "series",
+                  "chart",
+                ].includes(key) &&
+                value !== null &&
+                value !== undefined
+            )
+          ),
+        }
+      : {}),
+  });
 
   const handleChangeSeries = useCallback((newValue: string) => {
     setSelectedSeries(newValue);
@@ -65,14 +150,23 @@ export function BookingStatistics({ title, subheader, chart, sx, ...other }: Boo
 
       <ChartLegends
         colors={chartOptions?.colors ?? []}
-        labels={chart.series[0].data.map((item) => item.name)}
+        labels={chart.series[0]?.data?.map((item) => item.name) || []}
         values={[fShortenNumber(6789), fShortenNumber(1234)]}
         sx={{ px: 3, gap: 3 }}
       />
 
       <Chart
         type="bar"
-        series={currentSeries?.data}
+        series={
+          currentSeries?.data
+            ?.map((item) => ({
+              name: item.name || "Unknown",
+              data: Array.isArray(item.value)
+                ? item.value.map((val) => (typeof val === "number" ? val : 0))
+                : [],
+            }))
+            .filter((series) => series.data.length > 0) || []
+        }
         options={chartOptions}
         slotProps={{ loading: { p: 2.5 } }}
         sx={{

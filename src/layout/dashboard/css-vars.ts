@@ -1,11 +1,13 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { varAlpha } from 'minimal-shared/utils';
 
 import { bulletColor } from '@/components/nav-section';
+import { Theme } from '@mui/material/styles';
 
 // ----------------------------------------------------------------------
 
 
-export function dashboardLayoutVars(theme) {
+export function dashboardLayoutVars(theme: any) {
   return {
     '--layout-transition-easing': 'linear',
     '--layout-transition-duration': '120ms',
@@ -20,7 +22,11 @@ export function dashboardLayoutVars(theme) {
 
 // ----------------------------------------------------------------------
 
-export function dashboardNavColorVars(theme, navColor = 'integrate', navLayout = 'vertical') {
+export function dashboardNavColorVars(
+  theme: Theme,
+  navColor = "integrate",
+  navLayout = "vertical"
+) {
   const {
     vars: { palette },
   } = theme;

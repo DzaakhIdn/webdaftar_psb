@@ -1,24 +1,23 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import { cloneElement, ReactNode } from "react";
+import { cloneElement } from "react";
 
 import { RouterLink } from "@/routes/components";
-import React from "react";
 
 // ----------------------------------------------------------------------
-export interface CreateNavItemProps {
-  path: string; // path URL atau route
-  icon?: string | ReactNode; // bisa berupa string atau React component
-  info?: string | [string, any]; // info tambahan, opsional
-  depth?: number; // level kedalaman menu
+
+interface CreateNavItemParams {
+  path?: string;
+  icon?: React.ReactNode;
+  info?: React.ReactNode;
+  depth?: number;
   render?: {
-    (): ReactNode;
-    navIcon?: Record<string, ReactNode>;
-    navInfo?: (value: any) => Record<string, ReactNode>;
+    navIcon?: Record<string, React.ReactNode>;
+    navInfo?: (value: unknown) => Record<string, React.ReactElement>;
   };
-  hasChild?: boolean; // apakah item punya child
-  externalLink?: boolean; // apakah ini link eksternal
-  enabledRootRedirect?: boolean; // apakah redirect root diaktifkan
+  hasChild?: boolean;
+  externalLink?: boolean;
+  enabledRootRedirect?: boolean;
 }
+
 export function createNavItem({
   path,
   icon,
@@ -28,7 +27,7 @@ export function createNavItem({
   hasChild,
   externalLink,
   enabledRootRedirect,
-}: CreateNavItemProps) {
+}: CreateNavItemParams) {
   const rootItem = depth === 1;
   const subItem = !rootItem;
   const subDeepItem = Number(depth) > 2;
@@ -60,8 +59,7 @@ export function createNavItem({
     const [key, value] = info;
     const element = render.navInfo(value)[key];
 
-    renderInfo =
-      element && React.isValidElement(element) ? cloneElement(element) : null;
+    renderInfo = element ? cloneElement(element) : null;
   } else {
     renderInfo = info;
   }

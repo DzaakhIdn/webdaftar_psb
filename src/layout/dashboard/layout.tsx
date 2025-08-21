@@ -104,8 +104,13 @@ export function DashboardLayout({
     (slotProps?.nav?.data as NavItem[] | NavSection[] | undefined) ??
     (dashboardNavData as any);
 
-  // FLATTEN KE NavItem[]
+  // FLATTEN KE NavItem[] untuk horizontal nav (jika diperlukan)
   const navItems: NavItem[] = toNavItems(rawNavData);
+
+  // Untuk vertical nav, gunakan format NavSection[]
+  const navSections: NavSection[] = isNavSectionArray(rawNavData)
+    ? rawNavData
+    : [{ subheader: "", items: rawNavData }];
 
   const isNavMini = settings.state.navLayout === "mini";
   const isNavHorizontal = settings.state.navLayout === "horizontal";
@@ -216,7 +221,7 @@ export function DashboardLayout({
 
   const renderSidebar = () => (
     <NavVertical
-      data={navItems}
+      data={navSections}
       isNavMini={isNavMini}
       layoutQuery={layoutQuery}
       cssVars={navVars.section}

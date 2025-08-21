@@ -1,5 +1,5 @@
-import { lazy, Suspense } from "react";
-import { useIsClient } from "minimal-shared/hooks";
+import { Suspense } from "react";
+import dynamic from "next/dynamic";
 import { mergeClasses } from "minimal-shared/utils";
 
 import { styled, type SxProps, type Theme } from "@mui/material/styles";
@@ -41,8 +41,13 @@ interface ChartProps {
   [key: string]: unknown;
 }
 
-const LazyChart = lazy(() =>
-  import("react-apexcharts").then((module) => ({ default: module.default }))
+// Dynamic import with SSR disabled
+const DynamicApexChart = dynamic(
+  () => import("react-apexcharts").then((mod) => ({ default: mod.default })),
+  {
+    ssr: false,
+    loading: () => <ChartLoading type="line" sx={{}} className="" />,
+  }
 );
 
 export function Chart({
@@ -54,12 +59,6 @@ export function Chart({
   sx,
   ...other
 }: ChartProps) {
-  const isClient = useIsClient();
-
-  const renderFallback = () => (
-    <ChartLoading type={type} sx={slotProps?.loading} className="" />
-  );
-
   return (
     <ChartRoot
       dir="ltr"
@@ -67,19 +66,19 @@ export function Chart({
       sx={sx}
       {...other}
     >
-      {isClient ? (
-        <Suspense fallback={renderFallback()}>
-          <LazyChart
-            type={type}
-            series={series}
-            options={options}
-            width="100%"
-            height="100%"
-          />
-        </Suspense>
-      ) : (
-        renderFallback()
-      )}
+      <Suspense
+        fallback={
+          <ChartLoading type={type} sx={slotProps?.loading} className="" />
+        }
+      >
+        <DynamicApexChart
+          type={type}
+          series={series}
+          options={options}
+          width="100%"
+          height="100%"
+        />
+      </Suspense>
     </ChartRoot>
   );
 }

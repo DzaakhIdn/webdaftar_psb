@@ -1,29 +1,24 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import { Theme } from "@mui/material/styles";
-import { SxProps } from "@mui/system";
+// ----------------------------------------------------------------------
 
-export const navItemStyles: {
-  icon: any;
-  texts: any;
-  title: any;
-  info: any;
-  arrow: (theme: Theme) => SxProps<Theme>;
-  captionIcon: SxProps<Theme>;
-  captionText: (theme: Theme) => SxProps<Theme>;
-  disabled: SxProps<Theme>;
-} = {
+import { Theme } from "@mui/material/styles";
+
+export const navItemStyles = {
   icon: {
     width: 22,
     height: 22,
     flexShrink: 0,
     display: "inline-flex",
+    /**
+     * As ':first-child' for ssr
+     * https://github.com/emotion-js/emotion/issues/1105#issuecomment-1126025608
+     */
     "& > :first-of-type:not(style):not(:first-of-type ~ *), & > style + *": {
       width: "100%",
       height: "100%",
     },
   },
   texts: { flex: "1 1 auto", display: "inline-flex", flexDirection: "column" },
-  title: (theme: any) => ({
+  title: (theme: Theme) => ({
     ...theme.mixins.maxLine({ line: 1 }),
     flex: "1 1 auto",
   }),
@@ -35,7 +30,7 @@ export const navItemStyles: {
     lineHeight: 18 / 12,
     display: "inline-flex",
   },
-  arrow: (theme) => ({
+  arrow: (theme: Theme) => ({
     width: 16,
     height: 16,
     flexShrink: 0,
@@ -44,7 +39,7 @@ export const navItemStyles: {
     ...(theme.direction === "rtl" && { transform: "scaleX(-1)" }),
   }),
   captionIcon: { width: 16, height: 16 },
-  captionText: (theme) => ({
+  captionText: (theme: Theme) => ({
     ...theme.mixins.maxLine({ line: 1 }),
     ...theme.typography.caption,
   }),

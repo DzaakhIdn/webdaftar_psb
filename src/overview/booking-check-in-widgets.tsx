@@ -7,10 +7,15 @@ import useMediaQuery from "@mui/material/useMediaQuery";
 
 import { fNumber } from "@/utils/format-number";
 import { Chart, useChart } from "@/components/chart";
+import { AnimateCountUp } from "@/components/animate";
 
 // ----------------------------------------------------------------------
 
-export function BookingCheckInWidgets({ chart, sx, ...other }: {
+export function BookingCheckInWidgets({
+  chart,
+  sx,
+  ...other
+}: {
   chart: {
     series: { label: string; percent: number; total: number }[];
     colors?: string[][];
@@ -31,7 +36,7 @@ export function BookingCheckInWidgets({ chart, sx, ...other }: {
     chart: { sparkline: { enabled: true } },
     stroke: { width: 0 },
     fill: {
-      type: 'gradient',
+      type: "gradient",
       gradient: {
         colorStops: [
           { offset: 0, color: chartColors[0][0], opacity: 1 },
@@ -60,11 +65,11 @@ export function BookingCheckInWidgets({ chart, sx, ...other }: {
         divider={
           <Divider
             flexItem
-            orientation={smUp ? 'vertical' : 'horizontal'}
-            sx={{ borderStyle: 'dashed' }}
+            orientation={smUp ? "vertical" : "horizontal"}
+            sx={{ borderStyle: "dashed" }}
           />
         }
-        sx={{ flexDirection: { xs: 'column', sm: 'row' } }}
+        sx={{ flexDirection: { xs: "column", sm: "row" } }}
       >
         {chart.series.map((item) => (
           <Box
@@ -73,10 +78,10 @@ export function BookingCheckInWidgets({ chart, sx, ...other }: {
               py: 5,
               gap: 3,
               width: 1,
-              display: 'flex',
+              display: "flex",
               px: { xs: 3, sm: 0 },
-              alignItems: 'center',
-              justifyContent: { sm: 'center' },
+              alignItems: "center",
+              justifyContent: { sm: "center" },
             }}
           >
             <Chart
@@ -84,9 +89,9 @@ export function BookingCheckInWidgets({ chart, sx, ...other }: {
               series={[item.percent]}
               options={{
                 ...chartOptions,
-                ...(item.label !== 'Sold' && {
+                ...(item.label !== "Sold" && {
                   fill: {
-                    type: 'gradient',
+                    type: "gradient",
                     gradient: {
                       colorStops: [
                         { offset: 0, color: chartColors[1][0], opacity: 1 },
@@ -100,9 +105,19 @@ export function BookingCheckInWidgets({ chart, sx, ...other }: {
             />
 
             <div>
-              <Box sx={{ mb: 0.5, typography: 'h5' }}>{fNumber(item.total)}</Box>
+              <Box sx={{ mb: 0.5 }}>
+                <AnimateCountUp
+                  to={item.total}
+                  sx={{ typography: "h5" }}
+                  duration={2}
+                  toFixed={0}
+                  unit=""
+                />
+              </Box>
 
-              <Box sx={{ typography: 'body2', color: 'text.secondary' }}>{item.label}</Box>
+              <Box sx={{ typography: "body2", color: "text.secondary" }}>
+                {item.label}
+              </Box>
             </div>
           </Box>
         ))}

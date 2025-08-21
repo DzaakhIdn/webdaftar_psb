@@ -1,35 +1,57 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useBoolean } from "minimal-shared/hooks";
-import { useRef, useEffect, useCallback } from "react";
+import { useRef, useEffect, useCallback, useState } from "react";
 import { isActiveLink, isExternalLink } from "minimal-shared/utils";
+
+import { SxProps, Theme } from "@mui/material/styles";
 
 import { usePathname } from "@/routes/hooks";
 
 import { NavItem } from "./nav-item";
 import { navSectionClasses } from "../styles";
 import { NavUl, NavLi, NavCollapse } from "../components";
-// import { SxProps } from '@mui/material/styles';
 
 // ----------------------------------------------------------------------
 
-export interface NavListProps {
-  data: {
-    title: string;
-    path?: any;
-    icon?: React.ReactNode;
-    children?: any[];
-    info?: any;
-    caption?: string;
-    disabled?: boolean;
-    allowedRoles?: string[];
+interface NavItemData {
+  title: string;
+  path?: string;
+  icon?: React.ReactNode;
+  info?: React.ReactNode;
+  caption?: string;
+  disabled?: boolean;
+  children?: NavItemData[];
+  roles?: string[];
+  allowedRoles?: string[];
+}
+
+interface NavListProps {
+  data: NavItemData;
+  depth?: number;
+  render?: {
+    navIcon?: Record<string, React.ReactNode>;
+    navInfo?: (value: unknown) => Record<string, React.ReactElement>;
   };
-  depth?: any;
-  render?: string;
   slotProps?: {
-    rootItem?: Record<string, any>;
-    subItem?: Record<string, any>;
+    rootItem?: {
+      sx?: SxProps<Theme>;
+      icon?: SxProps<Theme>;
+      texts?: SxProps<Theme>;
+      title?: SxProps<Theme>;
+      caption?: SxProps<Theme>;
+      info?: SxProps<Theme>;
+      arrow?: SxProps<Theme>;
+    };
+    subItem?: {
+      sx?: SxProps<Theme>;
+      icon?: SxProps<Theme>;
+      texts?: SxProps<Theme>;
+      title?: SxProps<Theme>;
+      caption?: SxProps<Theme>;
+      info?: SxProps<Theme>;
+      arrow?: SxProps<Theme>;
+    };
   };
-  checkPermissions?: (roles: string[]) => boolean;
+  checkPermissions?: (roles: string[] | undefined) => boolean;
   enabledRootRedirect?: boolean;
 }
 
@@ -43,8 +65,15 @@ export function NavList({
 }: NavListProps) {
   const pathname = usePathname();
   const navItemRef = useRef(null);
+  const [mounted, setMounted] = useState(false);
 
-  const isActive = isActiveLink(pathname, data.path, !!data.children);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const isActive = mounted
+    ? isActiveLink(pathname, data.path || "", !!data.children)
+    : false;
 
   const { value: open, onFalse: onClose, onToggle } = useBoolean(isActive);
 
@@ -78,7 +107,7 @@ export function NavList({
       depth={depth}
       render={render}
       hasChild={!!data.children}
-      externalLink={isExternalLink(data.path)}
+      externalLink={isExternalLink(data.path || "")}
       enabledRootRedirect={enabledRootRedirect}
       // styles
       slotProps={depth === 1 ? slotProps?.rootItem : slotProps?.subItem}
@@ -92,8 +121,8 @@ export function NavList({
       <NavCollapse
         mountOnEnter
         unmountOnExit
-        depth={depth}
         in={open}
+        depth={depth}
         data-group={data.title}
       >
         <NavSubList
@@ -134,15 +163,35 @@ export function NavList({
 }
 
 // ----------------------------------------------------------------------
+
 interface NavSubListProps {
-  data: any[];
-  render?: string;
+  data: NavItemData[];
+  render?: {
+    navIcon?: Record<string, React.ReactNode>;
+    navInfo?: (value: unknown) => Record<string, React.ReactElement>;
+  };
   depth?: number;
   slotProps?: {
-    rootItem?: Record<string, any>;
-    subItem?: Record<string, any>;
+    rootItem?: {
+      sx?: SxProps<Theme>;
+      icon?: SxProps<Theme>;
+      texts?: SxProps<Theme>;
+      title?: SxProps<Theme>;
+      caption?: SxProps<Theme>;
+      info?: SxProps<Theme>;
+      arrow?: SxProps<Theme>;
+    };
+    subItem?: {
+      sx?: SxProps<Theme>;
+      icon?: SxProps<Theme>;
+      texts?: SxProps<Theme>;
+      title?: SxProps<Theme>;
+      caption?: SxProps<Theme>;
+      info?: SxProps<Theme>;
+      arrow?: SxProps<Theme>;
+    };
   };
-  checkPermissions?: (roles: string[]) => boolean;
+  checkPermissions?: (roles: string[] | undefined) => boolean;
   enabledRootRedirect?: boolean;
 }
 
@@ -156,7 +205,7 @@ function NavSubList({
 }: NavSubListProps) {
   return (
     <NavUl sx={{ gap: "var(--nav-item-gap)" }}>
-      {data.map((list: any) => (
+      {data.map((list) => (
         <NavList
           key={list.title}
           data={list}

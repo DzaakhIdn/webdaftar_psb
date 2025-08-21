@@ -1,14 +1,22 @@
-import Box from '@mui/material/Box';
-import Card from '@mui/material/Card';
-import { type SxProps, type Theme } from '@mui/material/styles';
+import Box from "@mui/material/Box";
+import Card from "@mui/material/Card";
+import { type SxProps, type Theme } from "@mui/material/styles";
 
-import { fPercent, fShortenNumber } from '@/utils/format-number';
+import { fPercent } from "@/utils/format-number";
 
-import { Iconify } from '@/components/iconify';
+import { Iconify } from "@/components/iconify";
+import { AnimateCountUp } from "@/components/animate";
 
 // ----------------------------------------------------------------------
 
-export function BookingWidgetSummary({ title, percent, total, icon, sx, ...other }: {
+export function BookingWidgetSummary({
+  title,
+  percent,
+  total,
+  icon,
+  sx,
+  ...other
+}: {
   title: string;
   percent: number;
   total: number;
@@ -20,22 +28,26 @@ export function BookingWidgetSummary({ title, percent, total, icon, sx, ...other
     <Box
       sx={{
         gap: 0.5,
-        display: 'flex',
-        alignItems: 'center',
-        typography: 'subtitle2',
+        display: "flex",
+        alignItems: "center",
+        typography: "subtitle2",
       }}
     >
       <Iconify
         width={24}
         icon={
           percent < 0
-            ? 'solar:double-alt-arrow-down-bold-duotone'
-            : 'solar:double-alt-arrow-up-bold-duotone'
+            ? "solar:double-alt-arrow-down-bold-duotone"
+            : "solar:double-alt-arrow-up-bold-duotone"
         }
-        sx={{ flexShrink: 0, color: 'success.main', ...(percent < 0 && { color: 'error.main' }) }}
+        sx={{
+          flexShrink: 0,
+          color: "success.main",
+          ...(percent < 0 && { color: "error.main" }),
+        }}
       />
       <span>
-        {percent > 0 && '+'}
+        {percent > 0 && "+"}
         {fPercent(percent)}
       </span>
     </Box>
@@ -47,17 +59,26 @@ export function BookingWidgetSummary({ title, percent, total, icon, sx, ...other
         () => ({
           p: 2,
           pl: 3,
-          display: 'flex',
-          alignItems: 'center',
+          display: "flex",
+          alignItems: "center",
         }),
         ...(Array.isArray(sx) ? sx : [sx]),
       ]}
       {...other}
     >
       <Box sx={{ flexGrow: 1 }}>
-        <Box sx={{ color: 'text.secondary', typography: 'subtitle2' }}>{title}</Box>
+        <Box sx={{ color: "text.secondary", typography: "subtitle2" }}>
+          {title}
+        </Box>
 
-        <Box sx={{ my: 1.5, typography: 'h3' }}>{fShortenNumber(total)}</Box>
+        <Box sx={{ my: 1.5 }}>
+          <AnimateCountUp
+            to={total}
+            sx={{ typography: "h3" }}
+            duration={2}
+            toFixed={0}
+          />
+        </Box>
 
         {renderTrending()}
       </Box>
@@ -67,8 +88,8 @@ export function BookingWidgetSummary({ title, percent, total, icon, sx, ...other
           width: 120,
           height: 120,
           lineHeight: 0,
-          borderRadius: '50%',
-          bgcolor: 'background.neutral',
+          borderRadius: "50%",
+          bgcolor: "background.neutral",
         }}
       >
         {icon}
