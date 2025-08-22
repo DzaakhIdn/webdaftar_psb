@@ -1,8 +1,20 @@
-import Box from '@mui/material/Box';
-import Checkbox from '@mui/material/Checkbox';
-import Typography from '@mui/material/Typography';
+import Box from "@mui/material/Box";
+import Checkbox from "@mui/material/Checkbox";
+import Typography from "@mui/material/Typography";
+import type { SxProps, Theme } from "@mui/material/styles";
+import type { ReactNode } from "react";
 
 // ----------------------------------------------------------------------
+
+interface TableSelectedActionProps {
+  sx?: SxProps<Theme>;
+  dense?: boolean;
+  action?: ReactNode;
+  rowCount: number;
+  numSelected: number;
+  onSelectAllRows: (checked: boolean) => void;
+  [key: string]: any;
+}
 
 export function TableSelectedAction({
   sx,
@@ -12,7 +24,7 @@ export function TableSelectedAction({
   numSelected,
   onSelectAllRows,
   ...other
-}) {
+}: TableSelectedActionProps) {
   if (!numSelected) {
     return null;
   }
@@ -28,10 +40,10 @@ export function TableSelectedAction({
           width: 1,
           zIndex: 9,
           height: 58,
-          display: 'flex',
-          position: 'absolute',
-          alignItems: 'center',
-          bgcolor: 'primary.lighter',
+          display: "flex",
+          position: "absolute",
+          alignItems: "center",
+          bgcolor: "primary.lighter",
           ...(dense && { height: 38 }),
         }),
         ...(Array.isArray(sx) ? sx : [sx]),
@@ -44,8 +56,8 @@ export function TableSelectedAction({
         onChange={(event) => onSelectAllRows(event.target.checked)}
         slotProps={{
           input: {
-            id: 'deselect-all-checkbox',
-            'aria-label': 'Deselect all checkbox',
+            id: "deselect-all-checkbox",
+            "aria-label": "Deselect all checkbox",
           },
         }}
       />
@@ -55,7 +67,7 @@ export function TableSelectedAction({
         sx={{
           ml: 2,
           flexGrow: 1,
-          color: 'primary.main',
+          color: "primary.main",
           ...(dense && { ml: 3 }),
         }}
       >

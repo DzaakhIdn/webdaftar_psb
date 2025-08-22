@@ -1,72 +1,109 @@
-import { z as zod } from 'zod';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { isValidPhoneNumber } from 'react-phone-number-input/input';
+import { z as zod } from "zod";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { isValidPhoneNumber } from "react-phone-number-input/input";
 
-import Box from '@mui/material/Box';
-import Alert from '@mui/material/Alert';
-import Button from '@mui/material/Button';
-import Dialog from '@mui/material/Dialog';
-import MenuItem from '@mui/material/MenuItem';
-import DialogTitle from '@mui/material/DialogTitle';
-import DialogActions from '@mui/material/DialogActions';
-import DialogContent from '@mui/material/DialogContent';
+import Box from "@mui/material/Box";
+import Alert from "@mui/material/Alert";
+import Button from "@mui/material/Button";
+import Dialog from "@mui/material/Dialog";
+import MenuItem from "@mui/material/MenuItem";
+import DialogTitle from "@mui/material/DialogTitle";
+import DialogActions from "@mui/material/DialogActions";
+import DialogContent from "@mui/material/DialogContent";
 
-import { USER_STATUS_OPTIONS } from '@/_mock';
+import { USER_STATUS_OPTIONS } from "@/_mock";
 
-import { toast } from '@/components/snackbar';
-import { Form, Field, schemaHelper } from '@/components/hook-form';
+import { toast } from "@/components/snackbar";
+import { Form, Field, schemaHelper } from "@/components/hook-form";
+
+// ----------------------------------------------------------------------
+
+interface User {
+  id: string;
+  id_daftar: string;
+  name: string;
+  email: string;
+  avatarUrl: string;
+  phoneNumber: string;
+  company: string;
+  role: string;
+  asalSekolah: string;
+  pembayaran: string;
+  status: "active" | "pending" | "banned" | "rejected" | "none" | "some" | "complete";
+  zipCode?: string;
+  state?: string;
+  city?: string;
+  address?: string;
+  isVerified?: boolean;
+  country?: string;
+}
 
 // ----------------------------------------------------------------------
 
 export const UserQuickEditSchema = zod.object({
-  name: zod.string().min(1, { message: 'Name is required!' }),
+  name: zod.string().min(1, { message: "Name is required!" }),
   email: zod
     .string()
-    .min(1, { message: 'Email is required!' })
-    .email({ message: 'Email must be a valid email address!' }),
+    .min(1, { message: "Email is required!" })
+    .email({ message: "Email must be a valid email address!" }),
   phoneNumber: schemaHelper.phoneNumber({ isValid: isValidPhoneNumber }),
-  country: schemaHelper.nullableInput(zod.string().min(1, { message: 'Country is required!' }), {
-    // message for null value
-    message: 'Country is required!',
-  }),
-  state: zod.string().min(1, { message: 'State is required!' }),
-  city: zod.string().min(1, { message: 'City is required!' }),
-  address: zod.string().min(1, { message: 'Address is required!' }),
-  zipCode: zod.string().min(1, { message: 'Zip code is required!' }),
-  company: zod.string().min(1, { message: 'Company is required!' }),
-  role: zod.string().min(1, { message: 'Role is required!' }),
+  country: zod.string().optional(),
+  state: zod.string().optional(),
+  city: zod.string().optional(),
+  address: zod.string().optional(),
+  zipCode: zod.string().optional(),
+  company: zod.string().min(1, { message: "Company is required!" }),
+  role: zod.string().min(1, { message: "Role is required!" }),
   // Not required
   status: zod.string(),
 });
 
 // ----------------------------------------------------------------------
 
-
-export function UserQuickEditForm({ currentUser, open, onClose }: {
+export function UserQuickEditForm({
+  currentUser,
+  open,
+  onClose,
+}: {
   currentUser: User;
   open: boolean;
   onClose: () => void;
 }) {
   const defaultValues = {
-    name: '',
-    email: '',
-    phoneNumber: '',
-    address: '',
-    country: '',
-    state: '',
-    city: '',
-    zipCode: '',
-    status: '',
-    company: '',
-    role: '',
+    name: "",
+    email: "",
+    phoneNumber: "",
+    address: "",
+    country: "",
+    state: "",
+    city: "",
+    zipCode: "",
+    status: "",
+    company: "",
+    role: "",
+  };
+
+  // Transform currentUser to match schema types
+  const formValues = {
+    name: currentUser.name,
+    email: currentUser.email,
+    phoneNumber: currentUser.phoneNumber,
+    address: currentUser.address || "",
+    country: currentUser.country || "",
+    state: currentUser.state || "",
+    city: currentUser.city || "",
+    zipCode: currentUser.zipCode || "",
+    status: currentUser.status,
+    company: currentUser.company,
+    role: currentUser.role,
   };
 
   const methods = useForm({
-    mode: 'all',
+    mode: "all",
     resolver: zodResolver(UserQuickEditSchema),
     defaultValues,
-    values: currentUser,
+    values: formValues,
   });
 
   const {
@@ -83,14 +120,14 @@ export function UserQuickEditForm({ currentUser, open, onClose }: {
       onClose();
 
       toast.promise(promise, {
-        loading: 'Loading...',
-        success: 'Update success!',
-        error: 'Update error!',
+        loading: "Loading...",
+        success: "Update success!",
+        error: "Update error!",
       });
 
       await promise;
 
-      console.info('DATA', data);
+      console.info("DATA", data);
     } catch (error) {
       console.error(error);
     }
@@ -120,11 +157,14 @@ export function UserQuickEditForm({ currentUser, open, onClose }: {
             sx={{
               rowGap: 3,
               columnGap: 2,
-              display: 'grid',
-              gridTemplateColumns: { xs: 'repeat(1, 1fr)', sm: 'repeat(2, 1fr)' },
+              display: "grid",
+              gridTemplateColumns: {
+                xs: "repeat(1, 1fr)",
+                sm: "repeat(2, 1fr)",
+              },
             }}
           >
-            <Field.Select name="status" label="Status">
+            <Field.Select name="status" label="Status" helperText="">
               {USER_STATUS_OPTIONS.map((status) => (
                 <MenuItem key={status.value} value={status.value}>
                   {status.label}
@@ -132,17 +172,22 @@ export function UserQuickEditForm({ currentUser, open, onClose }: {
               ))}
             </Field.Select>
 
-            <Box sx={{ display: { xs: 'none', sm: 'block' } }} />
+            <Box sx={{ display: { xs: "none", sm: "block" } }} />
 
             <Field.Text name="name" label="Full name" />
             <Field.Text name="email" label="Email address" />
-            <Field.Phone name="phoneNumber" label="Phone number" />
+            <Field.Phone
+              name="phoneNumber"
+              label="Phone number"
+              helperText=""
+            />
 
             <Field.CountrySelect
               fullWidth
               name="country"
               label="Country"
               placeholder="Choose a country"
+              helperText=""
             />
 
             <Field.Text name="state" label="State/region" />

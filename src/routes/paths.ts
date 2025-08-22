@@ -21,9 +21,11 @@ export const paths = {
   dashboard: {
     root: ROOTS.DASHBOARD,
     overview: `${ROOTS.DASHBOARD}/overview`,
+
     registant: {
       root: `${ROOTS.DASHBOARD}/registant`,
-      registanFile: `${ROOTS.DASHBOARD}/registant/file`,
+      list: `${ROOTS.DASHBOARD}/registant/list`,
+      registanFile: `${ROOTS.DASHBOARD}/registant/files`,
       // registanDetail: {
       // }
     },
@@ -40,6 +42,11 @@ export const paths = {
     admin: {
       root: `${ROOTS.DASHBOARD}/admin`,
       users: `${ROOTS.DASHBOARD}/admin/users`,
+    },
+    user: {
+      root: `${ROOTS.DASHBOARD}/user`,
+      new: `${ROOTS.DASHBOARD}/user/new`,
+      edit: (id: string) => `${ROOTS.DASHBOARD}/user/${id}/edit`,
     },
   },
 };

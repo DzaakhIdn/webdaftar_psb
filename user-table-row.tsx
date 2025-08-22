@@ -20,29 +20,33 @@ import { Iconify } from "@/components/iconify";
 import { ConfirmDialog } from "@/components/custom-dialog";
 import { CustomPopover } from "@/components/custom-popover";
 
-import { UserQuickEditForm } from "./user-quick-edit-form";
+import { UserQuickEditForm } from "./src/sections/dashboard/users/user-quick-edit-form";
 
 // ----------------------------------------------------------------------
 
-interface User {
-  id: string;
-  name: string;
-  email: string;
-  avatarUrl: string;
-  phoneNumber: string;
-  company: string;
-  role: string;
-  status: "active" | "pending" | "banned" | "rejected";
-  zipCode?: string;
-  state?: string;
-  city?: string;
-  address?: string;
-  isVerified?: boolean;
-  country?: string;
-}
+// interface User {
+//   id: string;
+//   id_daftar?: string;
+//   name: string;
+//   email?: string;
+//   avatarUrl?: string;
+//   phoneNumber: string;
+//   company?: string;
+//   role?: string;
+//   asalSekolah?: string;
+//   pembayaran?: string;
+//   status: "active" | "pending" | "banned" | "rejected" | "none" | "some" | "complete";
+//   files?: string[];
+//   zipCode?: string;
+//   state?: string;
+//   city?: string;
+//   address?: string;
+//   isVerified?: boolean;
+//   country?: string;
+// }
 
 interface UserTableRowProps {
-  row: User;
+  row: any;
   selected: boolean;
   editHref: string;
   onSelectRow: () => void;
@@ -157,11 +161,13 @@ export function UserTableRow({
           </Box>
         </TableCell>
 
+        <TableCell sx={{ whiteSpace: "nowrap" }}>{row.id_daftar}</TableCell>
+
         <TableCell sx={{ whiteSpace: "nowrap" }}>{row.phoneNumber}</TableCell>
 
-        <TableCell sx={{ whiteSpace: "nowrap" }}>{row.company}</TableCell>
+        <TableCell sx={{ whiteSpace: "nowrap" }}>{row.asalSekolah}</TableCell>
 
-        <TableCell sx={{ whiteSpace: "nowrap" }}>{row.role}</TableCell>
+        <TableCell sx={{ whiteSpace: "nowrap" }}>{row.pembayaran}</TableCell>
 
         <TableCell>
           <Label

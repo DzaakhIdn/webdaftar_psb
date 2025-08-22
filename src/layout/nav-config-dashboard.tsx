@@ -36,8 +36,8 @@ export const navData = [
         path: paths.dashboard.registant.root,
         icon: ICONS.registant,
         children: [
-          { title: "List", path: paths.dashboard.registant.root },
-          { title: "Files", path: paths.dashboard.registant.registanFile },
+          { title: "List", path: paths.dashboard.registant.list },
+          { title: "Files", path: paths.dashboard.registant.registanFile }, // List File Pendaftar
         ],
       },
       {

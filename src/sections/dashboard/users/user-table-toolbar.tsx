@@ -1,30 +1,54 @@
-import { useCallback } from 'react';
-import { usePopover } from 'minimal-shared/hooks';
+import { useCallback } from "react";
+import { usePopover } from "minimal-shared/hooks";
 
-import Box from '@mui/material/Box';
-import Select from '@mui/material/Select';
-import MenuList from '@mui/material/MenuList';
-import MenuItem from '@mui/material/MenuItem';
-import Checkbox from '@mui/material/Checkbox';
-import TextField from '@mui/material/TextField';
-import InputLabel from '@mui/material/InputLabel';
-import IconButton from '@mui/material/IconButton';
-import FormControl from '@mui/material/FormControl';
-import OutlinedInput from '@mui/material/OutlinedInput';
-import InputAdornment from '@mui/material/InputAdornment';
+import Box from "@mui/material/Box";
+import Select, { SelectChangeEvent } from "@mui/material/Select";
+import MenuList from "@mui/material/MenuList";
+import MenuItem from "@mui/material/MenuItem";
+import Checkbox from "@mui/material/Checkbox";
+import TextField from "@mui/material/TextField";
+import InputLabel from "@mui/material/InputLabel";
+import IconButton from "@mui/material/IconButton";
+import FormControl from "@mui/material/FormControl";
+import OutlinedInput from "@mui/material/OutlinedInput";
+import InputAdornment from "@mui/material/InputAdornment";
 
-import { Iconify } from '@/components/iconify';
-import { CustomPopover } from '@/components/custom-popover';
+import { Iconify } from "@/components/iconify";
+import { CustomPopover } from "@/components/custom-popover";
 
 // ----------------------------------------------------------------------
 
-export function UserTableToolbar({ filters, options, onResetPage }) {
+interface UserFiltersState {
+  name: string;
+  role: string[];
+  status: string;
+}
+
+interface UserFilters {
+  state: UserFiltersState;
+  setState: (newState: Partial<UserFiltersState>) => void;
+  resetState: () => void;
+}
+
+interface UserTableToolbarProps {
+  filters: UserFilters;
+  options: {
+    roles: string[];
+  };
+  onResetPage: () => void;
+}
+
+export function UserTableToolbar({
+  filters,
+  options,
+  onResetPage,
+}: UserTableToolbarProps) {
   const menuActions = usePopover();
 
   const { state: currentFilters, setState: updateFilters } = filters;
 
   const handleFilterName = useCallback(
-    (event) => {
+    (event: React.ChangeEvent<HTMLInputElement>) => {
       onResetPage();
       updateFilters({ name: event.target.value });
     },
@@ -32,9 +56,11 @@ export function UserTableToolbar({ filters, options, onResetPage }) {
   );
 
   const handleFilterRole = useCallback(
-    (event) => {
+    (event: SelectChangeEvent<string[]>) => {
       const newValue =
-        typeof event.target.value === 'string' ? event.target.value.split(',') : event.target.value;
+        typeof event.target.value === "string"
+          ? event.target.value.split(",")
+          : event.target.value;
 
       onResetPage();
       updateFilters({ role: newValue });
@@ -47,7 +73,7 @@ export function UserTableToolbar({ filters, options, onResetPage }) {
       open={menuActions.open}
       anchorEl={menuActions.anchorEl}
       onClose={menuActions.onClose}
-      slotProps={{ arrow: { placement: 'right-top' } }}
+      slotProps={{ arrow: { placement: "right-top" } }}
     >
       <MenuList>
         <MenuItem onClick={() => menuActions.onClose()}>
@@ -74,10 +100,10 @@ export function UserTableToolbar({ filters, options, onResetPage }) {
         sx={{
           p: 2.5,
           gap: 2,
-          display: 'flex',
+          display: "flex",
           pr: { xs: 2.5, md: 1 },
-          flexDirection: { xs: 'column', md: 'row' },
-          alignItems: { xs: 'flex-end', md: 'center' },
+          flexDirection: { xs: "column", md: "row" },
+          alignItems: { xs: "flex-end", md: "center" },
         }}
       >
         <FormControl sx={{ flexShrink: 0, width: { xs: 1, md: 200 } }}>
@@ -87,8 +113,10 @@ export function UserTableToolbar({ filters, options, onResetPage }) {
             value={currentFilters.role}
             onChange={handleFilterRole}
             input={<OutlinedInput label="Role" />}
-            renderValue={(selected) => selected.map((value) => value).join(', ')}
-            inputProps={{ id: 'filter-role-select' }}
+            renderValue={(selected) =>
+              selected.map((value) => value).join(", ")
+            }
+            inputProps={{ id: "filter-role-select" }}
             MenuProps={{ PaperProps: { sx: { maxHeight: 240 } } }}
           >
             {options.roles.map((option) => (
@@ -109,8 +137,8 @@ export function UserTableToolbar({ filters, options, onResetPage }) {
             gap: 2,
             width: 1,
             flexGrow: 1,
-            display: 'flex',
-            alignItems: 'center',
+            display: "flex",
+            alignItems: "center",
           }}
         >
           <TextField
@@ -122,7 +150,10 @@ export function UserTableToolbar({ filters, options, onResetPage }) {
               input: {
                 startAdornment: (
                   <InputAdornment position="start">
-                    <Iconify icon="eva:search-fill" sx={{ color: 'text.disabled' }} />
+                    <Iconify
+                      icon="eva:search-fill"
+                      sx={{ color: "text.disabled" }}
+                    />
                   </InputAdornment>
                 ),
               },

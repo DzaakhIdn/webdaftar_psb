@@ -13,19 +13,14 @@ import Button from "@mui/material/Button";
 import Tooltip from "@mui/material/Tooltip";
 import TableBody from "@mui/material/TableBody";
 import IconButton from "@mui/material/IconButton";
-
-import { paths } from "@/routes/paths";
-import { RouterLink } from "@/routes/components";
-
 import { DashboardContent } from "@/layout/dashboard";
-import { _roles, _userList, USER_STATUS_OPTIONS } from "@/_mock";
-
 import { Label } from "@/components/label";
 import { toast } from "@/components/snackbar";
 import { Iconify } from "@/components/iconify";
 import { Scrollbar } from "@/components/scrollbar";
 import { ConfirmDialog } from "@/components/custom-dialog";
 import { CustomBreadcrumbs } from "@/components/custom-breadcrumbs";
+
 import {
   useTable,
   emptyRows,
@@ -38,22 +33,24 @@ import {
   TablePaginationCustom,
 } from "@/components/table";
 
-import { UserTableRow } from "../../../../../user-table-row";
+import { UserFilesRow } from "../user-files-row";
 import { UserTableToolbar } from "../user-table-toolbar";
 import { UserTableFiltersResult } from "../user-table-filters-result";
-
-// ----------------------------------------------------------------------
+import { _userList, USER_STATUS_FILES } from "@/_mock";
+import { paths } from "@/routes/paths";
+import { RouterLink } from "@/routes/components";
 
 interface User {
   id: string;
+  id_daftar?: string;
   name: string;
-  email: string;
-  avatarUrl: string;
+  email?: string;
+  avatarUrl?: string;
   phoneNumber: string;
-  company: string;
-  role: string;
-  asalSekolah: string;
-  pembayaran: string;
+  company?: string;
+  role?: string;
+  asalSekolah?: string;
+  pembayaran?: string;
   status:
     | "active"
     | "pending"
@@ -62,31 +59,27 @@ interface User {
     | "none"
     | "some"
     | "complete";
-  files: string[];
+  files?: string[];
   zipCode?: string;
   state?: string;
   city?: string;
   address?: string;
   isVerified?: boolean;
   country?: string;
-  id_daftar: string;
 }
 
-const STATUS_OPTIONS = [{ value: "all", label: "All" }, ...USER_STATUS_OPTIONS];
+const STATUS_OPTIONS = [{ value: "all", label: "All" }, ...USER_STATUS_FILES];
 
 const TABLE_HEAD = [
   { id: "name", label: "Name", width: 250 },
-  { id: "no_daftar", label: "No Pendaftaran", width: 150 },
   { id: "phoneNumber", label: "No HP", width: 200 },
-  { id: "asalSekolah", label: "Asal Sekolah", width: 280 },
-  { id: "jalur", label: "Jalur Pendaftaran", width: 200 },
   { id: "status", label: "Status", width: 120 },
-  { id: "", label: "", width: 100 },
+  { id: "files", label: "Files", width: 100 },
 ];
 
-// ----------------------------------------------------------------------
+// =======================================================================
 
-export function UserListView() {
+export function UserFilesView() {
   const table = useTable();
 
   const confirmDialog = useBoolean();
@@ -138,18 +131,6 @@ export function UserListView() {
     [dataInPage.length, table, tableData]
   );
 
-  const handleDeleteRows = useCallback(() => {
-    const deleteRows = tableData.filter(
-      (row) => !table.selected.includes(row.id)
-    );
-
-    toast.success("Delete success!");
-
-    setTableData(deleteRows);
-
-    table.onUpdatePageDeleteRows(dataInPage.length, dataFiltered.length);
-  }, [dataFiltered.length, dataInPage.length, table, tableData]);
-
   const handleFilterStatus = useCallback(
     (event: React.SyntheticEvent, newValue: string) => {
       table.onResetPage();
@@ -158,52 +139,26 @@ export function UserListView() {
     [updateFilters, table]
   );
 
-  const renderConfirmDialog = () => (
-    <ConfirmDialog
-      open={confirmDialog.value}
-      onClose={confirmDialog.onFalse}
-      title="Delete"
-      content={
-        <>
-          Are you sure want to delete <strong> {table.selected.length} </strong>{" "}
-          items?
-        </>
-      }
-      action={
-        <Button
-          variant="contained"
-          color="error"
-          onClick={() => {
-            handleDeleteRows();
-            confirmDialog.onFalse();
-          }}
-        >
-          Delete
-        </Button>
-      }
-    />
-  );
-
   return (
     <>
-      <DashboardContent maxWidth={false}>
+      <DashboardContent>
         <CustomBreadcrumbs
-          heading="List Pendaftar"
+          heading="List File Pendaftar" // List File Pendaftar
           links={[
             { name: "Dashboard", href: paths.dashboard.root },
             { name: "Pendaftar", href: paths.dashboard.user.root },
-            { name: "List Pendaftar" },
+            { name: "List File Pendaftar" },
           ]}
-          action={
-            <Button
-              component={RouterLink}
-              href={paths.dashboard.user.new}
-              variant="contained"
-              startIcon={<Iconify icon="mingcute:add-line" />}
-            >
-              New user
-            </Button>
-          }
+          // action={
+          //   <Button
+          //     component={RouterLink}
+          //     href={paths.dashboard.user.new}
+          //     variant="contained"
+          //     startIcon={<Iconify icon="mingcute:add-line" />}
+          //   >
+          //     New user
+          //   </Button>
+          // }
           sx={{ mb: { xs: 3, md: 5 } }}
         />
 
@@ -236,15 +191,13 @@ export function UserListView() {
                       "soft"
                     }
                     color={
-                      (tab.value === "active" && "success") ||
-                      (tab.value === "pending" && "warning") ||
-                      (tab.value === "banned" && "error") ||
+                      (tab.value === "complete" && "success") ||
+                      (tab.value === "some" && "warning") ||
+                      (tab.value === "none" && "error") ||
                       "default"
                     }
                   >
-                    {["active", "pending", "banned", "rejected"].includes(
-                      tab.value
-                    )
+                    {["none", "some", "complete"].includes(tab.value)
                       ? tableData.filter((user) => user.status === tab.value)
                           .length
                       : tableData.length}
@@ -257,7 +210,7 @@ export function UserListView() {
           <UserTableToolbar
             filters={filters}
             onResetPage={table.onResetPage}
-            options={{ roles: _roles }}
+            options={{ roles: [] }}
           />
 
           {canReset && (
@@ -292,7 +245,7 @@ export function UserListView() {
             <Scrollbar>
               <Table
                 size={table.dense ? "small" : "medium"}
-                sx={{ minWidth: 1400 }}
+                sx={{ minWidth: 1000 }}
               >
                 <TableHeadCustom
                   order={table.order}
@@ -316,7 +269,7 @@ export function UserListView() {
                       table.page * table.rowsPerPage + table.rowsPerPage
                     )
                     .map((row: User) => (
-                      <UserTableRow
+                      <UserFilesRow
                         key={row.id}
                         row={row}
                         selected={table.selected.includes(row.id)}
@@ -340,7 +293,6 @@ export function UserListView() {
               </Table>
             </Scrollbar>
           </Box>
-
           <TablePaginationCustom
             page={table.page}
             dense={table.dense}
@@ -352,13 +304,9 @@ export function UserListView() {
           />
         </Card>
       </DashboardContent>
-
-      {renderConfirmDialog()}
     </>
   );
 }
-
-// ----------------------------------------------------------------------
 
 function applyFilter({
   inputData,
@@ -392,10 +340,6 @@ function applyFilter({
 
   if (status !== "all") {
     filteredData = filteredData.filter((user) => user.status === status);
-  }
-
-  if (role.length) {
-    filteredData = filteredData.filter((user) => role.includes(user.role));
   }
 
   return filteredData;

@@ -4,6 +4,7 @@ import { CONFIG } from '@/global-config';
 
 import {
   _id,
+  _id_daftar,
   _ages,
   _roles,
   _prices,
@@ -37,6 +38,7 @@ import {
 
 export const _mock = {
   id: (index) => _id[index],
+  id_daftar: (index) => _id_daftar[index],
   time: (index) => fSub({ days: index, hours: index }),
   boolean: (index) => _booleans[index],
   role: (index) => _roles[index],
