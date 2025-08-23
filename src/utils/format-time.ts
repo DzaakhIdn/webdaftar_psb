@@ -186,8 +186,8 @@ export function fIsBetween({ inputDate, startDate, endDate }: fIsBetweenProps) {
 
 // ----------------------------------------------------------------------
 interface fIsAfterProps {
-  startDate: string | number | Date;
-  endDate: string | number | Date;
+  startDate: string | number | Date | null;
+  endDate: string | number | Date | null;
 }
 
 export function fIsAfter({ startDate, endDate }: fIsAfterProps) {

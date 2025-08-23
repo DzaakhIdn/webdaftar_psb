@@ -31,9 +31,9 @@ export const paths = {
     },
     finance: {
       root: `${ROOTS.DASHBOARD}/finance`,
-      payments: `${ROOTS.DASHBOARD}/finance/payments`,
-      invoices: `${ROOTS.DASHBOARD}/finance/invoices`,
-      paymentSetting: `${ROOTS.DASHBOARD}/finance/payment-setting`,
+      overview: `${ROOTS.DASHBOARD}/finance/overview`,
+      paymentRecipts: `${ROOTS.DASHBOARD}/finance/payment-recipts`,
+      listPayments: `${ROOTS.DASHBOARD}/finance/list-payments`,
     },
     information: {
       root: `${ROOTS.DASHBOARD}/information`,

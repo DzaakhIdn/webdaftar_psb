@@ -45,13 +45,9 @@ export const navData = [
         path: paths.dashboard.finance.root,
         icon: ICONS.finance,
         children: [
-          { title: "Overview", path: paths.dashboard.finance.root },
-          { title: "Payments", path: paths.dashboard.finance.payments },
-          { title: "Invoices", path: paths.dashboard.finance.invoices },
-          {
-            title: "Payment Settings",
-            path: paths.dashboard.finance.paymentSetting,
-          },
+          { title: "Overview", path: paths.dashboard.finance.overview },
+          { title: "Payment Recipts", path: paths.dashboard.finance.paymentRecipts },
+          { title: "List Payments", path: paths.dashboard.finance.listPayments },
         ],
       },
       {

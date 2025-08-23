@@ -15,6 +15,12 @@ export const USER_STATUS_FILES = [
   { value: "complete", label: "Lengkap" },
 ]
 
+export const USER_STATUS_PAYMENT = [
+  { value: "paid", label: "Paid" },
+  { value: "unpaid", label: "Unpaid" },
+  { value: "expired", label: "Expired" },
+];
+
 export const _userAbout = {
   id: _mock.id(1),
   role: _mock.role(1),

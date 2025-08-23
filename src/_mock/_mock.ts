@@ -32,6 +32,9 @@ import {
   _descriptions,
   _phoneNumbers,
   _countryNames,
+  _paymentCode,
+  _PaymentName,
+  _amountPayments,
 } from './assets';
 
 // ----------------------------------------------------------------------
@@ -63,6 +66,10 @@ export const _mock = {
   fullName: (index) => _fullNames[index],
   companyNames: (index) => _companyNames[index],
   countryNames: (index) => _countryNames[index],
+  // Payment
+  paymentCode: (index) => _paymentCode[index],
+  PaymentName: (index) => _PaymentName[index],
+  amountPayments: (index) => _amountPayments[index],
   // Number
   number: {
     percent: (index) => _percents[index],
