@@ -5,7 +5,6 @@ import { Providers } from "./providers";
 import AuthGuard from "@/auth/guard/auth-guard";
 import "./globals.css";
 import { paths } from "@/routes/paths";
-import ProgressBarProvider from "@/components/nprogress/nprogress-provider";
 
 export const metadata: Metadata = {
   title: "Dashboard App",
