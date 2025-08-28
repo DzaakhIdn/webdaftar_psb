@@ -1,12 +1,11 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import { DashboardLayout } from "@/layout/dashboard/layout";
-import { DashboardLoadingFallback } from "@/components/loading";
-import { SimpleProgressBar } from "@/components/simple-progress-bar";
 import { Providers } from "./providers";
 import AuthGuard from "@/auth/guard/auth-guard";
 import "./globals.css";
 import { paths } from "@/routes/paths";
+import ProgressBarProvider from "@/components/nprogress/nprogress-provider";
 
 export const metadata: Metadata = {
   title: "Dashboard App",
@@ -20,9 +19,11 @@ export default function DashboardRootLayout({
 }) {
   return (
     <Providers>
-      <SimpleProgressBar height={3} color="#3b82f6" />
-      <Suspense fallback={<DashboardLoadingFallback />}>
-        <AuthGuard allowedRoles={["admin", "user"]} loginPath={paths.authDashboard.signIn}>
+      <Suspense fallback={<div>Loading...</div>}>
+        <AuthGuard
+          allowedRoles={["admin", "user"]}
+          loginPath={paths.authDashboard.signIn}
+        >
           <DashboardLayout>{children}</DashboardLayout>
         </AuthGuard>
       </Suspense>

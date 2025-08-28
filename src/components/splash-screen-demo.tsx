@@ -18,71 +18,71 @@ export function SplashScreenDemo() {
       </Typography>
 
       <Stack spacing={3}>
+        {/* Basic Splash Screen */}
         <Box>
-          <Typography variant="h6" sx={{ mb: 2, color: "#374151" }}>
-            Basic Splash Screen
+          <Typography variant="h6" sx={{ mb: 2, fontWeight: 500 }}>
+            1. Basic Splash Screen
           </Typography>
-          <Typography variant="body2" sx={{ mb: 2, color: "#64748b" }}>
-            Simple splash screen dengan logo dan loading indicator
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+            Splash screen dengan logo, text, dan loading indicator sederhana
           </Typography>
           <Button 
-            variant="outlined" 
+            variant="contained" 
             onClick={() => setShowBasic(true)}
-            sx={{ textTransform: "none" }}
+            disabled={showBasic}
           >
-            Show Basic Splash
+            {showBasic ? "Loading..." : "Show Basic Splash"}
           </Button>
         </Box>
 
+        {/* Advanced Splash Screen */}
         <Box>
-          <Typography variant="h6" sx={{ mb: 2, color: "#374151" }}>
-            Advanced Splash Screen
+          <Typography variant="h6" sx={{ mb: 2, fontWeight: 500 }}>
+            2. Advanced Splash Screen
           </Typography>
-          <Typography variant="body2" sx={{ mb: 2, color: "#64748b" }}>
-            Splash screen dengan progress bar dan animasi yang lebih kompleks
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+            Splash screen dengan progress bar, animated dots, dan background effects
           </Typography>
           <Button 
-            variant="outlined" 
+            variant="contained" 
             onClick={() => setShowAdvanced(true)}
-            sx={{ textTransform: "none" }}
+            disabled={showAdvanced}
           >
-            Show Advanced Splash
+            {showAdvanced ? "Loading..." : "Show Advanced Splash"}
           </Button>
         </Box>
 
+        {/* Minimal Splash Screen */}
         <Box>
-          <Typography variant="h6" sx={{ mb: 2, color: "#374151" }}>
-            Minimal Splash Screen
+          <Typography variant="h6" sx={{ mb: 2, fontWeight: 500 }}>
+            3. Minimal Splash Screen
           </Typography>
-          <Typography variant="body2" sx={{ mb: 2, color: "#64748b" }}>
-            Splash screen yang sangat minimalist dan clean
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+            Splash screen minimal dengan animasi simple dan clean design
           </Typography>
           <Button 
-            variant="outlined" 
+            variant="contained" 
             onClick={() => setShowMinimal(true)}
-            sx={{ textTransform: "none" }}
+            disabled={showMinimal}
           >
-            Show Minimal Splash
+            {showMinimal ? "Loading..." : "Show Minimal Splash"}
           </Button>
         </Box>
-      </Stack>
 
-      {/* Usage Example */}
-      <Box sx={{ mt: 6, p: 3, backgroundColor: "#f8fafc", borderRadius: 2 }}>
-        <Typography variant="h6" sx={{ mb: 2, color: "#374151" }}>
-          Usage Example
-        </Typography>
-        <Typography 
-          component="pre" 
-          sx={{ 
-            fontSize: "0.75rem", 
-            color: "#64748b",
-            fontFamily: "monospace",
-            whiteSpace: "pre-wrap",
-            lineHeight: 1.6
-          }}
-        >
-{`import { SplashScreen } from "./components/splash-screen";
+        {/* Usage Example */}
+        <Box sx={{ mt: 4, p: 3, bgcolor: "#f8fafc", borderRadius: 2 }}>
+          <Typography variant="h6" sx={{ mb: 2, fontWeight: 500 }}>
+            💡 Usage Example
+          </Typography>
+          <Typography variant="body2" component="pre" sx={{ 
+            fontFamily: "monospace", 
+            fontSize: "0.85rem",
+            lineHeight: 1.6,
+            color: "#374151",
+            whiteSpace: "pre-wrap"
+          }}>
+{`import { useState } from "react";
+import { SplashScreen } from "@/components/splash-screen";
 
 function App() {
   const [loading, setLoading] = useState(true);
@@ -98,8 +98,9 @@ function App() {
     </>
   );
 }`}
-        </Typography>
-      </Box>
+          </Typography>
+        </Box>
+      </Stack>
 
       {/* Splash Screen Components */}
       <SplashScreen 

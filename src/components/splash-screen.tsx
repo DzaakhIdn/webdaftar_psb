@@ -25,13 +25,26 @@ export function SplashScreen({
   useEffect(() => {
     if (!loading) return;
 
+    const container = containerRef.current;
+    const logo = logoRef.current;
+    const text = textRef.current;
+    const progress = progressRef.current;
+    const glow = glowRef.current;
+
+    if (!container || !logo || !text || !progress || !glow) return;
+
+    // Initial state
+    gsap.set([logo, text, progress], { opacity: 0, y: 30 });
+    gsap.set(glow, { opacity: 0, scale: 0.8 });
+
+    // Animation timeline
     const tl = gsap.timeline({
-      defaults: { ease: "power3.out" },
       onComplete: () => {
-        gsap.to(containerRef.current, {
+        // Fade out animation
+        gsap.to(container, {
           opacity: 0,
-          duration: 0.8,
-          ease: "power3.inOut",
+          duration: 0.5,
+          ease: "power2.inOut",
           onComplete: () => {
             onComplete?.();
           }
@@ -39,62 +52,35 @@ export function SplashScreen({
       }
     });
 
-    // Initial setup
-    gsap.set([logoRef.current, textRef.current, progressRef.current], {
-      opacity: 0,
-      y: 40
-    });
-
-    gsap.set(glowRef.current, {
-      scale: 0.8,
-      opacity: 0
-    });
-
-    // Enhanced animation sequence
-    tl.to(glowRef.current, {
-      scale: 1.2,
-      opacity: 0.2,
-      duration: 1.2,
+    // Entrance animations
+    tl.to(glow, {
+      opacity: 0.3,
+      scale: 1,
+      duration: 0.8,
       ease: "power2.out"
     })
-    .to(logoRef.current, {
+    .to(logo, {
       opacity: 1,
       y: 0,
-      duration: 1,
-      ease: "elastic.out(1, 0.75)",
-      rotate: 360
-    }, "-=0.8")
-    .to(textRef.current, {
+      duration: 0.6,
+      ease: "back.out(1.7)"
+    }, "-=0.4")
+    .to(text, {
       opacity: 1,
       y: 0,
-      duration: 0.8,
-      stagger: 0.1
-    }, "-=0.5")
-    .to(progressRef.current, {
+      duration: 0.5,
+      ease: "power2.out"
+    }, "-=0.3")
+    .to(progress, {
       opacity: 1,
       y: 0,
-      duration: 0.6
-    }, "-=0.4");
+      duration: 0.4,
+      ease: "power2.out"
+    }, "-=0.2");
 
-    // Continuous glow animation
-    gsap.to(glowRef.current, {
-      scale: 1.3,
-      opacity: 0.15,
-      duration: 2,
-      repeat: -1,
-      yoyo: true,
-      ease: "sine.inOut"
-    });
+    // Hold for duration
+    tl.to({}, { duration: duration / 1000 });
 
-    // Auto complete
-    const timer = setTimeout(() => {
-      tl.progress(1);
-    }, duration);
-
-    return () => {
-      clearTimeout(timer);
-      tl.kill();
-    };
   }, [loading, onComplete, duration]);
 
   if (!loading) return null;
@@ -106,25 +92,26 @@ export function SplashScreen({
         position: "fixed",
         top: 0,
         left: 0,
-        right: 0,
-        bottom: 0,
+        width: "100%",
+        height: "100%",
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
         justifyContent: "center",
-        background: "linear-gradient(135deg, #0f172a 0%, #1e293b 100%)",
-        zIndex: 9999
+        background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+        zIndex: 9999,
       }}
     >
+      {/* Background Glow */}
       <Box
         ref={glowRef}
         sx={{
           position: "absolute",
-          width: "300px",
-          height: "300px",
+          width: 300,
+          height: 300,
           borderRadius: "50%",
-          background: "radial-gradient(circle, rgba(59,130,246,0.2) 0%, rgba(29,78,216,0) 70%)",
-          filter: "blur(20px)"
+          background: "radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%)",
+          filter: "blur(40px)",
         }}
       />
 
@@ -132,67 +119,55 @@ export function SplashScreen({
       <Box
         ref={logoRef}
         sx={{
+          mb: 3,
           position: "relative",
-          width: 120,
-          height: 120,
-          mb: 4,
-          filter: "drop-shadow(0 0 20px rgba(59,130,246,0.3))"
+          zIndex: 1,
         }}
       >
         <Image
-          src="/assets/logo.png"
+          src="/assets/important/logo.png"
           alt="Logo"
-          fill
-          style={{ objectFit: "contain" }}
+          width={80}
+          height={80}
+          style={{
+            filter: "brightness(0) invert(1)",
+          }}
         />
       </Box>
 
-      {/* App Name & Description */}
-      <div ref={textRef}>
-        <Typography
-          variant="h4"
-          sx={{
-            fontWeight: 700,
-            color: "#ffffff",
-            mb: 1.5,
-            letterSpacing: "-0.02em",
-            textAlign: "center",
-            textShadow: "0 2px 10px rgba(0,0,0,0.2)"
-          }}
-        >
-          Dashboard Admin
-        </Typography>
-        <Typography
-          sx={{
-            color: "rgba(255,255,255,0.7)",
-            fontSize: "1rem",
-            textAlign: "center",
-            mb: 4,
-            maxWidth: "300px",
-            lineHeight: 1.5
-          }}
-        >
-          Preparing your experience...
-        </Typography>
-      </div>
+      {/* App Name */}
+      <Typography
+        ref={textRef}
+        variant="h4"
+        sx={{
+          color: "white",
+          fontWeight: 600,
+          mb: 4,
+          textAlign: "center",
+          position: "relative",
+          zIndex: 1,
+        }}
+      >
+        Dashboard App
+      </Typography>
 
-      {/* Enhanced Loading Indicator */}
-      <div ref={progressRef}>
+      {/* Loading Indicator */}
+      <Box
+        ref={progressRef}
+        sx={{
+          position: "relative",
+          zIndex: 1,
+        }}
+      >
         <CircularProgress
           size={40}
-          thickness={4}
+          thickness={3}
           sx={{
-            color: "#3b82f6",
-            filter: "drop-shadow(0 0 10px rgba(59,130,246,0.5))",
-            "& .MuiCircularProgress-circle": {
-              strokeLinecap: "round",
-              strokeDasharray: "1, 200",
-              strokeDashoffset: 0,
-              animation: "circular-rotate 1.4s ease-in-out infinite"
-            }
+            color: "white",
+            opacity: 0.8,
           }}
         />
-      </div>
+      </Box>
     </Box>
   );
 }

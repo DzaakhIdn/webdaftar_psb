@@ -39,14 +39,28 @@ export function ThemeProvider({
 
   // const settings = useSettingsContext();
 
+  // Force light mode by providing explicit settings state
+  const forcedLightSettings = {
+    colorScheme: "light",
+    direction: "ltr",
+    contrast: "default",
+    primaryColor: "default",
+  };
+
   const theme = (createTheme as (params: CreateThemeParams) => Theme)({
-    // settingsState: settings.state,
+    settingsState: forcedLightSettings,
     // localeComponents: currentLang?.systemValue,
     themeOverrides,
   });
 
   return (
-    <ThemeVarsProvider disableTransitionOnChange theme={theme} {...other}>
+    <ThemeVarsProvider
+      disableTransitionOnChange
+      theme={theme}
+      defaultMode="light"
+      modeStorageKey={undefined}
+      {...other}
+    >
       <CssBaseline />
       <Rtl direction={"ltr"}>{children}</Rtl>
     </ThemeVarsProvider>

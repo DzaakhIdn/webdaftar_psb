@@ -33,10 +33,11 @@ export const baseTheme: Record<string, unknown> = {
       shadows: shadows.light,
       customShadows: customShadows.light,
     },
+    // Force dark scheme to use light values to prevent system detection
     dark: {
-      palette: palette.dark,
-      shadows: shadows.dark,
-      customShadows: customShadows.dark,
+      palette: palette.light, // Use light palette for dark scheme too
+      shadows: shadows.light, // Use light shadows for dark scheme too
+      customShadows: customShadows.light, // Use light shadows for dark scheme too
     },
   },
   mixins,
@@ -45,7 +46,7 @@ export const baseTheme: Record<string, unknown> = {
   shape: { borderRadius: 8 },
   direction: themeConfig.direction as "ltr" | "rtl",
   cssVariables: themeConfig.cssVariables,
-  defaultColorScheme: themeConfig.defaultMode as "light" | "dark",
+  defaultColorScheme: "light", // Force light mode
 };
 
 // ----------------------------------------------------------------------

@@ -123,4 +123,22 @@ html {
   body {
     /* @apply bg-gradient-to-br from-blue-50 via-white to-indigo-50 text-foreground; */
   }
+
+  /* Force light mode - disable system theme detection */
+  html {
+    color-scheme: light !important;
+  }
+
+  /* Disable dark mode completely */
+  html.dark,
+  .dark {
+    color-scheme: light !important;
+  }
+
+  /* Override any dark mode styles */
+  @media (prefers-color-scheme: dark) {
+    html {
+      color-scheme: light !important;
+    }
+  }
 }

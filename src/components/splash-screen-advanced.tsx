@@ -27,96 +27,105 @@ export function SplashScreenAdvanced({
   useEffect(() => {
     if (!loading) return;
 
-    const tl = gsap.timeline({
-      defaults: { ease: "power2.out" }
-    });
+    const container = containerRef.current;
+    const logo = logoRef.current;
+    const text = textRef.current;
+    const progressElement = progressRef.current;
 
-    // Initial setup
-    gsap.set([logoRef.current, textRef.current, progressRef.current], {
-      opacity: 0,
-      y: 30
-    });
+    if (!container || !logo || !text || !progressElement) return;
 
-    gsap.set(dotsRef.current, {
-      scale: 0,
-      opacity: 0
-    });
+    // Initial state
+    gsap.set([logo, text, progressElement], { opacity: 0, y: 50 });
+    gsap.set(dotsRef.current, { scale: 0 });
 
-    // Logo animation with morphing effect
-    tl.to(logoRef.current, {
+    // Animation timeline
+    const tl = gsap.timeline();
+
+    // Entrance animations
+    tl.to(logo, {
       opacity: 1,
       y: 0,
       duration: 0.8,
       ease: "back.out(1.7)"
     })
-    .to(logoRef.current, {
-      rotationY: 360,
-      duration: 1,
-      ease: "power2.inOut"
-    }, "-=0.4")
-    .to(textRef.current, {
+    .to(text, {
       opacity: 1,
       y: 0,
-      duration: 0.6
-    }, "-=0.6")
-    .to(dotsRef.current, {
-      scale: 1,
+      duration: 0.6,
+      ease: "power2.out"
+    }, "-=0.4")
+    .to(progressElement, {
       opacity: 1,
-      duration: 0.4,
-      stagger: 0.1,
-      ease: "back.out(1.7)"
+      y: 0,
+      duration: 0.5,
+      ease: "power2.out"
     }, "-=0.3");
 
-    // Progress animation
-    if (showProgress) {
-      tl.to(progressRef.current, {
-        opacity: 1,
-        y: 0,
-        duration: 0.5
-      }, "-=0.2");
+    // Animate dots
+    dotsRef.current.forEach((dot, index) => {
+      if (dot) {
+        tl.to(dot, {
+          scale: 1,
+          duration: 0.3,
+          ease: "back.out(1.7)"
+        }, `-=${0.4 - index * 0.1}`);
+      }
+    });
 
-      // Simulate loading progress
-      const progressInterval = setInterval(() => {
+    // Animate dots continuously
+    const animateDots = () => {
+      dotsRef.current.forEach((dot, index) => {
+        if (dot) {
+          gsap.to(dot, {
+            scale: 1.5,
+            duration: 0.4,
+            ease: "power2.inOut",
+            yoyo: true,
+            repeat: 1,
+            delay: index * 0.2
+          });
+        }
+      });
+    };
+
+    const dotsInterval = setInterval(animateDots, 1500);
+
+    // Progress simulation
+    let progressInterval: NodeJS.Timeout;
+    if (showProgress) {
+      progressInterval = setInterval(() => {
         setProgress(prev => {
-          const newProgress = prev + Math.random() * 15;
-          return newProgress >= 100 ? 100 : newProgress;
+          if (prev >= 95) return prev;
+          return prev + Math.random() * 5;
         });
       }, 100);
-
-      // Dots pulsing animation
-      gsap.to(dotsRef.current, {
-        scale: 1.2,
-        duration: 0.6,
-        ease: "power2.inOut",
-        yoyo: true,
-        repeat: -1,
-        stagger: 0.1
-      });
-
-      // Complete after duration
-      const timer = setTimeout(() => {
-        clearInterval(progressInterval);
-        setProgress(100);
-        
-        setTimeout(() => {
-          gsap.to(containerRef.current, {
-            opacity: 0,
-            scale: 0.95,
-            duration: 0.6,
-            ease: "power2.inOut",
-            onComplete: () => {
-              onComplete?.();
-            }
-          });
-        }, 500);
-      }, duration);
-
-      return () => {
-        clearTimeout(timer);
-        clearInterval(progressInterval);
-        tl.kill();
-      };
     }
+
+    // Complete animation
+    const completeTimer = setTimeout(() => {
+      if (showProgress) {
+        setProgress(100);
+      }
+      
+      setTimeout(() => {
+        gsap.to(container, {
+          opacity: 0,
+          scale: 0.9,
+          duration: 0.6,
+          ease: "power2.inOut",
+          onComplete: () => {
+            onComplete?.();
+          }
+        });
+      }, 300);
+    }, duration);
+
+    return () => {
+      clearInterval(dotsInterval);
+      if (progressInterval) clearInterval(progressInterval);
+      clearTimeout(completeTimer);
+    };
+
   }, [loading, onComplete, duration, showProgress]);
 
   if (!loading) return null;
@@ -128,145 +137,143 @@ export function SplashScreenAdvanced({
         position: "fixed",
         top: 0,
         left: 0,
-        right: 0,
-        bottom: 0,
+        width: "100%",
+        height: "100%",
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
         justifyContent: "center",
-        background: "#ffffff",
-        zIndex: 9999
+        background: "linear-gradient(135deg, #1e3a8a 0%, #3730a3 50%, #581c87 100%)",
+        zIndex: 9999,
       }}
     >
-      {/* Animated Logo */}
+      {/* Animated Background */}
       <Box
-        ref={logoRef}
         sx={{
-          width: 100,
-          height: 100,
-          borderRadius: 3,
-          background: "linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          mb: 4,
-          boxShadow: "0 8px 32px rgba(59, 130, 246, 0.3)",
-          position: "relative",
-          overflow: "hidden",
-          "&::before": {
-            content: '""',
-            position: "absolute",
-            top: "-50%",
-            left: "-50%",
-            width: "200%",
-            height: "200%",
-            background: "linear-gradient(45deg, transparent, rgba(255,255,255,0.3), transparent)",
-            transform: "rotate(45deg)",
-            animation: "shimmer 2s infinite"
-          },
-          "@keyframes shimmer": {
-            "0%": { transform: "translateX(-100%) translateY(-100%) rotate(45deg)" },
-            "100%": { transform: "translateX(100%) translateY(100%) rotate(45deg)" }
-          }
+          position: "absolute",
+          width: "100%",
+          height: "100%",
+          background: `
+            radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+            radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.3) 0%, transparent 50%),
+            radial-gradient(circle at 40% 40%, rgba(120, 219, 255, 0.3) 0%, transparent 50%)
+          `,
         }}
-      >
-        <Typography
+      />
+
+      {/* Logo */}
+      <div ref={logoRef}>
+        <Box
           sx={{
-            fontSize: "2.5rem",
-            fontWeight: 700,
-            color: "#ffffff",
-            letterSpacing: "-0.05em",
-            position: "relative",
-            zIndex: 1
+            width: 100,
+            height: 100,
+            borderRadius: "50%",
+            background: "rgba(255, 255, 255, 0.1)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            mb: 3,
+            backdropFilter: "blur(10px)",
+            border: "1px solid rgba(255, 255, 255, 0.2)",
           }}
         >
-          D
-        </Typography>
-      </Box>
+          <Typography
+            variant="h3"
+            sx={{
+              color: "white",
+              fontWeight: 700,
+              fontSize: "2rem"
+            }}
+          >
+            D
+          </Typography>
+        </Box>
+      </div>
 
       {/* App Name */}
       <div ref={textRef}>
         <Typography
           variant="h4"
           sx={{
-            fontWeight: 700,
-            color: "#1e293b",
+            color: "white",
+            fontWeight: 600,
             mb: 1,
-            letterSpacing: "-0.025em",
-            fontSize: { xs: "1.75rem", sm: "2rem" }
+            textAlign: "center",
+            fontSize: "1.75rem"
           }}
         >
-          Dashboard
+          Dashboard App
         </Typography>
         <Typography
           variant="body1"
           sx={{
-            color: "#64748b",
-            fontSize: "0.95rem",
+            color: "rgba(255, 255, 255, 0.7)",
             textAlign: "center",
             mb: 4,
-            fontWeight: 400
+            fontSize: "0.95rem"
           }}
         >
-          Modern Analytics Platform
+          Loading your workspace...
         </Typography>
       </div>
 
-      {/* Loading Dots */}
-      <Box
-        sx={{
-          display: "flex",
-          gap: 1,
-          mb: showProgress ? 3 : 0
-        }}
-      >
-        {[0, 1, 2].map((index) => (
-          <Box
-            key={index}
-            ref={(el) => {
-              if (el) dotsRef.current[index] = el;
-            }}
-            sx={{
-              width: 8,
-              height: 8,
-              borderRadius: "50%",
-              background: "#3b82f6"
-            }}
-          />
-        ))}
-      </Box>
-
-      {/* Progress Bar */}
-      {showProgress && (
-        <div ref={progressRef}>
-          <Box sx={{ width: 200, mb: 2 }}>
-            <LinearProgress
-              variant="determinate"
-              value={progress}
+      <div ref={progressRef}>
+        {/* Loading Dots */}
+        <Box
+          sx={{
+            display: "flex",
+            gap: 1,
+            mb: showProgress ? 3 : 0
+          }}
+        >
+          {[0, 1, 2].map((index) => (
+            <Box
+              key={index}
+              ref={(el) => {
+                if (el) dotsRef.current[index] = el;
+              }}
               sx={{
-                height: 4,
-                borderRadius: 2,
-                backgroundColor: "#e2e8f0",
-                "& .MuiLinearProgress-bar": {
-                  backgroundColor: "#3b82f6",
-                  borderRadius: 2
-                }
+                width: 8,
+                height: 8,
+                borderRadius: "50%",
+                background: "#3b82f6"
               }}
             />
-          </Box>
-          <Typography
-            variant="caption"
-            sx={{
-              color: "#64748b",
-              fontSize: "0.75rem",
-              textAlign: "center",
-              display: "block"
-            }}
-          >
-            Loading... {Math.round(progress)}%
-          </Typography>
-        </div>
-      )}
+          ))}
+        </Box>
+
+        {/* Progress Bar */}
+        {showProgress && (
+          <div ref={progressRef}>
+            <Box sx={{ width: 200, mb: 2 }}>
+              <LinearProgress
+                variant="determinate"
+                value={progress}
+                sx={{
+                  height: 4,
+                  borderRadius: 2,
+                  backgroundColor: "#e2e8f0",
+                  "& .MuiLinearProgress-bar": {
+                    backgroundColor: "#3b82f6",
+                    borderRadius: 2
+                  }
+                }}
+              />
+            </Box>
+            <Typography
+              variant="caption"
+              sx={{
+                color: "#64748b",
+                fontSize: "0.75rem",
+                textAlign: "center",
+                display: "block"
+              }}
+            >
+              Loading... {Math.round(progress)}%
+            </Typography>
+          </div>
+        )}
+      </div>
     </Box>
   );
 }

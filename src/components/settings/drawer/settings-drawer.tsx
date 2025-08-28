@@ -40,10 +40,12 @@ export function SettingsDrawer({ sx, defaultSettings }: SettingsDrawerProps) {
   const { mode, setMode, systemMode } = useColorScheme();
 
   useEffect(() => {
-    if (mode === "system" && systemMode) {
-      settings.setState({ colorScheme: systemMode });
+    // Force light mode - disable system theme detection
+    if (mode !== "light") {
+      setMode("light");
+      settings.setState({ colorScheme: "light" });
     }
-  }, [mode, systemMode, settings]);
+  }, [mode, setMode, settings]);
 
   // Visible options by default settings
   const isFontFamilyVisible = hasKeys(defaultSettings, ["fontFamily"]);
@@ -95,13 +97,13 @@ export function SettingsDrawer({ sx, defaultSettings }: SettingsDrawerProps) {
 
   const renderMode = () => (
     <BaseOption
-      label="Dark mode"
-      selected={settings.state.colorScheme === "dark"}
+      label="Light mode (Fixed)"
+      selected={true}
       icon={<SvgIcon>{settingIcons.moon}</SvgIcon>}
       onChangeOption={() => {
-        const newMode = mode === "light" ? "dark" : "light";
-        setMode(newMode);
-        settings.setState({ colorScheme: newMode });
+        // Force light mode - disable theme switching
+        setMode("light");
+        settings.setState({ colorScheme: "light" });
       }}
     />
   );

@@ -9,16 +9,32 @@ import { createTheme } from "@/theme/create-theme";
 import { defaultSettings } from "@/components/settings/settings-config";
 import { AuthProvider } from "@/auth/context/auth-context";
 import { ToastProvider } from "@/components/providers/toast-provider";
-
-const theme = createTheme();
+import { ForceLightTheme } from "@/components/force-light-theme";
 
 export function Providers({ children }: { children: ReactNode }) {
+  // Force light mode settings
+  const forcedLightSettings = {
+    ...defaultSettings,
+    colorScheme: "light",
+  };
+
+  // Create theme with forced light settings
+  const theme = createTheme({
+    settingsState: forcedLightSettings,
+  });
+
   return (
-    <SettingsProvider defaultSettings={defaultSettings} cookieSettings={null}>
-      <ThemeProvider theme={theme}>
+    <SettingsProvider
+      defaultSettings={forcedLightSettings}
+      cookieSettings={null}
+    >
+      <ThemeProvider theme={theme} defaultMode="light" modeStorageKey={null}>
         <LocalizationProvider dateAdapter={AdapterDayjs}>
           <AuthProvider>
-            <ToastProvider>{children}</ToastProvider>
+            <ToastProvider>
+              <ForceLightTheme />
+              {children}
+            </ToastProvider>
           </AuthProvider>
         </LocalizationProvider>
       </ThemeProvider>

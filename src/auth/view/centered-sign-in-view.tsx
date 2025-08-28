@@ -172,7 +172,7 @@ export function SignInView() {
       });
     } catch (error) {
       // Show error message
-      showError("Login gagal! Periksa username dan password Anda.");
+      showError("Periksa username dan password Anda.");
 
       // Enhanced error shake animation
       gsap.to(containerRef.current, {
