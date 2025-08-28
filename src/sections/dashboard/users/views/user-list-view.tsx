@@ -38,7 +38,7 @@ import {
   TablePaginationCustom,
 } from "@/components/table";
 
-import { UserTableRow } from "../../../../../user-table-row";
+import { UserTableRow } from "../user-table-row";
 import { UserTableToolbar } from "../user-table-toolbar";
 import { UserTableFiltersResult } from "../user-table-filters-result";
 

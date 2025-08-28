@@ -1,17 +1,17 @@
-import { varAlpha, mergeClasses } from 'minimal-shared/utils';
+import { varAlpha, mergeClasses } from "minimal-shared/utils";
 
-import { styled } from '@mui/material/styles';
+import { styled } from "@mui/material/styles";
 
-import { ArrowButton, ArrowButtonProps } from './arrow-button';
-import { carouselClasses } from '../classes';
+import { ArrowButton, ArrowButtonProps } from "./arrow-button";
+import { carouselClasses } from "../classes";
 
 // ----------------------------------------------------------------------
 
-const BasicButtonsRoot = styled('div')(({ theme }) => ({
-  gap: '4px',
+const BasicButtonsRoot = styled("div")(({ theme }) => ({
+  gap: "4px",
   zIndex: 9,
-  alignItems: 'center',
-  display: 'inline-flex',
+  alignItems: "center",
+  display: "inline-flex",
   color: theme.vars.palette.action.active,
 }));
 
@@ -19,14 +19,15 @@ const BasicButtonsRoot = styled('div')(({ theme }) => ({
 
 export interface CarouselArrowButtonsBaseProps {
   sx?: any;
-  options?: { axis?: 'x' | 'y'; direction?: 'ltr' | 'rtl' };
+  options?: { axis?: "x" | "y"; direction?: "ltr" | "rtl" };
   slotProps?: {
     prevBtn?: Partial<ArrowButtonProps> & { sx?: any };
     nextBtn?: Partial<ArrowButtonProps> & { sx?: any };
   };
 }
 
-export interface CarouselArrowBasicButtonsProps extends CarouselArrowButtonsBaseProps {
+export interface CarouselArrowBasicButtonsProps
+  extends CarouselArrowButtonsBaseProps {
   onClickPrev?: () => void;
   onClickNext?: () => void;
   disablePrev?: boolean;
@@ -87,14 +88,14 @@ export function CarouselArrowFloatButtons({
 }: CarouselArrowBasicButtonsProps & React.HTMLAttributes<HTMLDivElement>) {
   const baseStyles = (theme: any) => ({
     zIndex: 9,
-    top: '50%',
+    top: "50%",
     borderRadius: 1.5,
-    position: 'absolute',
-    color: 'common.white',
-    bgcolor: 'text.primary',
-    '&:hover': { opacity: 0.8 },
-    ...theme.applyStyles('dark', {
-      color: 'grey.800',
+    position: "absolute",
+    color: "common.white",
+    bgcolor: "text.primary",
+    "&:hover": { opacity: 0.8 },
+    ...theme.applyStyles("dark", {
+      color: "grey.800",
     }),
   });
 
@@ -111,11 +112,11 @@ export function CarouselArrowFloatButtons({
           (theme: any) => ({
             ...baseStyles(theme),
             left: 0,
-            transform: 'translate(-50%, -50%)',
+            transform: "translate(-50%, -50%)",
           }),
           ...(Array.isArray(sx) ? sx : [sx]),
           ...(Array.isArray(slotProps?.prevBtn?.sx)
-            ? (slotProps?.prevBtn?.sx ?? [])
+            ? slotProps?.prevBtn?.sx ?? []
             : [slotProps?.prevBtn?.sx]),
         ]}
       />
@@ -131,11 +132,11 @@ export function CarouselArrowFloatButtons({
           (theme: any) => ({
             ...baseStyles(theme),
             right: 0,
-            transform: 'translate(50%, -50%)',
+            transform: "translate(50%, -50%)",
           }),
           ...(Array.isArray(sx) ? sx : [sx]),
           ...(Array.isArray(slotProps?.nextBtn?.sx)
-            ? (slotProps?.nextBtn?.sx ?? [])
+            ? slotProps?.nextBtn?.sx ?? []
             : [slotProps?.nextBtn?.sx]),
         ]}
       />
@@ -145,32 +146,33 @@ export function CarouselArrowFloatButtons({
 
 // ----------------------------------------------------------------------
 
-const NumberButtonsRoot = styled('div')(({ theme }) => ({
-  gap: '2px',
+const NumberButtonsRoot = styled("div")(({ theme }) => ({
+  gap: "2px",
   zIndex: 9,
-  alignItems: 'center',
-  display: 'inline-flex',
+  alignItems: "center",
+  display: "inline-flex",
   padding: theme.spacing(0.5),
   color: theme.vars.palette.common.white,
   borderRadius: theme.shape.borderRadius * 1.25,
-  backgroundColor: varAlpha(theme.vars.palette.grey['900Channel'], 0.48),
+  backgroundColor: varAlpha(theme.vars.palette.grey["900Channel"], 0.48),
   [`& .${carouselClasses.arrows.label}`]: {
     ...theme.typography.subtitle2,
     margin: theme.spacing(0, 0.5),
   },
   [`& .${carouselClasses.arrows.prev}`]: {
-    borderRadius: 'inherit',
+    borderRadius: "inherit",
     padding: theme.spacing(0.75),
   },
   [`& .${carouselClasses.arrows.next}`]: {
-    borderRadius: 'inherit',
+    borderRadius: "inherit",
     padding: theme.spacing(0.75),
   },
 }));
 
 // ----------------------------------------------------------------------
 
-export interface CarouselArrowNumberButtonsProps extends CarouselArrowButtonsBaseProps {
+export interface CarouselArrowNumberButtonsProps
+  extends CarouselArrowButtonsBaseProps {
   totalSlides: number;
   className?: string;
   selectedIndex?: number;
@@ -225,4 +227,3 @@ export function CarouselArrowNumberButtons({
     </NumberButtonsRoot>
   );
 }
-

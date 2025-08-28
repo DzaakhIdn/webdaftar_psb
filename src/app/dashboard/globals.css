@@ -1,0 +1,129 @@
+/** **************************************
+* Base Tailwind CSS
+*************************************** */
+@import "tailwindcss";
+
+/** **************************************
+* Fonts: app
+*************************************** */
+@import "@fontsource-variable/public-sans";
+@import "@fontsource/barlow/400.css";
+@import "@fontsource/barlow/500.css";
+@import "@fontsource/barlow/600.css";
+@import "@fontsource/barlow/700.css";
+@import "@fontsource/barlow/800.css";
+
+/** **************************************
+* Component Styles
+*************************************** */
+/* scrollbar */
+@import "../../components/scrollbar/styles.css";
+
+/* chart */
+@import "../../components/chart/styles.css";
+
+/** **************************************
+* CSS Variables for Dashboard
+*************************************** */
+:root {
+  /* Layout variables */
+  --layout-transition-easing: linear;
+  --layout-transition-duration: 120ms;
+  --layout-nav-mini-width: 88px;
+  --layout-nav-vertical-width: 300px;
+  --layout-nav-horizontal-height: 64px;
+  
+  /* Palette variables for Material-UI integration */
+  --palette-text-primary: rgb(33, 43, 54);
+  --palette-text-secondary: rgb(99, 115, 129);
+  --palette-text-disabled: rgb(145, 158, 171);
+  --palette-background-default: rgb(255, 255, 255);
+  --palette-background-defaultChannel: 255, 255, 255;
+  --palette-background-paper: rgb(255, 255, 255);
+  --palette-background-neutral: rgb(244, 246, 248);
+  --palette-grey-500Channel: 145, 158, 171;
+  
+  /* Custom shadows */
+  --customShadows-dropdown: 0 0 2px 0 rgba(145, 158, 171, 0.24),
+    -20px 20px 40px -4px rgba(145, 158, 171, 0.24);
+}
+
+.dark {
+  /* Dark mode palette variables */
+  --palette-text-primary: rgb(255, 255, 255);
+  --palette-text-secondary: rgb(145, 158, 171);
+  --palette-text-disabled: rgb(99, 115, 129);
+  --palette-background-default: rgb(22, 28, 36);
+  --palette-background-defaultChannel: 22, 28, 36;
+  --palette-background-paper: rgb(33, 43, 54);
+  --palette-background-neutral: rgb(33, 43, 54);
+}
+
+/** **************************************
+* Baseline Styles
+*************************************** */
+html {
+  height: 100%;
+  color-scheme: light;
+  -webkit-overflow-scrolling: touch;
+}
+
+html.dark {
+  color-scheme: dark;
+}
+
+body,
+#root,
+#root__layout {
+  display: flex;
+  flex: 1 1 auto;
+  min-height: 100%;
+  flex-direction: column;
+}
+
+img {
+  max-width: 100%;
+  vertical-align: middle;
+}
+
+ul {
+  margin: 0;
+  padding: 0;
+  list-style-type: none;
+}
+
+input[type="number"] {
+  -moz-appearance: textfield;
+  appearance: none;
+}
+
+input[type="number"]::-webkit-outer-spin-button {
+  margin: 0;
+  -webkit-appearance: none;
+}
+
+input[type="number"]::-webkit-inner-spin-button {
+  margin: 0;
+  -webkit-appearance: none;
+}
+
+/** **************************************
+* Hydration Fix
+*************************************** */
+@layer base {
+  /* Prevent hydration mismatches */
+  * {
+    box-sizing: border-box;
+  }
+  
+  /* Fix for dynamic CSS variables */
+  body {
+    min-height: 100vh;
+    line-height: 1.5;
+  }
+  
+  /* Ensure consistent font rendering */
+  body {
+    font-family: var(--font-geist-sans), system-ui, sans-serif;
+  }
+}

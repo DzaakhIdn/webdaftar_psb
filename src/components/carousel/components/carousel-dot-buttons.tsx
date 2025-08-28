@@ -1,15 +1,16 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { varAlpha, mergeClasses } from 'minimal-shared/utils';
+import { varAlpha, mergeClasses } from "minimal-shared/utils";
 
-import Box from '@mui/material/Box';
-import { styled } from '@mui/material/styles';
-import ButtonBase, { ButtonBaseProps } from '@mui/material/ButtonBase';
+import Box from "@mui/material/Box";
+import { styled } from "@mui/material/styles";
+import ButtonBase, { ButtonBaseProps } from "@mui/material/ButtonBase";
 
-import { carouselClasses } from '../classes';
+import { carouselClasses } from "../classes";
 
 // ----------------------------------------------------------------------
 
-export interface CarouselDotButtonsProps extends React.HTMLAttributes<HTMLUListElement> {
+export interface CarouselDotButtonsProps
+  extends React.HTMLAttributes<HTMLUListElement> {
   sx?: any;
   gap?: number;
   slotProps?: {
@@ -19,7 +20,7 @@ export interface CarouselDotButtonsProps extends React.HTMLAttributes<HTMLUListE
   onClickDot: (index: number) => void;
   scrollSnaps: any[];
   selectedIndex: number;
-  variant?: 'circular' | 'rounded' | 'number';
+  variant?: "circular" | "rounded" | "number";
 }
 
 export function CarouselDotButtons({
@@ -30,10 +31,14 @@ export function CarouselDotButtons({
   onClickDot,
   scrollSnaps,
   selectedIndex,
-  variant = 'circular',
+  variant = "circular",
   ...other
 }: CarouselDotButtonsProps) {
-  const GAPS = { rounded: gap ?? 2, circular: gap ?? 2, number: gap ?? 6 } as const;
+  const GAPS = {
+    rounded: gap ?? 2,
+    circular: gap ?? 2,
+    number: gap ?? 6,
+  } as const;
 
   const SIZES = {
     circular: slotProps?.dot?.size ?? 18,
@@ -50,9 +55,9 @@ export function CarouselDotButtons({
           gap: `${GAPS[variant]}px`,
           height: SIZES[variant],
           zIndex: 9,
-          display: 'flex',
-          '& > li': {
-            display: 'inline-flex',
+          display: "flex",
+          "& > li": {
+            display: "inline-flex",
           },
         }),
         ...(Array.isArray(sx) ? sx : [sx]),
@@ -79,11 +84,11 @@ export function CarouselDotButtons({
                   height: SIZES[variant],
                 }),
                 ...(Array.isArray(slotProps?.dot?.sx)
-                  ? (slotProps?.dot?.sx ?? [])
+                  ? slotProps?.dot?.sx ?? []
                   : [slotProps?.dot?.sx]),
               ]}
             >
-              {variant === 'number' && index + 1}
+              {variant === "number" && index + 1}
             </DotItem>
           </li>
         );
@@ -95,16 +100,17 @@ export function CarouselDotButtons({
 // ----------------------------------------------------------------------
 
 const DotItem = styled(ButtonBase, {
-  shouldForwardProp: (prop) => !['variant', 'selected', 'sx'].includes(prop as string),
+  shouldForwardProp: (prop) =>
+    !["variant", "selected", "sx"].includes(prop as string),
 })(({ selected, theme }) => {
   const dotStyles = {
     width: 8,
     height: 8,
     content: '""',
     opacity: 0.24,
-    borderRadius: '50%',
-    backgroundColor: 'currentColor',
-    transition: theme.transitions.create(['width', 'opacity'], {
+    borderRadius: "50%",
+    backgroundColor: "currentColor",
+    transition: theme.transitions.create(["width", "opacity"], {
       easing: theme.transitions.easing.sharp,
       duration: theme.transitions.duration.short,
     }),
@@ -113,34 +119,39 @@ const DotItem = styled(ButtonBase, {
   return {
     variants: [
       {
-        props: { variant: 'circular' },
-        style: { '&::before': { ...dotStyles, ...(selected && { opacity: 1 }) } },
+        props: { variant: "circular" },
+        style: {
+          "&::before": { ...dotStyles, ...(selected && { opacity: 1 }) },
+        },
       },
       {
-        props: { variant: 'rounded' },
+        props: { variant: "rounded" },
         style: {
-          '&::before': {
+          "&::before": {
             ...dotStyles,
             ...(selected && {
               opacity: 1,
-              width: 'calc(100% - 4px)',
+              width: "calc(100% - 4px)",
               borderRadius: theme.shape.borderRadius,
             }),
           },
         },
       },
       {
-        props: { variant: 'number' },
+        props: { variant: "number" },
         style: {
           ...theme.typography.caption,
-          borderRadius: '50%',
+          borderRadius: "50%",
           color: theme.vars.palette.text.disabled,
-          border: `solid 1px ${varAlpha(theme.vars.palette.grey['500Channel'], 0.16)}`,
+          border: `solid 1px ${varAlpha(
+            theme.vars.palette.grey["500Channel"],
+            0.16
+          )}`,
           ...(selected && {
             color: theme.vars.palette.common.white,
             backgroundColor: theme.vars.palette.text.primary,
             fontWeight: theme.typography.fontWeightSemiBold,
-            ...theme.applyStyles('dark', {
+            ...theme.applyStyles("dark", {
               color: theme.vars.palette.grey[800],
             }),
           }),
@@ -149,4 +160,3 @@ const DotItem = styled(ButtonBase, {
     ],
   } as const;
 });
-

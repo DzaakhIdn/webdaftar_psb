@@ -1,19 +1,19 @@
-import { mergeClasses } from 'minimal-shared/utils';
+import { mergeClasses } from "minimal-shared/utils";
 
-import SvgIcon from '@mui/material/SvgIcon';
-import { styled } from '@mui/material/styles';
-import ButtonBase, { ButtonBaseProps } from '@mui/material/ButtonBase';
+import SvgIcon from "@mui/material/SvgIcon";
+import { styled } from "@mui/material/styles";
+import ButtonBase, { ButtonBaseProps } from "@mui/material/ButtonBase";
 
-import { carouselClasses } from '../classes';
+import { carouselClasses } from "../classes";
 
 // ----------------------------------------------------------------------
 
-type ArrowVariant = 'prev' | 'next';
+type ArrowVariant = "prev" | "next";
 
 export interface ArrowButtonProps extends ButtonBaseProps {
   svgIcon?: React.ReactNode;
   svgSize?: number;
-  options?: { axis?: 'x' | 'y'; direction?: 'ltr' | 'rtl' } | undefined;
+  options?: { axis?: "x" | "y"; direction?: "ltr" | "rtl" } | undefined;
   variant: ArrowVariant;
 }
 
@@ -37,8 +37,16 @@ const nextSvgPath = (
 
 // ----------------------------------------------------------------------
 
-export function ArrowButton({ sx, svgIcon, options, variant, className, svgSize = 20, ...other }: ArrowButtonProps) {
-  const isPrev = variant === 'prev';
+export function ArrowButton({
+  sx,
+  svgIcon,
+  options,
+  variant,
+  className,
+  svgSize = 20,
+  ...other
+}: ArrowButtonProps) {
+  const isPrev = variant === "prev";
 
   const svgContent = svgIcon || (isPrev ? prevSvgPath : nextSvgPath);
 
@@ -46,12 +54,18 @@ export function ArrowButton({ sx, svgIcon, options, variant, className, svgSize 
     <ArrowButtonRoot
       axis={options?.axis}
       direction={options?.direction}
-      aria-label={isPrev ? 'Prev button' : 'Next button'}
-      className={mergeClasses([carouselClasses.arrows[isPrev ? 'prev' : 'next'], className])}
+      aria-label={isPrev ? "Prev button" : "Next button"}
+      className={mergeClasses([
+        carouselClasses.arrows[isPrev ? "prev" : "next"],
+        className,
+      ])}
       sx={sx}
       {...other}
     >
-      <SvgIcon className={carouselClasses.arrows.svg} sx={{ width: svgSize, height: svgSize }}>
+      <SvgIcon
+        className={carouselClasses.arrows.svg}
+        sx={{ width: svgSize, height: svgSize }}
+      >
         {svgContent}
       </SvgIcon>
     </ArrowButtonRoot>
@@ -61,25 +75,29 @@ export function ArrowButton({ sx, svgIcon, options, variant, className, svgSize 
 // ----------------------------------------------------------------------
 
 const ArrowButtonRoot = styled(ButtonBase, {
-  shouldForwardProp: (prop) => !['axis', 'direction', 'sx'].includes(prop as string),
+  shouldForwardProp: (prop) =>
+    !["axis", "direction", "sx"].includes(prop as string),
 })(({ theme }) => ({
-  borderRadius: '50%',
-  boxSizing: 'content-box',
+  borderRadius: "50%",
+  boxSizing: "content-box",
   padding: theme.spacing(1),
-  transition: theme.transitions.create(['all'], {
+  transition: theme.transitions.create(["all"], {
     easing: theme.transitions.easing.sharp,
     duration: theme.transitions.duration.short,
   }),
   variants: [
     { props: { disabled: true }, style: { opacity: 0.4 } },
     {
-      props: { axis: 'y' },
-      style: { [`& .${carouselClasses.arrows.svg}`]: { transform: 'rotate(90deg)' } },
+      props: { axis: "y" },
+      style: {
+        [`& .${carouselClasses.arrows.svg}`]: { transform: "rotate(90deg)" },
+      },
     },
     {
-      props: { direction: 'rtl' },
-      style: { [`& .${carouselClasses.arrows.svg}`]: { transform: 'scaleX(-1)' } },
+      props: { direction: "rtl" },
+      style: {
+        [`& .${carouselClasses.arrows.svg}`]: { transform: "scaleX(-1)" },
+      },
     },
   ],
 }));
-

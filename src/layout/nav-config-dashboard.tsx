@@ -19,6 +19,8 @@ const ICONS = {
   users: <Iconify icon="solar:user-plus-bold" />,
   notebook: <Iconify icon="solar:notebook-bold-duotone" />,
   inbox: <Iconify icon="solar:inbox-in-bold-duotone" />,
+  loading: <Iconify icon="solar:refresh-circle-bold-duotone" />,
+  demo: <Iconify icon="solar:play-circle-bold-duotone" />,
 };
 
 // ----------------------------------------------------------------------
@@ -26,11 +28,47 @@ const ICONS = {
 export const navData = [
   {
     subheader: "Overview",
-    items: [{ title: "App", path: "/", icon: ICONS.dashboard }],
+    items: [{ title: "App", path: "/dashboard", icon: ICONS.dashboard }],
+  },
+  {
+    subheader: "Loading Demos",
+    items: [
+      {
+        title: "Loading Animations",
+        path: paths.dashboard.demoLoading,
+        icon: ICONS.loading,
+        children: [
+          { title: "Basic Demo", path: paths.dashboard.demoLoading },
+          {
+            title: "Realistic Loading",
+            path: paths.dashboard.realisticLoading,
+          },
+          { title: "Advanced Loading", path: paths.dashboard.advancedLoading },
+          { title: "Comparison", path: paths.dashboard.loadingComparison },
+          {
+            title: "Navigation Loading",
+            path: paths.dashboard.navigationLoadingDemo,
+          },
+        ],
+      },
+    ],
   },
   {
     subheader: "Management",
     items: [
+      {
+        title: "Master Data",
+        path: paths.dashboard.master.root,
+        icon: ICONS.notebook,
+        children: [
+          { title: "List Jalur", path: paths.dashboard.master.listJalur },
+          { title: "Jenjang", path: paths.dashboard.master.jenjang },
+          {
+            title: "Profile Sekolah",
+            path: paths.dashboard.master.profileSekolah,
+          },
+        ],
+      },
       {
         title: "Registrant",
         path: paths.dashboard.registant.root,
@@ -46,18 +84,20 @@ export const navData = [
         icon: ICONS.finance,
         children: [
           { title: "Overview", path: paths.dashboard.finance.overview },
-          { title: "Payment Recipts", path: paths.dashboard.finance.paymentRecipts },
-          { title: "List Payments", path: paths.dashboard.finance.listPayments },
+          {
+            title: "Payment Recipts",
+            path: paths.dashboard.finance.paymentRecipts,
+          },
+          {
+            title: "List Payments",
+            path: paths.dashboard.finance.listPayments,
+          },
         ],
       },
       {
         title: "Information",
         path: paths.dashboard.information.root,
         icon: ICONS.information,
-        children: [
-          { title: "Overview", path: paths.dashboard.information.root },
-          { title: "Settings", path: paths.dashboard.information.settings },
-        ],
       },
     ],
   },
@@ -69,8 +109,8 @@ export const navData = [
         path: paths.dashboard.admin.root,
         icon: ICONS.admin,
         children: [
-          { title: "Overview", path: paths.dashboard.admin.root },
           { title: "Users", path: paths.dashboard.admin.users },
+          { title: "Setting", path: paths.dashboard.admin.setting },
         ],
         allowedRoles: ["admin"],
         caption: "Only admin can see this item.",

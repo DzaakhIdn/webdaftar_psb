@@ -11,6 +11,7 @@ export function RHFNumberInput({
 }: {
   name: string;
   helperText?: string;
+  captionText?: string;
 }) {
   const { control } = useFormContext();
 

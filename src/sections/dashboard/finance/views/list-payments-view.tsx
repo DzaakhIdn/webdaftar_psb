@@ -138,10 +138,26 @@ export function ListPaymentView() {
         <TextField
           autoFocus
           fullWidth
-          type="email"
+          type="text"
           margin="dense"
           variant="outlined"
-          label="Pembayaran"
+          label="Kode Pembayaran"
+        />
+        <TextField
+          autoFocus
+          fullWidth
+          type="text"
+          margin="dense"
+          variant="outlined"
+          label="Nama Pembayaran"
+        />
+        <TextField
+          autoFocus
+          fullWidth
+          type="number"
+          margin="dense"
+          variant="outlined"
+          label="Jumlah Biaya"
         />
       </DialogContent>
 

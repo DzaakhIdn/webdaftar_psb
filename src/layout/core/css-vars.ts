@@ -1,6 +1,6 @@
 // ----------------------------------------------------------------------
 
-export function layoutSectionVars(theme) {
+export function layoutSectionVars(theme: any) {
   return {
     '--layout-nav-zIndex': theme.zIndex.drawer + 1,
     '--layout-nav-mobile-width': '288px',

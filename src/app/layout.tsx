@@ -1,7 +1,5 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import { DashboardLayout } from "@/layout/dashboard/layout";
-import { Providers } from "./providers";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -15,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Dashboard App",
-  description: "Dashboard application with Next.js",
+  title: "HSI Boarding School",
+  description: "Pendaftaran Santri Baru HSI Boarding School",
 };
 
 export default function RootLayout({
@@ -26,10 +24,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${geistSans.variable} ${geistMono.variable}`}>
-        <Providers>
-          <DashboardLayout>{children}</DashboardLayout>
-        </Providers>
+      <body
+        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+      >
+        {children}
       </body>
     </html>
   );

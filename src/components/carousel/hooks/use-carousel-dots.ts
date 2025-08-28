@@ -1,5 +1,5 @@
-import { useState, useEffect, useCallback } from 'react';
-import type { EmblaCarouselType } from 'embla-carousel-react';
+import { useState, useEffect, useCallback } from "react";
+import type { EmblaCarouselType } from "embla-carousel-react";
 
 // ----------------------------------------------------------------------
 
@@ -32,9 +32,9 @@ export function useCarouselDots(mainApi?: EmblaCarouselType | null) {
 
     onInit(mainApi);
     onSelect(mainApi);
-    mainApi.on('reInit', onInit);
-    mainApi.on('reInit', onSelect);
-    mainApi.on('select', onSelect);
+    mainApi.on("reInit", onInit);
+    mainApi.on("reInit", onSelect);
+    mainApi.on("select", onSelect);
   }, [mainApi, onInit, onSelect]);
 
   return {
@@ -44,4 +44,3 @@ export function useCarouselDots(mainApi?: EmblaCarouselType | null) {
     onClickDot,
   } as const;
 }
-

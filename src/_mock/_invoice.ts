@@ -18,6 +18,34 @@ export const PAYMENT_STATUS = [
   { value: "optional", label: "Optional" },
 ];
 
+export const JALUR_STATUS = [
+  { value: "aktif", label: "Aktif" },
+  { value: "nonaktif", label: "Non Aktif" },
+];
+
+export const _profileSekolah = Array.from({ length: 2 }, (_, index) => ({
+  id: _mock.id(index),
+  npsn: _mock.npsn(index),
+  namaSekolah: _mock.namaSekolah(index),
+  alamatSekolah: _mock.alamatSekolah(index),
+  noTelp: _mock.noTelp(index)
+}));
+
+export const _jenjang = Array.from({ length: 2 }, (_, index) => ({
+  id: _mock.id(index),
+  jenjangCode: _mock.jenjang(index),
+  jenjangName: _mock.jenjangName(index),
+  quota: _mock.kuotaJenjang(index),
+  status: index % 2 === 0 ? "aktif" : ("nonaktif" as "aktif" | "nonaktif"),
+}));
+export const _jalur = Array.from({ length: 4 }, (_, index) => ({
+  id: _mock.id(index),
+  trackCode: _mock.kodeJalur(index),
+  trackName: _mock.namaJalur(index),
+  quota: _mock.kuota(index),
+  status: index % 2 === 0 ? "aktif" : ("nonaktif" as "aktif" | "nonaktif"),
+}));
+
 export const _listPayment = Array.from({ length: 5 }, (_, index) => ({
   id: _mock.id(index),
   paymentCode: _mock.paymentCode(index),

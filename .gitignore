@@ -39,3 +39,9 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# auth
+.env.local
+
+#api
+/src/app/api/auth/verify/route.ts

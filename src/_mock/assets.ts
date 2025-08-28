@@ -181,6 +181,65 @@ export const _fullNames = [
   `Mireya Conner`,
 ];
 
+// ----------------------------------------------------------------------
+
+export const _username = [
+  `jayvion_simon`,
+  `lucian_obrien`,
+  `deja_brady`,
+  `harrison_stein`,
+  `reece_chung`,
+  `lainey_davidson`,
+  `cristopher_cardenas`,
+  `melanie_noble`,
+  `chase_day`,
+  `shawn_manning`,
+  `soren_durham`,
+  `cortez_herring`,
+  `brycen_jimenez`,
+  `giana_brandt`,
+  `aspen_schmitt`,
+  `colten_aguilar`,
+  `angelique_morse`,
+  `selina_boyer`,
+  `lawson_bass`,
+  `ariana_lang`,
+  `amiah_pruitt`,
+  `harold_mcgrath`,
+  `esperanza_mcintyre`,
+  `mireya_conner`,
+];
+
+// ----------------------------------------------------------------------
+
+export const _level = [
+  `admin`,
+  `user`,
+  `bendahara`,
+  `kepala`,
+  `operator`,
+  `admin`,
+  `user`,
+  `bendahara`,
+  `kepala`,
+  `operator`,
+  `admin`,
+  `user`,
+  `bendahara`,
+  `kepala`,
+  `operator`,
+  `admin`,
+  `user`,
+  `bendahara`,
+  `kepala`,
+  `operator`,
+  `admin`,
+  `user`,
+  `bendahara`,
+  `kepala`,
+  `operator`,
+]
+
 export const _firstNames = [
   `Mossie`,
   `David`,
@@ -722,4 +781,60 @@ export const _amountPayments = [
   150000,
   200000,
   100000,
+]
+
+export const _kodeJalur = [
+  `BEASISAKH`,
+  `BEASISIKH`,
+  `REGAKH`,
+  `REGASIKH`
+]
+
+export const _namaJalur = [
+  `BEASISWA AKHWAT`,
+  `BEASISWA IKHWAN`,
+  `REGULER AKHWAT`,
+  `REGULER IKHWAN`
+]
+
+export const kuota = [
+  5,
+  10,
+  15,
+  40,
+]
+
+export const _jenjangList = [
+  `SMP`,
+  `SMA`
+]
+
+export const _jenjangName = [
+  `SEKOLAH MENENGAH PERTAMA`,
+  `SEKOLAH MENENGAH ATAS`
+]
+
+export const _kuotaJenjang = [
+  100,
+  100,
+]
+
+export const _npsn  = [
+  `12345678`,
+  `12345678`,
+]
+
+export const _namaSekolah = [
+  `Sekolah Menengah Atas 1`,
+  `Sekolah Menengah Atas 2`,
+]
+
+export const _alamatSekolah = [
+  `Jl. Raya Ciledug No.1, Ciledug, Tangerang`,
+  `Jl. Raya Ciledug No.2, Ciledug, Tangerang`,
+]
+
+export const _noTelp = [
+  `021-12345678`,
+  `021-12345678`,
 ]

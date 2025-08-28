@@ -1,15 +1,22 @@
-'use client';
+"use client";
 
-import { createTheme as createMuiTheme, Theme, ThemeOptions } from '@mui/material/styles';
+import {
+  createTheme as createMuiTheme,
+  Theme,
+  ThemeOptions,
+} from "@mui/material/styles";
 
-import { mixins } from './core/mixins';
-import { shadows } from './core/shadows';
-import { palette } from './core/palette';
-import { themeConfig } from './theme-config';
-import { components } from './core/components';
-import { typography } from './core/typography';
-import { customShadows } from './core/custom-shadows';
-import { updateCoreWithSettings, updateComponentsWithSettings } from './with-settings';
+import { mixins } from "./core/mixins";
+import { shadows } from "./core/shadows";
+import { palette } from "./core/palette";
+import { themeConfig } from "./theme-config";
+import { components } from "./core/components";
+import { typography } from "./core/typography";
+import { customShadows } from "./core/custom-shadows";
+import {
+  updateCoreWithSettings,
+  updateComponentsWithSettings,
+} from "./with-settings";
 
 // ----------------------------------------------------------------------
 
@@ -36,20 +43,22 @@ export const baseTheme: Record<string, unknown> = {
   components,
   typography,
   shape: { borderRadius: 8 },
-  direction: themeConfig.direction as 'ltr' | 'rtl',
+  direction: themeConfig.direction as "ltr" | "rtl",
   cssVariables: themeConfig.cssVariables,
-  defaultColorScheme: themeConfig.defaultMode as 'light' | 'dark',
+  defaultColorScheme: themeConfig.defaultMode as "light" | "dark",
 };
 
 // ----------------------------------------------------------------------
 
-export function createTheme({ 
-  settingsState, 
-  themeOverrides = {}, 
-  localeComponents = {} 
+export function createTheme({
+  settingsState,
+  themeOverrides = {},
+  localeComponents = {},
 }: CreateThemeParams = {}): Theme {
   // Update core theme settings
-  const updatedCore = settingsState ? updateCoreWithSettings(baseTheme, settingsState) : baseTheme;
+  const updatedCore = settingsState
+    ? updateCoreWithSettings(baseTheme, settingsState)
+    : baseTheme;
 
   // Update component settings
   const updatedComponents = settingsState

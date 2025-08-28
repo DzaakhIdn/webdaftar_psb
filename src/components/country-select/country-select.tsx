@@ -1,12 +1,12 @@
-import { useMemo, forwardRef } from 'react';
+import { useMemo, forwardRef } from "react";
 
-import TextField from '@mui/material/TextField';
-import Autocomplete from '@mui/material/Autocomplete';
-import type { TextFieldProps } from '@mui/material/TextField';
-import type { AutocompleteProps } from '@mui/material/Autocomplete';
+import TextField from "@mui/material/TextField";
+import Autocomplete from "@mui/material/Autocomplete";
+import type { TextFieldProps } from "@mui/material/TextField";
+import type { AutocompleteProps } from "@mui/material/Autocomplete";
 
-import { countries } from '@/assets/data/countries';
-import { FlagIcon } from '@/components/flag-icon';
+import { countries } from "@/assets/data/countries";
+import { FlagIcon } from "@/components/flag-icon";
 
 // ----------------------------------------------------------------------
 
@@ -17,7 +17,10 @@ interface CountryData {
 }
 
 interface CountrySelectProps
-  extends Omit<AutocompleteProps<CountryData, false, false, false>, 'options' | 'renderInput'> {
+  extends Omit<
+    AutocompleteProps<CountryData, false, false, false>,
+    "options" | "renderInput"
+  > {
   label?: string;
   placeholder?: string;
   helperText?: string;
@@ -26,10 +29,26 @@ interface CountrySelectProps
 }
 
 export const CountrySelect = forwardRef<HTMLDivElement, CountrySelectProps>(
-  ({ label, placeholder, helperText, error, textFieldProps, value, onChange, ...other }, ref) => {
+  (
+    {
+      label,
+      placeholder,
+      helperText,
+      error,
+      textFieldProps,
+      value,
+      onChange,
+      ...other
+    },
+    ref
+  ) => {
     const selectedCountry = useMemo(() => {
-      if (typeof value === 'string') {
-        return countries.find((country) => country.code === value || country.label === value) || null;
+      if (typeof value === "string") {
+        return (
+          countries.find(
+            (country) => country.code === value || country.label === value
+          ) || null
+        );
       }
       return value || null;
     }, [value]);
@@ -52,7 +71,7 @@ export const CountrySelect = forwardRef<HTMLDivElement, CountrySelectProps>(
           <li {...props} key={option.code}>
             <FlagIcon
               code={option.code}
-              sx={{ mr: 1, width: 22, height: 22, borderRadius: '50%' }}
+              sx={{ mr: 1, width: 22, height: 22, borderRadius: "50%" }}
             />
             {option.label} ({option.code}) +{option.phone}
           </li>
@@ -70,7 +89,7 @@ export const CountrySelect = forwardRef<HTMLDivElement, CountrySelectProps>(
               startAdornment: selectedCountry && (
                 <FlagIcon
                   code={selectedCountry.code}
-                  sx={{ mr: 1, width: 22, height: 22, borderRadius: '50%' }}
+                  sx={{ mr: 1, width: 22, height: 22, borderRadius: "50%" }}
                 />
               ),
             }}
@@ -82,4 +101,4 @@ export const CountrySelect = forwardRef<HTMLDivElement, CountrySelectProps>(
   }
 );
 
-CountrySelect.displayName = 'CountrySelect';
+CountrySelect.displayName = "CountrySelect";
