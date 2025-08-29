@@ -2,8 +2,6 @@
 
 import React from "react";
 import { ToastContainer, toast } from "react-toastify";
-// import "react-toastify/dist/ReactToastify.css";
-// import "@/styles/toast.css";
 
 // Custom hook untuk toast notifications
 export function useToast() {
@@ -98,7 +96,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
         position="top-right"
         autoClose={5000}
         hideProgressBar={false}
-        newestOnTop={false}
+        newestOnTop={true}
         closeOnClick
         rtl={false}
         pauseOnFocusLoss
@@ -108,6 +106,9 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
         className="toast-container"
         toastClassName="toast-item"
         progressClassName="toast-progress"
+        style={{
+          zIndex: 9999,
+        }}
       />
     </>
   );

@@ -1,4 +1,3 @@
-
 "use client";
 import {
   Navbar,
@@ -19,8 +18,11 @@ const montserrat = Montserrat({
   weight: ["300", "400", "500", "700"],
 });
 
-export default function Navigation({ navItems }: { navItems: { name: string; link: string }[] }) {
-
+export default function Navigation({
+  navItems,
+}: {
+  navItems: { name: string; link: string }[];
+}) {
   const [isOpen, setIsOpen] = useState(false);
   return (
     <>
@@ -34,7 +36,7 @@ export default function Navigation({ navItems }: { navItems: { name: string; lin
               size="md"
               isGradient
               text="Daftar Sekarang"
-              onClick={() => window.location.href = "./user/auth"} // Open the menu when the button is clicked
+              onClick={() => (window.location.href = "/auth/auth-user")} // Navigate to auth page
             />
           </div>
         </NavBody>
@@ -73,7 +75,10 @@ export default function Navigation({ navItems }: { navItems: { name: string; lin
                 size="md"
                 isGradient={false}
                 text="Daftar Sekarang"
-                onClick={() => setIsOpen(false)}
+                onClick={() => {
+                  setIsOpen(false);
+                  window.location.href = "/auth/auth-user";
+                }}
               />
             </div>
           </MobileNavMenu>

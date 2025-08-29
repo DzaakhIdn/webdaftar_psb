@@ -17,7 +17,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { useAlert } from "@/components/providers/alert-provider";
+import { useToast } from "@/components/providers/toast-provider";
 
 const signUpSchema = z
   .object({
@@ -37,7 +37,7 @@ export function SignUpView() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const { showSuccess, showError } = useAlert();
+  const { showSuccess, showError } = useToast();
 
   const form = useForm<SignUpFormValues>({
     resolver: zodResolver(signUpSchema),
@@ -52,7 +52,7 @@ export function SignUpView() {
   const handleSignUp = async (data: SignUpFormValues) => {
     setIsLoading(true);
     try {
-      const res = await fetch("/api/register", {
+      const res = await fetch("/api/dahsboard/register", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

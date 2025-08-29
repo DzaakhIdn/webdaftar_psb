@@ -41,10 +41,9 @@ export function ThemeProvider({
 
   // Force light mode by providing explicit settings state
   const forcedLightSettings = {
-    colorScheme: "light",
     direction: "ltr",
     contrast: "default",
-    primaryColor: "default",
+    primaryColor: "preset1",
   };
 
   const theme = (createTheme as (params: CreateThemeParams) => Theme)({

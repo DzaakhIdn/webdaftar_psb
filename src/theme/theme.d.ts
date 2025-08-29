@@ -2,10 +2,17 @@
 
 import "@mui/material/styles";
 import "@mui/material/Chip";
+import "@mui/material/Button";
 import { ThemeOptions } from "@mui/material/styles";
 
 declare module "@mui/material/Chip" {
   interface ChipPropsVariantOverrides {
+    soft: true;
+  }
+}
+
+declare module "@mui/material/Button" {
+  interface ButtonPropsVariantOverrides {
     soft: true;
   }
 }

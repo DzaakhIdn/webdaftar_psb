@@ -27,6 +27,7 @@ import {
   CardTitle,
   CardDescription,
 } from "@/components/ui/card";
+import { api, paths } from "@/routes/paths";
 
 const SignInSchema = z.object({
   username: z.string(),
@@ -34,7 +35,7 @@ const SignInSchema = z.object({
 });
 
 export function SignInView() {
-  const { login } = useAuth();
+  const { login } = useAuth({ loginEndpoint: api.dashboard.login });
   const { showSuccess, showError } = useToast();
   const containerRef = useRef(null);
   const titleRef = useRef(null);
@@ -157,7 +158,7 @@ export function SignInView() {
     });
 
     try {
-      await login(data.username, data.password, "admin", "/dashboard");
+      await login(data.username, data.password, "admin", "dashboard", paths.dashboard.root);
 
       // Show success message
       showSuccess("Login berhasil! Mengarahkan ke dashboard...");

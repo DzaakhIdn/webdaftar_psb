@@ -29,15 +29,14 @@ interface CreateThemeParams {
 export const baseTheme: Record<string, unknown> = {
   colorSchemes: {
     light: {
-      palette: palette.light,
-      shadows: shadows.light,
-      customShadows: customShadows.light,
+      palette: palette,
+      shadows: shadows,
+      customShadows: customShadows,
     },
-    // Force dark scheme to use light values to prevent system detection
     dark: {
-      palette: palette.light, // Use light palette for dark scheme too
-      shadows: shadows.light, // Use light shadows for dark scheme too
-      customShadows: customShadows.light, // Use light shadows for dark scheme too
+      palette: palette, // Force dark to use same light palette
+      shadows: shadows, // Force dark to use same light shadows
+      customShadows: customShadows, // Force dark to use same light customShadows
     },
   },
   mixins,
@@ -46,7 +45,7 @@ export const baseTheme: Record<string, unknown> = {
   shape: { borderRadius: 8 },
   direction: themeConfig.direction as "ltr" | "rtl",
   cssVariables: themeConfig.cssVariables,
-  defaultColorScheme: "light", // Force light mode
+  defaultColorScheme: "light",
 };
 
 // ----------------------------------------------------------------------

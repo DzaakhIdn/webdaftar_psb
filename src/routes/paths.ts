@@ -2,8 +2,27 @@ const ROOTS = {
   HOME: "/",
   DASHBOARD: "/dashboard",
   ACCOUNT: "/account",
-  REGISTANT: "/user",
+  REGISTANT: "/registant",
   AUTH: "/auth",
+};
+
+const ROOTS_API = {
+  DASHBOARD: "/api/dashboard",
+  USER: "/api/user",
+};
+
+export const api = {
+  logout: "/api/logout",
+  dashboard: {
+    login: `${ROOTS_API.DASHBOARD}/login`,
+    register: `${ROOTS_API.DASHBOARD}/register`,
+  },
+
+  user: {
+    login: `${ROOTS_API.USER}/login`,
+    register: `${ROOTS_API.USER}/register`,
+    me: `${ROOTS_API.USER}/me`, // get current user data
+  },
 };
 
 export const paths = {
@@ -68,6 +87,18 @@ export const paths = {
       root: `${ROOTS.DASHBOARD}/user`,
       new: `${ROOTS.DASHBOARD}/user/new`,
       edit: (id: string) => `${ROOTS.DASHBOARD}/user/${id}/edit`,
+    },
+  },
+
+  registant: {
+    root: ROOTS.REGISTANT,
+    register: `${ROOTS.REGISTANT}/register`,
+    biodata: {
+      form: `${ROOTS.REGISTANT}/biodata`,
+      file: `${ROOTS.REGISTANT}/files`,
+    },
+    finance: {
+      payment: `${ROOTS.REGISTANT}/payment`,
     },
   },
 };

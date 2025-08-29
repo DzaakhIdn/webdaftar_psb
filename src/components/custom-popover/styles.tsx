@@ -130,22 +130,6 @@ export const Arrow = styled("span", {
       })(),
       0.12
     )}`,
-    ...theme.applyStyles("dark", {
-      border: `solid 1px ${varAlpha(
-        (() => {
-          try {
-            return (
-              theme.vars?.palette?.common?.blackChannel ||
-              theme.palette?.common?.black ||
-              "#000000"
-            );
-          } catch {
-            return "#000000";
-          }
-        })(),
-        0.12
-      )}`,
-    }),
 
     variants: [
       /**

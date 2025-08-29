@@ -19,13 +19,13 @@ import { NavMobile } from "./nav-mobile";
 import { NavVertical } from "./nav-vertical";
 import { layoutClasses } from "../core/classes";
 // import { NavHorizontal } from './nav-horizontal';
-import { _account } from "../nav-config-account";
+import { _account } from "./conf/nav-config-account";
 import { MainSection } from "../core/main-section";
 import { MenuButton } from "@/components/menu-button";
 import { HeaderSection } from "../core/header-section";
 import { LayoutSection } from "../core/layout-section";
 import { AccountDrawer } from "@/components/account-drawer";
-import { navData as dashboardNavData } from "../nav-config-dashboard";
+import { navData as dashboardNavData } from "./conf/nav-config-dashboard";
 import { dashboardLayoutVars, dashboardNavColorVars } from "./css-vars";
 
 // ------------------------------------------------------

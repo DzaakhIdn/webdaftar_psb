@@ -1,6 +1,6 @@
-import { varAlpha } from 'minimal-shared/utils';
+import { varAlpha } from "minimal-shared/utils";
 
-import { grey, common } from './palette';
+import { grey, common } from "./palette";
 
 // ----------------------------------------------------------------------
 
@@ -10,7 +10,7 @@ function createShadows(colorChannel: string): string[] {
   const color3 = varAlpha(colorChannel, 0.12);
 
   return [
-    'none',
+    "none",
     `0px 2px 1px -1px ${color1},0px 1px 1px 0px ${color2},0px 1px 3px 0px ${color3}`,
     `0px 3px 1px -2px ${color1},0px 2px 2px 0px ${color2},0px 1px 5px 0px ${color3}`,
     `0px 3px 3px -2px ${color1},0px 3px 4px 0px ${color2},0px 1px 8px 0px ${color3}`,
@@ -40,7 +40,6 @@ function createShadows(colorChannel: string): string[] {
 
 // ----------------------------------------------------------------------
 
-export const shadows = {
-  light: createShadows((grey as Record<string, string>)['500Channel']),
-  dark: createShadows(common.blackChannel),
-};
+export const shadows = createShadows(
+  (grey as Record<string, string>)["500Channel"]
+);

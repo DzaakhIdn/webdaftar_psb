@@ -8,7 +8,7 @@ const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 console.log("API Register: Environment check", {
   hasUrl: !!supabaseUrl,
   hasKey: !!supabaseServiceKey,
-  url: supabaseUrl?.substring(0, 20) + "...", // Log partial URL for debugging
+  url: supabaseUrl?.substring(0, 20) + "...",
 });
 
 if (!supabaseUrl || !supabaseServiceKey) {
@@ -24,14 +24,14 @@ export async function POST(req: Request) {
 
     const body = await req.json();
     console.log("API Register: Request body received:", {
-      username: body.username,
+      email: body.email,
       nama_lengkap: body.nama_lengkap,
       hasPassword: !!body.password,
     });
 
-    const { username, password, nama_lengkap } = body;
+    const { email, password, nama_lengkap } = body;
 
-    if (!username || !password || !nama_lengkap) {
+    if (!email || !password || !nama_lengkap) {
       console.log("API Register: Missing required fields");
       return NextResponse.json(
         { error: "Semua field wajib diisi" },
@@ -39,29 +39,44 @@ export async function POST(req: Request) {
       );
     }
 
-    // Cek apakah username sudah ada
-    console.log("API Register: Checking if username exists");
+    // Cek apakah email sudah ada
+    console.log("API Register: Checking if email exists");
     const { data: existingUser, error: checkError } = await supabase
-      .from("users")
-      .select("id_user")
-      .eq("username", username)
+      .from("calonsiswa")
+      .select("id_siswa")
+      .eq("email", body.email)
       .single();
 
     if (checkError && checkError.code !== "PGRST116") {
       // PGRST116 means no rows found, which is what we want
       console.error("API Register: Error checking existing user:", checkError);
       return NextResponse.json(
-        { error: "Gagal memeriksa username" },
+        { error: "Gagal memeriksa email" },
         { status: 500 }
       );
     }
 
     if (existingUser) {
-      console.log("API Register: Username already exists");
+      console.log("API Register: email already exists");
       return NextResponse.json(
-        { error: "Username sudah digunakan" },
+        { error: "email sudah digunakan" },
         { status: 400 }
       );
+    }
+
+    const lastuser = await supabase
+      .from("calonsiswa")
+      .select("register_id")
+      .order("register_id", { ascending: false })
+      .limit(1)
+      .single();
+
+    let newId = "PSBHSI0001";
+    if (lastuser.data) {
+      const last_num = parseInt(
+        lastuser.data.register_id.replace("PSBHSI", "")
+      );
+      newId = `PSBHSI${(last_num + 1).toString().padStart(4, "0")}`;
     }
 
     console.log("API Register: Hashing password");
@@ -69,13 +84,14 @@ export async function POST(req: Request) {
 
     console.log("API Register: Inserting user to database");
     const { data, error } = await supabase
-      .from("users")
+      .from("calonsiswa")
       .insert([
         {
-          username,
+          register_id: newId,
           password_hash,
+          email,
           nama_lengkap,
-          role: "admin", // default
+          status_pendaftaran: "pending",
         },
       ])
       .select()
@@ -92,9 +108,11 @@ export async function POST(req: Request) {
     return NextResponse.json({
       message: "User berhasil didaftarkan",
       user: {
-        id: data.id_user,
-        username: data.username,
+        id: data.id_siswa,
+        register_id: data.register_id,
+        email: data.email,
         nama_lengkap: data.nama_lengkap,
+        status_pendaftaran: data.status_pendaftaran,
       },
     });
   } catch (err) {

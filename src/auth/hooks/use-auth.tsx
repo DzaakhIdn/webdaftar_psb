@@ -3,27 +3,42 @@
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 
-type User = {
+export type User = {
   id: string;
   email: string;
   role: string;
+  type?: string; // misalnya "dashboard" | "user" | "guest"
 };
 
+// 🔹 Map redirect path berdasarkan role + type
 const roleRoutes: Record<string, string> = {
-  admin: "/dashboard",
-  user: "/user/dashboard",// contoh tambahan
+  "admin:dashboard": "/dashboard",
+  "user:app": "/user/dashboard",
+  "guest:app": "/guest/home",
 };
 
-export function useAuth() {
+type UseAuthOptions = {
+  loginEndpoint?: string; // default /api/login
+  verifyEndpoint?: string; // default /api/auth/verify
+  logoutEndpoint?: string; // default /api/logout
+};
+
+export function useAuth(options: UseAuthOptions = {}) {
+  const {
+    loginEndpoint = "/api/login",
+    verifyEndpoint = "/api/auth/verify",
+    logoutEndpoint = "/api/logout",
+  } = options;
+
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
-  // 🔹 cek session saat pertama kali load
+
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const res = await fetch("/api/auth/verify", {
+        const res = await fetch(verifyEndpoint, {
           method: "GET",
           credentials: "include",
         });
@@ -45,7 +60,7 @@ export function useAuth() {
     };
 
     checkAuth();
-  }, []);
+  }, [verifyEndpoint]);
 
   // 🔹 login function
   const login = useCallback(
@@ -53,14 +68,15 @@ export function useAuth() {
       username: string,
       password: string,
       role?: string,
+      type?: string,
       redirectPath?: string
     ) => {
       try {
-        const res = await fetch("/api/login", {
+        const res = await fetch(loginEndpoint, {
           method: "POST",
           credentials: "include",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ username, password, role }),
+          body: JSON.stringify({ username, password, role, type }),
         });
 
         if (!res.ok) throw new Error("Login failed");
@@ -72,21 +88,22 @@ export function useAuth() {
         if (redirectPath) {
           router.push(redirectPath);
         } else {
-          // kalau tidak ada → pakai mapping role
-          router.push(roleRoutes[data.user.role] || "/");
+          // bikin key unik berdasarkan role + type
+          const key = `${data.user.role}:${data.user.type ?? "app"}`;
+          router.push(roleRoutes[key] || "/");
         }
       } catch (error) {
         console.error("Login error:", error);
         throw error;
       }
     },
-    [router]
+    [router, loginEndpoint]
   );
 
   // 🔹 logout function
   const logout = useCallback(async () => {
     try {
-      await fetch("/api/logout", {
+      await fetch(logoutEndpoint, {
         method: "POST",
         credentials: "include",
       });
@@ -96,7 +113,7 @@ export function useAuth() {
       setUser(null);
       router.push("/"); // default redirect
     }
-  }, [router]);
+  }, [router, logoutEndpoint]);
 
   return { user, loading, login, logout };
 }

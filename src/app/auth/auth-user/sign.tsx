@@ -1,4 +1,5 @@
 "use client";
+
 import { useEffect, useRef, useState } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -41,6 +42,10 @@ import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Montserrat, Space_Grotesk } from "next/font/google";
+import { useToast } from "@/components/providers/toast-provider";
+import { useRouter } from "next/navigation";
+
+//////////////////////////////////////////////////////////////////////////////////////////
 
 // Register GSAP plugins
 gsap.registerPlugin(ScrollTrigger);
@@ -58,19 +63,22 @@ const spaceGrotesk = Space_Grotesk({
 const formSchema = z
   .object({
     email: z.string().email("Email tidak valid"),
-    password: z.string().min(8, "Password minimal 8 karakter"),
-    fullname: z.string().min(3, "Nama minimal 3 karakter"),
+    password_hash: z.string().min(8, "Password minimal 8 karakter"),
+    nama_lengkap: z.string().min(3, "Nama minimal 3 karakter"),
     confirmPassword: z
       .string()
       .min(8, "Konfirmasi password minimal 8 karakter"),
-    jalur: z.string().min(1, "Pilih jalur pendaftaran"),
-    gender: z.string().min(1, "Pilih jenis kelamin"),
-    walsanId: z.string().min(1, "Masukan Id yang sudah di berikan"),
+    register_id: z.string().min(1, "Masukan ID Pendaftaran").optional(),
   })
-  .refine((data) => data.password === data.confirmPassword, {
+  .refine((data) => data.password_hash === data.confirmPassword, {
     message: "Password tidak cocok",
     path: ["confirmPassword"],
   });
+
+const signInSchema = z.object({
+  register_id: z.string().min(1, "Masukan ID Pendaftaran"),
+  password_hash: z.string().min(8, "Password minimal 8 karakter"),
+});
 
 const AuthPage = () => {
   const [isSignUp, setIsSignUp] = useState(false);
@@ -201,9 +209,9 @@ const AuthPage = () => {
       ref={containerRef}
       className={`min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50/50 to-purple-50/30 ${montserrat.className}`}
     >
-      <div className="h-full grid lg:grid-cols-2 relative overflow-hidden">
+      <div className="min-h-screen grid lg:grid-cols-2 relative overflow-hidden">
         {/* Left Panel - Form */}
-        <div className="flex items-center flex-col justify-center p-6 lg:p-12 relative z-10">
+        <div className="flex items-center flex-col justify-center p-6 lg:p-12 relative z-10 min-h-screen lg:min-h-0">
           {isSignUp ? <SignInPage /> : <SignUpPage />}
 
           <p className="text-center text-gray-600">
@@ -285,34 +293,88 @@ const AuthPage = () => {
 
 export default AuthPage;
 
+//=========================== SIGN UP ==============================
+
 const SignUpPage = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const formRef = useRef<HTMLDivElement>(null);
   const titleRef = useRef<HTMLParagraphElement>(null);
   const subtitleRef = useRef<HTMLParagraphElement>(null);
+  const { showSuccess, showError, showInfo } = useToast();
+  const buttonRef = useRef<HTMLButtonElement>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
     defaultValues: {
       email: "",
-      fullname: "",
-      password: "",
+      nama_lengkap: "",
+      password_hash: "",
       confirmPassword: "",
-      jalur: "",
-      gender: "",
     },
     resolver: zodResolver(formSchema),
   });
 
-  const onSubmit = (data: z.infer<typeof formSchema>) => {
-    // Button click animation
-    gsap.to(".submit-btn", {
-      scale: 0.95,
-      duration: 0.1,
-      ease: "power2.out",
-      yoyo: true,
-      repeat: 1,
-    });
-    console.log(data);
+  const onSubmit = async (data: z.infer<typeof formSchema>) => {
+    console.log("Form submitted with data:", data);
+
+    // Test toast first
+    showInfo("Form sedang diproses...");
+
+    setIsLoading(true); // Set loading state to true before the request is sent
+
+    try {
+      const apiData = {
+        email: data.email,
+        password: data.password_hash, // API expects 'password', form uses 'password_hash'
+        nama_lengkap: data.nama_lengkap,
+      };
+
+      console.log("Sending API data:", apiData);
+
+      const res = await fetch("/api/user/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(apiData),
+      });
+
+      console.log("API Response status:", res.status);
+
+      const json = await res.json();
+      console.log("API Response data:", json);
+
+      if (!res.ok) {
+        console.error("API Error:", json);
+        showError(
+          json.error || `Server error (${res.status}): ${res.statusText}`
+        );
+      } else if (json.error) {
+        console.error("API returned error:", json.error);
+        showError(json.error);
+      } else {
+        console.log("Registration successful:", json);
+        showSuccess(json.message || "Akun berhasil dibuat! Silakan login.");
+        form.reset(); // Reset form on success
+      }
+    } catch (error) {
+      console.error("Registration error:", error);
+      let errorMessage = "Terjadi kesalahan yang tidak diketahui";
+
+      if (error instanceof Error) {
+        if (error.message.includes("fetch")) {
+          errorMessage =
+            "Gagal terhubung ke server. Periksa koneksi internet Anda.";
+        } else if (error.message.includes("JSON")) {
+          errorMessage = "Server mengembalikan response yang tidak valid.";
+        } else {
+          errorMessage = error.message;
+        }
+      }
+
+      showError(errorMessage);
+    }
+    setIsLoading(false); // Set loading state to false after the request is complete
   };
 
   useEffect(() => {
@@ -445,7 +507,7 @@ const SignUpPage = () => {
               >
                 <FormField
                   control={form.control}
-                  name="fullname"
+                  name="nama_lengkap"
                   render={({ field }) => (
                     <FormItem className="form-field">
                       <FormLabel className="text-gray-700 font-medium">
@@ -487,7 +549,7 @@ const SignUpPage = () => {
 
                 <FormField
                   control={form.control}
-                  name="password"
+                  name="password_hash"
                   render={({ field }) => (
                     <FormItem className="form-field">
                       <FormLabel className="text-gray-700 font-medium">
@@ -528,10 +590,21 @@ const SignUpPage = () => {
                 />
 
                 <Button
+                  ref={buttonRef}
+                  disabled={isLoading}
                   type="submit"
                   className="submit-btn w-full h-12 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02] hover:cursor-pointer"
                 >
-                  Daftar Sekarang
+                  {isLoading ? (
+                    <div className="flex items-center gap-2">
+                      <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                      Membuat Akun...
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-2">
+                      Daftar Sekarang
+                    </div>
+                  )}
                 </Button>
               </form>
             </Form>
@@ -542,21 +615,28 @@ const SignUpPage = () => {
   );
 };
 
+//=========================== SIGN IN ==============================
+
 const SignInPage = () => {
+  const router = useRouter();
   const containerRef = useRef<HTMLDivElement>(null);
   const formRef = useRef<HTMLDivElement>(null);
   const titleRef = useRef<HTMLParagraphElement>(null);
   const subtitleRef = useRef<HTMLParagraphElement>(null);
+  const { showSuccess, showError, showInfo } = useToast();
+  const buttonRef = useRef<HTMLButtonElement>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const form = useForm<z.infer<typeof formSchema>>({
+  const form = useForm<z.infer<typeof signInSchema>>({
     defaultValues: {
-      walsanId: "",
-      password: "",
+      register_id: "",
+      password_hash: "",
     },
-    resolver: zodResolver(formSchema),
+    resolver: zodResolver(signInSchema),
   });
 
-  const onSubmit = (data: z.infer<typeof formSchema>) => {
+  const onSubmit = async (data: z.infer<typeof signInSchema>) => {
+    setIsLoading(true);
     // Button click animation
     gsap.to(".submit-btn", {
       scale: 0.95,
@@ -565,7 +645,56 @@ const SignInPage = () => {
       yoyo: true,
       repeat: 1,
     });
+
     console.log(data);
+
+    try {
+      const apiData = {
+        register_id: data.register_id,
+        password: data.password_hash, // API expects 'password', form uses 'password_hash'
+      };
+
+      console.log("Sending API data:", apiData);
+
+      const res = await fetch("/api/user/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(apiData),
+      });
+
+      // Show success message
+      showSuccess("Login berhasil! Mengarahkan ke dashboard...");
+      setTimeout(() => {
+        router.push("/registant");
+      }, 5100);
+
+      if (!res.ok) throw new Error("Login failed");
+
+      // Success animation
+      gsap.to(containerRef.current, {
+        scale: 1.02,
+        duration: 0.2,
+        ease: "power2.out",
+        yoyo: true,
+        repeat: 1,
+      });
+    } catch (error) {
+      // Show error message
+      showError("Periksa username dan password Anda.");
+
+      // Enhanced error shake animation
+      gsap.to(containerRef.current, {
+        x: -8,
+        duration: 0.1,
+        ease: "power2.out",
+        yoyo: true,
+        repeat: 5,
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -680,7 +809,7 @@ const SignInPage = () => {
               ref={titleRef}
               className={`text-3xl md:text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-500 to-blue-600 tracking-tight leading-tight ${spaceGrotesk.className}`}
             >
-              Selamat Datang Kembali, Wali Santri
+              Selamat Datang Kembali, Wali Santri!
             </p>
 
             <p ref={subtitleRef} className="text-gray-600 leading-relaxed">
@@ -698,16 +827,16 @@ const SignInPage = () => {
               >
                 <FormField
                   control={form.control}
-                  name="walsanId"
+                  name="register_id"
                   render={({ field }) => (
                     <FormItem className="form-field">
                       <FormLabel className="text-gray-700 font-medium">
-                        Walsan ID
+                        ID Pendaftaran
                       </FormLabel>
                       <FormControl>
                         <Input
                           type="text"
-                          placeholder="Masukkan nama lengkap"
+                          placeholder="Contoh: PSBHSI0001"
                           className="h-12 border-gray-200 focus:border-blue-400 focus:ring-blue-400/20 rounded-xl"
                           {...field}
                         />
@@ -719,7 +848,7 @@ const SignInPage = () => {
 
                 <FormField
                   control={form.control}
-                  name="password"
+                  name="password_hash"
                   render={({ field }) => (
                     <FormItem className="form-field">
                       <FormLabel className="text-gray-700 font-medium">
@@ -739,10 +868,19 @@ const SignInPage = () => {
                 />
 
                 <Button
+                  ref={buttonRef}
+                  disabled={isLoading}
                   type="submit"
                   className="submit-btn w-full h-12 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02] hover:cursor-pointer"
                 >
-                  Masuk
+                  {isLoading ? (
+                    <div className="flex items-center gap-2">
+                      <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                      sabar ya...
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-2">Masuk</div>
+                  )}
                 </Button>
               </form>
             </Form>

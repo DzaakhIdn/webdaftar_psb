@@ -14,13 +14,6 @@ const MuiDrawer = {
           theme.vars?.palette?.grey?.["500Channel"] || theme.palette.grey[500],
           0.24
         )}`,
-        ...theme.applyStyles("dark", {
-          boxShadow: `-40px 40px 80px -8px ${varAlpha(
-            theme.vars?.palette?.common?.blackChannel ||
-              theme.palette.common.black,
-            0.24
-          )}`,
-        }),
       }),
     }),
     paperAnchorLeft: ({ ownerState, theme }) => ({

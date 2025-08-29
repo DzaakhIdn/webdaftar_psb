@@ -18,7 +18,7 @@ export default function DashboardRootLayout({
 }) {
   return (
     <Providers>
-      <Suspense fallback={<div>Loading...</div>}>
+      <Suspense>
         <AuthGuard
           allowedRoles={["admin", "user"]}
           loginPath={paths.authDashboard.signIn}

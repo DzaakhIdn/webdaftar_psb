@@ -1,10 +1,10 @@
 import { SignUpView } from "@/auth/view/sign-up-view";
-import { AlertProvider } from "@/components/providers/alert-provider";
+import { ToastProvider } from "@/components/providers/toast-provider";
 
 export default function Page() {
   return (
-    <AlertProvider>
+    <ToastProvider>
       <SignUpView />
-    </AlertProvider>
+    </ToastProvider>
   );
 }
