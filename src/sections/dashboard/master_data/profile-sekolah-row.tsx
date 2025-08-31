@@ -1,5 +1,10 @@
 import { useBoolean, usePopover } from "minimal-shared/hooks";
 import { useState, useEffect } from "react";
+import { useForm, FormProvider } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { useToast } from "@/components/providers/toast-provider";
+import { FormField } from "@/components/ui/form";
 
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
@@ -16,14 +21,19 @@ import { ConfirmDialog } from "@/components/custom-dialog";
 
 import Dialog from "@mui/material/Dialog";
 import TextField from "@mui/material/TextField";
-import Typography from "@mui/material/Typography";
 import DialogTitle from "@mui/material/DialogTitle";
 import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
-import Switch from "@mui/material/Switch";
-import FormControlLabel from "@mui/material/FormControlLabel";
+import { updateData, deleteData } from "@/models";
 
 // ----------------------------------------------------------------------
+
+const updateProfileSekolahSchema = z.object({
+  npsn: z.string().min(1, "NPSN harus diisi").trim(),
+  nama_sekolah: z.string().min(1, "Nama sekolah harus diisi").trim(),
+  alamat_sekolah: z.string().min(1, "Alamat sekolah harus diisi").trim(),
+  no_telp: z.string().min(1, "No telepon harus diisi").trim(),
+});
 
 interface TrackTableRowProps {
   row: any;
@@ -31,6 +41,7 @@ interface TrackTableRowProps {
   editHref: string;
   onSelectRow: () => void;
   onDeleteRow: () => void;
+  onUpdateRow?: (updatedData: any) => void;
 }
 
 export function ListProfileSekolahTableRow({
@@ -39,65 +50,120 @@ export function ListProfileSekolahTableRow({
   editHref,
   onSelectRow,
   onDeleteRow,
+  onUpdateRow,
 }: TrackTableRowProps) {
   const confirmDialog = useBoolean();
   const openDialog = useBoolean();
+  const { showSuccess, showError } = useToast();
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Form state
-  const [formData, setFormData] = useState({
-    jenjangCode: "",
-    jenjangName: "",
-    quota: 0,
-    status: "aktif" as "aktif" | "nonaktif",
+  const form = useForm({
+    resolver: zodResolver(updateProfileSekolahSchema),
+    mode: "onChange",
+    defaultValues: {
+      npsn: "",
+      nama_sekolah: "",
+      alamat_sekolah: "",
+      no_telp: "",
+    },
   });
 
-  // Set default values when dialog opens
+  // Set form values when dialog opens
   useEffect(() => {
     if (openDialog.value && row) {
-      setFormData({
-        jenjangCode: row.jenjangCode || "",
-        jenjangName: row.jenjangName || "",
-        quota: row.quota || 0,
-        status: row.status || "aktif",
-      });
+      const formValues = {
+        npsn: row.npsn || "",
+        nama_sekolah: row.nama_sekolah || "",
+        alamat_sekolah: row.alamat_sekolah || "",
+        no_telp: row.no_telp || "",
+      };
+      form.reset(formValues);
     }
-  }, [openDialog.value, row]);
+  }, [openDialog.value, row.id]);
 
-  const handleInputChange =
-    (field: string) => (event: React.ChangeEvent<HTMLInputElement>) => {
-      let value: any = event.target.value;
+  const handleCloseDialog = () => {
+    form.reset();
+    openDialog.onFalse();
+  };
 
-      if (event.target.type === "checkbox") {
-        // For status field, convert boolean to "aktif"/"nonaktif"
-        if (field === "status") {
-          value = event.target.checked ? "aktif" : "nonaktif";
-        } else {
-          value = event.target.checked;
-        }
+  const handleUpdateData = async () => {
+    console.log("handleUpdateData called!");
+    if (isSubmitting) return;
+
+    setIsSubmitting(true);
+    try {
+      const data = form.getValues();
+
+      console.log("Row data:", row);
+      console.log("Form data:", data);
+
+      const dbData = {
+        npsn: data.npsn.trim(),
+        nama_sekolah: data.nama_sekolah.trim(),
+        alamat_sekolah: data.alamat_sekolah.trim(),
+        no_telp: data.no_telp.trim(),
+      };
+
+      console.log("Update params:", {
+        table: "profile_sekolah",
+        id: row.id,
+        id_name: "id",
+        data: dbData,
+      });
+
+      await updateData("profile_sekolah", row.id, "id", dbData);
+
+      if (onUpdateRow) {
+        onUpdateRow(dbData);
       }
 
-      setFormData((prev) => ({
-        ...prev,
-        [field]: value,
-      }));
-    };
+      showSuccess("Data berhasil diubah!");
+      handleCloseDialog();
+    } catch (error) {
+      console.error("Update error:", error);
+      showError(
+        `Error: ${error instanceof Error ? error.message : "Unknown error"}`
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
-  const handleSave = () => {
-    // Di sini Anda bisa menambahkan logic untuk menyimpan data
-    console.log("Saving data:", formData);
-    // Contoh: panggil API untuk update data
-    // await updateTrack(row.id, formData);
-    openDialog.onFalse();
+  const handleDeleteData = async () => {
+    try {
+      console.log("Full row data:", row);
+      console.log("Deleting profile sekolah with ID:", row.id);
+      console.log("Delete params:", {
+        table: "profile_sekolah",
+        id_name: "id",
+        id: row.id,
+      });
+
+      await deleteData("profile_sekolah", "id", row.id);
+
+      showSuccess("Data berhasil dihapus!");
+      confirmDialog.onFalse();
+
+      if (onDeleteRow) {
+        onDeleteRow();
+      }
+    } catch (error) {
+      console.error("Delete error:", error);
+      console.error("Error details:", error);
+      showError(
+        `Error: ${error instanceof Error ? error.message : "Unknown error"}`
+      );
+    }
   };
 
   const renderConfirmDialog = () => (
     <ConfirmDialog
       open={confirmDialog.value}
       onClose={confirmDialog.onFalse}
-      title="Delete"
-      content="Are you sure want to delete?"
+      title="Delete Profile Sekolah"
+      content="Apakah Anda yakin ingin menghapus data profile sekolah ini?"
       action={
-        <Button variant="contained" color="error" onClick={onDeleteRow}>
+        <Button variant="contained" color="error" onClick={handleDeleteData}>
           Delete
         </Button>
       }
@@ -105,62 +171,97 @@ export function ListProfileSekolahTableRow({
   );
 
   const renderFormDialog = () => (
-    <Dialog open={openDialog.value} onClose={openDialog.onFalse}>
-      <DialogTitle>Edit Jenjang</DialogTitle>
+    <Dialog open={openDialog.value} onClose={handleCloseDialog}>
+      <DialogTitle>Edit Profile Sekolah</DialogTitle>
 
       <DialogContent>
-        <Typography sx={{ mb: 3 }}>
-          Lorem ipsum, dolor sit amet consectetur adipisicing elit. Error
-          corporis reprehenderit nobis tempore distinctio maiores neque quos
-          eius rerum dolore.
-        </Typography>
-
-        <TextField
-          autoFocus
-          fullWidth
-          type="text"
-          margin="dense"
-          variant="outlined"
-          label="Kode Jalur"
-          value={formData.jenjangCode}
-          onChange={handleInputChange("jenjangCode")}
-        />
-        <TextField
-          fullWidth
-          type="text"
-          margin="dense"
-          variant="outlined"
-          label="Nama Jalur"
-          value={formData.jenjangName}
-          onChange={handleInputChange("jenjangName")}
-        />
-        <TextField
-          fullWidth
-          type="number"
-          margin="dense"
-          variant="outlined"
-          label="Jumlah Kuota"
-          value={formData.quota}
-          onChange={handleInputChange("quota")}
-        />
-
-        <FormControlLabel
-          control={
-            <Switch
-              checked={formData.status === "aktif"}
-              onChange={handleInputChange("status")}
+        <FormProvider {...form}>
+          <form
+            id="edit-profile-sekolah-form"
+            onSubmit={form.handleSubmit(handleUpdateData, (errors) => {
+              console.log("Form validation errors:", errors);
+              showError("Please check form validation errors");
+            })}
+            noValidate
+          >
+            <FormField
+              control={form.control}
+              name="npsn"
+              render={({ field, fieldState }) => (
+                <TextField
+                  {...field}
+                  label="NPSN"
+                  variant="outlined"
+                  margin="dense"
+                  fullWidth
+                  autoFocus
+                  error={!!fieldState.error}
+                  helperText={fieldState.error?.message}
+                />
+              )}
             />
-          }
-          label="Aktif"
-        />
+            <FormField
+              control={form.control}
+              name="nama_sekolah"
+              render={({ field, fieldState }) => (
+                <TextField
+                  {...field}
+                  label="Nama Sekolah"
+                  variant="outlined"
+                  margin="dense"
+                  fullWidth
+                  error={!!fieldState.error}
+                  helperText={fieldState.error?.message}
+                />
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="alamat_sekolah"
+              render={({ field, fieldState }) => (
+                <TextField
+                  {...field}
+                  label="Alamat Sekolah"
+                  variant="outlined"
+                  margin="dense"
+                  fullWidth
+                  multiline
+                  rows={3}
+                  error={!!fieldState.error}
+                  helperText={fieldState.error?.message}
+                />
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="no_telp"
+              render={({ field, fieldState }) => (
+                <TextField
+                  {...field}
+                  label="No Telepon"
+                  variant="outlined"
+                  margin="dense"
+                  fullWidth
+                  error={!!fieldState.error}
+                  helperText={fieldState.error?.message}
+                />
+              )}
+            />
+          </form>
+        </FormProvider>
       </DialogContent>
 
       <DialogActions>
-        <Button onClick={openDialog.onFalse} variant="outlined" color="inherit">
+        <Button onClick={handleCloseDialog} variant="outlined" color="inherit">
           Cancel
         </Button>
-        <Button onClick={handleSave} variant="contained">
-          Save
+        <Button
+          type="submit"
+          variant="contained"
+          form="edit-profile-sekolah-form"
+          disabled={isSubmitting}
+        >
+          {isSubmitting ? "Saving..." : "Save"}
         </Button>
       </DialogActions>
     </Dialog>
@@ -194,7 +295,7 @@ export function ListProfileSekolahTableRow({
 
         <TableCell>
           <ListItemText
-            primary={row.namaSekolah}
+            primary={row.nama_sekolah}
             slotProps={{
               primary: { noWrap: true, sx: { typography: "body2" } },
               secondary: { sx: { mt: 0.5, typography: "caption" } },
@@ -204,7 +305,7 @@ export function ListProfileSekolahTableRow({
 
         <TableCell>
           <ListItemText
-            primary={row.alamatSekolah}
+            primary={row.alamat_sekolah}
             slotProps={{
               primary: { noWrap: true, sx: { typography: "body2" } },
               secondary: { sx: { mt: 0.5, typography: "caption" } },
@@ -214,7 +315,7 @@ export function ListProfileSekolahTableRow({
 
         <TableCell>
           <ListItemText
-            primary={row.noTelp}
+            primary={row.no_telp}
             slotProps={{
               primary: { noWrap: true, sx: { typography: "body2" } },
               secondary: { sx: { mt: 0.5, typography: "caption" } },

@@ -69,7 +69,7 @@ export function FormRegView() {
             onChange={handleChange}
             aria-label="registration form tabs"
           >
-            <Tab label="Data Diri" {...a11yProps(0)} />
+            <Tab label="Form Daftar" {...a11yProps(0)} />
             <Tab label="Data Orang Tua" {...a11yProps(1)} />
             <Tab label="Alamat" {...a11yProps(2)} />
           </Tabs>

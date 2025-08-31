@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useBoolean, useSetState } from "minimal-shared/hooks";
+import { z } from "zod";
 
 import Box from "@mui/material/Box";
 import Card from "@mui/material/Card";
@@ -35,6 +36,9 @@ import { TrackTableToolbar } from "../track-table-toolbar";
 import { TrackTableFiltersResult } from "../track-table-filters-result";
 import { _jenjang } from "@/_mock/_invoice";
 import { paths } from "@/routes/paths";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Form, FormField } from "@/components/ui/form";
 
 import Dialog from "@mui/material/Dialog";
 import TextField from "@mui/material/TextField";
@@ -42,16 +46,24 @@ import Typography from "@mui/material/Typography";
 import DialogTitle from "@mui/material/DialogTitle";
 import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
+import { insertData, showAllData } from "@/models";
+import { useToast } from "@/components/providers/toast-provider";
 
 // =======================================================================
 
 interface Jenjang {
-  id: string;
+  id_jenjang: string;
   jenjangCode: string;
   jenjangName: string;
   quota: number;
   status: "aktif" | "nonaktif";
 }
+
+const createJenjang = z.object({
+  kode_jenjang: z.string().min(1, "Kode jenjang harus diisi"),
+  nama_jenjang: z.string().min(1, "Nama jenjang harus diisi"),
+  kuota: z.number().min(1, "Kuota harus lebih dari 0"),
+});
 
 const TABLE_HEAD = [
   { id: "jenjangCode", label: "Kode Jenjang", width: 250 },
@@ -65,10 +77,24 @@ const TABLE_HEAD = [
 
 export function ListJenjangView() {
   const table = useTable();
-
   const confirmDialog = useBoolean();
+  const [tableData, setTableData] = useState<Jenjang[]>([]);
+  const { showSuccess, showError } = useToast();
 
-  const [tableData, setTableData] = useState<Jenjang[]>(_jenjang as Jenjang[]);
+  // Load data on component mount
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const data = await showAllData("jenjang");
+        setTableData(data as Jenjang[]);
+      } catch (error) {
+        console.error("Error loading jenjang data:", error);
+        showError("Failed to load jenjang data");
+      }
+    };
+
+    loadData();
+  }, [showError]);
 
   const filtersState = useSetState({
     name: "",
@@ -94,7 +120,6 @@ export function ListJenjangView() {
   });
 
   const dataInPage = rowInPage(dataFiltered, table.page, table.rowsPerPage);
-
   const canReset =
     !!currentFilters.name ||
     currentFilters.role.length > 0 ||
@@ -104,75 +129,123 @@ export function ListJenjangView() {
 
   const handleDeleteRow = useCallback(
     (id: string) => {
-      const deleteRow = tableData.filter((row) => row.id !== id);
-
-      toast.success("Delete success!");
+      const deleteRow = tableData.filter((row) => row.id_jenjang !== id);
 
       setTableData(deleteRow);
-
       table.onUpdatePageDeleteRow(dataInPage.length);
     },
     [dataInPage.length, table, tableData]
   );
   const openDialog = useBoolean();
+  const form = useForm({
+    resolver: zodResolver(createJenjang),
+    defaultValues: {
+      kode_jenjang: "",
+      nama_jenjang: "",
+      kuota: 0,
+    },
+  });
 
+  const handleAddData = async (data: z.infer<typeof createJenjang>) => {
+    try {
+      console.log("Attempting to insert data:", data);
+      await insertData("jenjang", data);
+
+      showSuccess("Data berhasil ditambahkan!");
+      form.reset();
+      openDialog.onFalse(); // Close dialog after successful insert
+    } catch (error) {
+      console.error("Insert error:", error);
+      showError(
+        `Error: ${error instanceof Error ? error.message : "Unknown error"}`
+      );
+    }
+  };
   const renderFormDialog = () => (
     <Dialog open={openDialog.value} onClose={openDialog.onFalse}>
-      <DialogTitle>Edit Pembayaran</DialogTitle>
+      <DialogTitle>Tambah Jenjang</DialogTitle>
 
       <DialogContent>
-        <Typography sx={{ mb: 3 }}>
-          Lorem ipsum, dolor sit amet consectetur adipisicing elit. Error
-          corporis reprehenderit nobis tempore distinctio maiores neque quos
-          eius rerum dolore.
-        </Typography>
-
-        <TextField
-          autoFocus
-          fullWidth
-          type="text"
-          margin="dense"
-          variant="outlined"
-          label="Kode Pembayaran"
-        />
-        <TextField
-          autoFocus
-          fullWidth
-          type="text"
-          margin="dense"
-          variant="outlined"
-          label="Nama Pembayaran"
-        />
-        <TextField
-          autoFocus
-          fullWidth
-          type="number"
-          margin="dense"
-          variant="outlined"
-          label="Jumlah Biaya"
-        />
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(handleAddData)}>
+            <FormField
+              control={form.control}
+              name="kode_jenjang"
+              render={({ field }) => (
+                <TextField
+                  {...field}
+                  label="Kode Jenjang"
+                  variant="outlined"
+                  margin="dense"
+                  fullWidth
+                  autoFocus
+                />
+              )}
+            ></FormField>
+            <FormField
+              control={form.control}
+              name="nama_jenjang"
+              render={({ field }) => (
+                <TextField
+                  {...field}
+                  label="Nama Jenjang"
+                  variant="outlined"
+                  margin="dense"
+                  fullWidth
+                />
+              )}
+            ></FormField>
+            <FormField
+              control={form.control}
+              name="kuota"
+              render={({ field }) => (
+                <TextField
+                  {...field}
+                  label="Jumlah Kuota"
+                  variant="outlined"
+                  margin="dense"
+                  fullWidth
+                  type="number"
+                  value={field.value || 0}
+                  onChange={(e) =>
+                    field.onChange(parseInt(e.target.value) || 0)
+                  }
+                />
+              )}
+            ></FormField>
+            <DialogActions>
+              <Button
+                onClick={openDialog.onFalse}
+                variant="outlined"
+                color="inherit"
+              >
+                Cancel
+              </Button>
+              <Button type="submit" variant="contained">
+                Save
+              </Button>
+            </DialogActions>
+          </form>
+        </Form>
       </DialogContent>
-
-      <DialogActions>
-        <Button onClick={openDialog.onFalse} variant="outlined" color="inherit">
-          Cancel
-        </Button>
-        <Button onClick={openDialog.onFalse} variant="contained">
-          Save
-        </Button>
-      </DialogActions>
     </Dialog>
   );
 
   return (
     <>
-      <DashboardContent>
+      <DashboardContent
+        sx={{
+          borderTop: `solid 1px rgba(145, 158, 171, 0.12)`,
+          pt: 3,
+          mb: { xs: 3, md: 5 },
+        }}
+      >
         <CustomBreadcrumbs
-          heading="List Jalur"
+          heading="List Jenjang"
           links={[
             { name: "Dashboard", href: paths.dashboard.root },
             { name: "Master Data", href: paths.dashboard.finance.root },
-            { name: "List Jalur" },
+            { name: "List Jenjang" },
           ]}
           action={
             <Button
@@ -180,7 +253,7 @@ export function ListJenjangView() {
               variant="contained"
               startIcon={<Iconify icon="mingcute:add-line" />}
             >
-              Jalur Baru
+              Jenjang Baru
             </Button>
           }
           sx={{ mb: { xs: 3, md: 5 } }}
@@ -250,12 +323,22 @@ export function ListJenjangView() {
                     )
                     .map((row: Jenjang) => (
                       <ListJenjangTableRow
-                        key={row.id}
+                        key={row.id_jenjang}
                         row={row}
-                        selected={table.selected.includes(row.id)}
-                        onSelectRow={() => table.onSelectRow(row.id)}
-                        onDeleteRow={() => handleDeleteRow(row.id)}
-                        editHref={paths.dashboard.user.edit(row.id)}
+                        selected={table.selected.includes(row.id_jenjang)}
+                        onSelectRow={() => table.onSelectRow(row.id_jenjang)}
+                        onDeleteRow={() => handleDeleteRow(row.id_jenjang)}
+                        onUpdateRow={(updatedData) => {
+                          // Update the row in the table data
+                          setTableData((prev) =>
+                            prev.map((item) =>
+                              item.id_jenjang === row.id_jenjang
+                                ? { ...item, ...updatedData }
+                                : item
+                            )
+                          );
+                        }}
+                        editHref={paths.dashboard.user.edit(row.id_jenjang)}
                       />
                     ))}
 

@@ -654,8 +654,6 @@ const SignInPage = () => {
         password: data.password_hash, // API expects 'password', form uses 'password_hash'
       };
 
-      console.log("Sending API data:", apiData);
-
       const res = await fetch("/api/user/login", {
         method: "POST",
         headers: {

@@ -13,13 +13,8 @@ import { useToast } from "@/components/providers/toast-provider";
 import { Button } from "@/components/ui/button";
 import {
   Form,
-  FormControl,
   FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
 } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
 import {
   Card,
   CardContent,
@@ -27,7 +22,9 @@ import {
   CardTitle,
   CardDescription,
 } from "@/components/ui/card";
+import { TextField } from "@mui/material";
 import { api, paths } from "@/routes/paths";
+import { IconButton } from "@mui/material";
 
 const SignInSchema = z.object({
   username: z.string(),
@@ -158,7 +155,13 @@ export function SignInView() {
     });
 
     try {
-      await login(data.username, data.password, "admin", "dashboard", paths.dashboard.root);
+      await login(
+        data.username,
+        data.password,
+        "admin",
+        "dashboard",
+        paths.dashboard.root
+      );
 
       // Show success message
       showSuccess("Login berhasil! Mengarahkan ke dashboard...");
@@ -223,8 +226,6 @@ export function SignInView() {
       </div>
 
       <div className="relative z-10 w-full max-w-md px-6">
-        <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-16 h-1 bg-gradient-to-r from-blue-400 to-blue-600 rounded-full opacity-70" />
-
         <Card
           ref={containerRef}
           className="backdrop-blur-md bg-white/90 border border-white/20 shadow-2xl shadow-slate-900/10 rounded-3xl overflow-hidden relative"
@@ -237,10 +238,10 @@ export function SignInView() {
           >
             <div className="flex justify-center mb-4">
               <div className="relative">
-                <div className="w-16 h-16 bg-gradient-to-br from-blue-600 via-blue-700 to-blue-800 rounded-2xl flex items-center justify-center shadow-xl shadow-blue-900/20">
+                <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center shadow-xl shadow-blue-900/20">
                   <LogIn size={24} className="text-white" />
                 </div>
-                <div className="absolute inset-0 bg-gradient-to-br from-blue-500 to-blue-700 rounded-2xl blur-lg opacity-30 -z-10" />
+                <div className="absolute inset-0 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl blur-lg opacity-30 -z-10" />
               </div>
             </div>
             <CardTitle className="text-3xl font-extralight text-center text-blue-900 tracking-wide leading-tight">
@@ -266,23 +267,14 @@ export function SignInView() {
                     control={form.control}
                     name="username"
                     render={({ field }) => (
-                      <FormItem className="space-y-2">
-                        <FormLabel className="text-sm font-medium text-blue-800">
-                          Username
-                        </FormLabel>
-                        <FormControl>
-                          <div className="relative">
-                            <Input
-                              placeholder="admin"
-                              className="h-14 bg-blue-50/30 border-blue-200/60 rounded-2xl focus:bg-white focus:border-blue-400 focus:shadow-lg focus:shadow-blue-200/50 transition-all duration-300 text-blue-900 placeholder:text-blue-400 pl-4 font-light"
-                              {...field}
-                            />
-                            {/* Input focus glow */}
-                            <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-blue-200/0 via-blue-200/20 to-blue-200/0 opacity-0 group-focus-within:opacity-100 transition-opacity duration-300 pointer-events-none" />
-                          </div>
-                        </FormControl>
-                        <FormMessage className="text-xs" />
-                      </FormItem>
+                      <TextField
+                        {...field}
+                        fullWidth
+                        label="Username"
+                        placeholder="admin"
+                        variant="outlined"
+                        value={field.value}
+                      />
                     )}
                   />
                 </div>
@@ -296,36 +288,39 @@ export function SignInView() {
                     control={form.control}
                     name="password"
                     render={({ field }) => (
-                      <FormItem className="space-y-2">
-                        <FormLabel className="text-sm font-medium text-blue-800">
-                          Password
-                        </FormLabel>
-                        <FormControl>
-                          <div className="relative group">
-                            <Input
-                              type={showPassword ? "text" : "password"}
-                              placeholder="••••••••"
-                              className="h-14 bg-blue-50/30 border-blue-200/60 rounded-2xl focus:bg-white focus:border-blue-400 focus:shadow-lg focus:shadow-blue-200/50 transition-all duration-300 text-blue-900 placeholder:text-blue-400 pr-14 pl-4 font-light"
-                              {...field}
-                            />
-                            {/* Input focus glow */}
-                            <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-blue-200/0 via-blue-200/20 to-blue-200/0 opacity-0 group-focus-within:opacity-100 transition-opacity duration-300 pointer-events-none" />
-
-                            <button
-                              type="button"
-                              onClick={() => setShowPassword(!showPassword)}
-                              className="absolute right-4 top-1/2 -translate-y-1/2 text-blue-400 hover:text-blue-600 transition-all duration-200 p-2 rounded-lg hover:bg-blue-100/50"
-                            >
-                              {showPassword ? (
-                                <EyeOff size={20} />
-                              ) : (
-                                <Eye size={20} />
-                              )}
-                            </button>
-                          </div>
-                        </FormControl>
-                        <FormMessage className="text-xs" />
-                      </FormItem>
+                      <TextField
+                        {...field}
+                        fullWidth
+                        label="Password"
+                        placeholder="••••••••"
+                        type={showPassword ? "text" : "password"}
+                        variant="outlined"
+                        value={field.value}
+                        slotProps={{
+                          input: {
+                            endAdornment: (
+                              <IconButton
+                                type="button"
+                                onClick={() => setShowPassword(!showPassword)}
+                                edge="end"
+                                sx={{
+                                  color: "text.secondary",
+                                  "&:hover": {
+                                    color: "primary.main",
+                                    backgroundColor: "action.hover",
+                                  },
+                                }}
+                              >
+                                {showPassword ? (
+                                  <EyeOff size={20} />
+                                ) : (
+                                  <Eye size={20} />
+                                )}
+                              </IconButton>
+                            ),
+                          },
+                        }}
+                      />
                     )}
                   />
                 </div>
@@ -334,7 +329,7 @@ export function SignInView() {
                   <Button
                     ref={buttonRef}
                     type="submit"
-                    className="w-full h-14 bg-gradient-to-r from-blue-600 via-blue-700 to-blue-800 hover:from-blue-700 hover:via-blue-800 hover:to-blue-900 text-white font-light rounded-2xl shadow-xl shadow-blue-900/20 hover:shadow-2xl hover:shadow-blue-900/30 transition-all duration-400 relative overflow-hidden group"
+                    className="w-full h-14 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-light rounded-2xl shadow-xl shadow-blue-900/20 hover:shadow-2xl hover:shadow-blue-900/30 transition-all duration-400 relative overflow-hidden group"
                     disabled={isLoading}
                   >
                     {/* Button shine effect */}

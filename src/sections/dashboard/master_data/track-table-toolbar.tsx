@@ -30,7 +30,6 @@ export function TrackTableToolbar({
   options,
   onResetPage,
 }: TrackTableToolbarProps) {
-  const menuActions = usePopover();
 
   const { state: currentFilters, setState: updateFilters } = filters;
 
@@ -38,19 +37,6 @@ export function TrackTableToolbar({
     (event: any) => {
       onResetPage();
       updateFilters({ name: event.target.value });
-    },
-    [onResetPage, updateFilters]
-  );
-
-  const handleFilterService = useCallback(
-    (event: any) => {
-      const newValue =
-        typeof event.target.value === "string"
-          ? event.target.value.split(",")
-          : event.target.value;
-
-      onResetPage();
-      updateFilters({ service: newValue });
     },
     [onResetPage, updateFilters]
   );
@@ -71,32 +57,6 @@ export function TrackTableToolbar({
     [onResetPage, updateFilters]
   );
 
-  const renderMenuActions = () => (
-    <CustomPopover
-      open={menuActions.open}
-      anchorEl={menuActions.anchorEl}
-      onClose={menuActions.onClose}
-      slotProps={{ arrow: { placement: "right-top" } }}
-    >
-      <MenuList>
-        <MenuItem onClick={() => menuActions.onClose()}>
-          <Iconify icon="solar:printer-minimalistic-bold" />
-          Print
-        </MenuItem>
-
-        <MenuItem onClick={() => menuActions.onClose()}>
-          <Iconify icon="solar:import-bold" />
-          Import
-        </MenuItem>
-
-        <MenuItem onClick={() => menuActions.onClose()}>
-          <Iconify icon="solar:export-bold" />
-          Export
-        </MenuItem>
-      </MenuList>
-    </CustomPopover>
-  );
-
   return (
     <>
       <Box
@@ -109,37 +69,6 @@ export function TrackTableToolbar({
           alignItems: { xs: "flex-end", md: "center" },
         }}
       >
-        <FormControl sx={{ flexShrink: 0, width: { xs: 1, md: 180 } }}>
-          <InputLabel htmlFor="filter-service-select">Pembayaran</InputLabel>
-          <Select
-            multiple
-            value={currentFilters.service}
-            onChange={handleFilterService}
-            input={<OutlinedInput label="Pembayaran" />}
-            renderValue={(selected) =>
-              selected.map((value: any) => value).join(", ")
-            }
-            inputProps={{ id: "filter-service-select" }}
-            sx={{ textTransform: "capitalize" }}
-          >
-            {options.services.map((option: any) => (
-              <MenuItem key={option} value={option}>
-                <Checkbox
-                  disableRipple
-                  size="small"
-                  checked={currentFilters.service.includes(option)}
-                  slotProps={{
-                    input: {
-                      id: `${option}-checkbox`,
-                      "aria-label": `${option} checkbox`,
-                    },
-                  }}
-                />
-                {option}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
 
         {/* <DatePicker
           label="Start date"
@@ -184,7 +113,7 @@ export function TrackTableToolbar({
             fullWidth
             value={currentFilters.name}
             onChange={handleFilterName}
-            placeholder="Search customer or invoice number..."
+            placeholder="Search..."
             slotProps={{
               input: {
                 startAdornment: (
@@ -198,14 +127,8 @@ export function TrackTableToolbar({
               },
             }}
           />
-
-          <IconButton onClick={menuActions.onOpen}>
-            <Iconify icon="eva:more-vertical-fill" />
-          </IconButton>
         </Box>
       </Box>
-
-      {renderMenuActions()}
     </>
   );
 }

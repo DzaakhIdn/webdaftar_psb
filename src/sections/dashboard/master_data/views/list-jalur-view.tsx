@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useBoolean, useSetState } from "minimal-shared/hooks";
+import { z } from "zod";
 
 import Box from "@mui/material/Box";
 import Card from "@mui/material/Card";
@@ -33,8 +34,7 @@ import {
 import { ListTrackTableRow } from "../list-track-row";
 import { TrackTableToolbar } from "../track-table-toolbar";
 import { TrackTableFiltersResult } from "../track-table-filters-result";
-import { _jalur, JALUR_STATUS } from "@/_mock";
-import { paths } from "@/routes/paths";
+import { api, paths } from "@/routes/paths";
 
 import Dialog from "@mui/material/Dialog";
 import TextField from "@mui/material/TextField";
@@ -42,21 +42,32 @@ import Typography from "@mui/material/Typography";
 import DialogTitle from "@mui/material/DialogTitle";
 import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
+import { Form, FormField } from "@/components/ui/form";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useToast } from "@/components/providers/toast-provider";
+import { fetchData } from "@/models/datas/fetch-data";
 
 // =======================================================================
 
 interface Jalur {
-  id: string;
-  trackCode: string;
-  trackName: string;
-  quota: number;
+  id_jalur: string;
+  kode_jalur: string;
+  nama_jalur: string;
+  kuota: number;
   status: "aktif" | "nonaktif";
 }
 
+const createJalur = z.object({
+  kode_jalur: z.string().min(1, "Kode jalur harus diisi"),
+  nama_jalur: z.string().min(1, "Nama jalur harus diisi"),
+  kuota: z.number().min(1, "Kuota harus lebih dari 0"),
+});
+
 const TABLE_HEAD = [
-  { id: "trackCode", label: "Kode Jalur", width: 250 },
-  { id: "trackName", label: "Nama Jalur", width: 200 },
-  { id: "quota", label: "Jumlah Kuota", width: 200 },
+  { id: "kode_jalur", label: "Kode Jalur", width: 250 },
+  { id: "nama_jalur", label: "Nama Jalur", width: 200 },
+  { id: "kuota", label: "Jumlah Kuota", width: 200 },
   { id: "status", label: "Status", width: 120 },
   { id: "actions", label: "", width: 100 },
 ];
@@ -65,15 +76,18 @@ const TABLE_HEAD = [
 
 export function ListJalurView() {
   const table = useTable();
-
   const confirmDialog = useBoolean();
+  const [tableData, setTableData] = useState<Jalur[]>([]);
+  const { showSuccess, showError } = useToast();
 
-  const [tableData, setTableData] = useState<Jalur[]>(_jalur as Jalur[]);
+  // Load data on component mount
+  fetchData("jalur", tableData, setTableData, showError);
 
   const filtersState = useSetState({
     name: "",
     role: [] as string[],
     status: "all",
+    service: [] as string[],
   });
   const {
     state: currentFilters,
@@ -93,80 +107,188 @@ export function ListJalurView() {
     filters: currentFilters,
   });
 
+  const form = useForm({
+    resolver: zodResolver(createJalur),
+    defaultValues: {
+      kode_jalur: "",
+      nama_jalur: "",
+      kuota: 0,
+    },
+  });
+
   const dataInPage = rowInPage(dataFiltered, table.page, table.rowsPerPage);
 
   const canReset =
     !!currentFilters.name ||
     currentFilters.role.length > 0 ||
-    currentFilters.status !== "all";
+    currentFilters.status !== "all" ||
+    currentFilters.service.length > 0;
 
   const notFound = (!dataFiltered.length && canReset) || !dataFiltered.length;
 
   const handleDeleteRow = useCallback(
     (id: string) => {
-      const deleteRow = tableData.filter((row) => row.id !== id);
+      const deleteRow = async () => {
+        try {
+          const response = await fetch(api.dashboard.deleteJalur(id), {
+            method: "DELETE",
+          });
 
-      toast.success("Delete success!");
+          if (!response.ok) {
+            console.error("Response not ok:", response.statusText);
+            console.error("Response status:", response.status);
+            console.error("Response headers:", response.headers);
+            console.error("Response body:", await response.text());
+            console.error("Response json:", await response.json());
+            console.error("Response url:", response.url);
+            throw new Error(response.statusText);
+          }
 
-      setTableData(deleteRow);
+          setTableData((prevData) =>
+            prevData.filter((row) => row.id_jalur !== id)
+          );
+          showSuccess("Data berhasil dihapus!");
+          console.log("Data berhasil dihapus!");
+        } catch (error) {
+          console.error("Delete error:", error);
+          showError("Failed to delete data");
+        }
+      };
+      deleteRow();
 
       table.onUpdatePageDeleteRow(dataInPage.length);
     },
-    [dataInPage.length, table, tableData]
+    [dataInPage.length, table, showError]
   );
+
+  const handleUpdateRow = useCallback(
+    (id: string, updatedData: Partial<Jalur>) => {
+      setTableData((prevData) =>
+        prevData.map((row) =>
+          row.id_jalur === id ? { ...row, ...updatedData } : row
+        )
+      );
+    },
+    []
+  );
+
+  const handleAddData = async (data: z.infer<typeof createJalur>) => {
+    try {
+      console.log("Attempting to insert data:", data);
+      const response = await fetch(api.dashboard.jalur, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
+
+      if (!response.ok) {
+        console.error("Response not ok:", response.statusText);
+        console.error("Response status:", response.status);
+        console.error("Response headers:", response.headers);
+        console.error("Response body:", await response.text());
+        console.error("Response json:", await response.json());
+        console.error("Response url:", response.url);
+        throw new Error(response.statusText);
+      }
+
+      showSuccess("Data berhasil ditambahkan!");
+      form.reset();
+      openDialog.onFalse(); // Close dialog after successful insert
+    } catch (error) {
+      console.error("Insert error:", error);
+      showError(
+        `Error: ${error instanceof Error ? error.message : "Unknown error"}`
+      );
+    }
+  };
   const openDialog = useBoolean();
 
   const renderFormDialog = () => (
     <Dialog open={openDialog.value} onClose={openDialog.onFalse}>
-      <DialogTitle>Edit Pembayaran</DialogTitle>
+      <DialogTitle>Tambah Jalur</DialogTitle>
 
       <DialogContent>
-        <Typography sx={{ mb: 3 }}>
-          Lorem ipsum, dolor sit amet consectetur adipisicing elit. Error
-          corporis reprehenderit nobis tempore distinctio maiores neque quos
-          eius rerum dolore.
-        </Typography>
+        <Form {...form}>
+          <form action="#" onSubmit={form.handleSubmit(handleAddData)}>
+            <FormField
+              control={form.control}
+              name="kode_jalur"
+              render={({ field }) => (
+                <TextField
+                  {...field}
+                  label="Kode Jalur"
+                  variant="outlined"
+                  margin="dense"
+                  fullWidth
+                  autoFocus
+                />
+              )}
+            ></FormField>
+            <FormField
+              control={form.control}
+              name="nama_jalur"
+              render={({ field }) => (
+                <TextField
+                  {...field}
+                  label="Nama Jalur"
+                  variant="outlined"
+                  margin="dense"
+                  fullWidth
+                />
+              )}
+            ></FormField>
+            <FormField
+              control={form.control}
+              name="kuota"
+              render={({ field }) => (
+                <TextField
+                  {...field}
+                  label="Jumlah Kuota"
+                  variant="outlined"
+                  margin="dense"
+                  fullWidth
+                  type="number"
+                  value={field.value || 0}
+                  onChange={(e) =>
+                    field.onChange(parseInt(e.target.value) || 0)
+                  }
+                />
+              )}
+            ></FormField>
 
-        <TextField
-          autoFocus
-          fullWidth
-          type="text"
-          margin="dense"
-          variant="outlined"
-          label="Kode Pembayaran"
-        />
-        <TextField
-          autoFocus
-          fullWidth
-          type="text"
-          margin="dense"
-          variant="outlined"
-          label="Nama Pembayaran"
-        />
-        <TextField
-          autoFocus
-          fullWidth
-          type="number"
-          margin="dense"
-          variant="outlined"
-          label="Jumlah Biaya"
-        />
+            <DialogActions>
+              <Button
+                onClick={openDialog.onFalse}
+                variant="outlined"
+                color="inherit"
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                onClick={openDialog.onFalse}
+                variant="contained"
+              >
+                Save
+              </Button>
+            </DialogActions>
+          </form>
+        </Form>
       </DialogContent>
-
-      <DialogActions>
-        <Button onClick={openDialog.onFalse} variant="outlined" color="inherit">
-          Cancel
-        </Button>
-        <Button onClick={openDialog.onFalse} variant="contained">
-          Save
-        </Button>
-      </DialogActions>
     </Dialog>
   );
 
   return (
     <>
-      <DashboardContent>
+      <DashboardContent
+        sx={{
+          borderTop: `solid 1px rgba(145, 158, 171, 0.12)`,
+          pt: 3,
+          mb: { xs: 3, md: 5 },
+        }}
+      >
         <CustomBreadcrumbs
           heading="List Jalur"
           links={[
@@ -210,7 +332,7 @@ export function ListJalurView() {
               onSelectAllRows={(checked) =>
                 table.onSelectAllRows(
                   checked,
-                  dataFiltered.map((row: { id: string }) => row.id)
+                  dataFiltered.map((row) => row.id_jalur)
                 )
               }
               action={
@@ -237,7 +359,7 @@ export function ListJalurView() {
                   onSelectAllRows={(checked) =>
                     table.onSelectAllRows(
                       checked,
-                      dataFiltered.map((row: { id: string }) => row.id)
+                      dataFiltered.map((row) => row.id_jalur)
                     )
                   }
                 />
@@ -250,12 +372,15 @@ export function ListJalurView() {
                     )
                     .map((row: Jalur) => (
                       <ListTrackTableRow
-                        key={row.id}
+                        key={row.id_jalur}
                         row={row}
-                        selected={table.selected.includes(row.id)}
-                        onSelectRow={() => table.onSelectRow(row.id)}
-                        onDeleteRow={() => handleDeleteRow(row.id)}
-                        editHref={paths.dashboard.user.edit(row.id)}
+                        selected={table.selected.includes(row.id_jalur)}
+                        onSelectRow={() => table.onSelectRow(row.id_jalur)}
+                        onDeleteRow={() => handleDeleteRow(row.id_jalur)}
+                        onUpdateRow={(updatedData) =>
+                          handleUpdateRow(row.id_jalur, updatedData)
+                        }
+                        editHref={paths.dashboard.user.edit(row.id_jalur)}
                       />
                     ))}
 
@@ -298,7 +423,7 @@ function applyFilter({
   comparator: (a: Jalur, b: Jalur) => number;
   filters: { name: string; role: string[]; status: string };
 }): Jalur[] {
-  const { status } = filters;
+  const { name, status } = filters;
 
   const stabilizedThis: [Jalur, number][] = inputData.map((el, index) => [
     el,
@@ -313,8 +438,16 @@ function applyFilter({
 
   let filteredData: Jalur[] = stabilizedThis.map((el) => el[0]);
 
+  if (name) {
+    filteredData = filteredData.filter(
+      (jalur) =>
+        jalur.kode_jalur.toLowerCase().includes(name.toLowerCase()) ||
+        jalur.nama_jalur.toLowerCase().includes(name.toLowerCase())
+    );
+  }
+
   if (status !== "all") {
-    filteredData = filteredData.filter((user) => user.status === status);
+    filteredData = filteredData.filter((jalur) => jalur.status === status);
   }
 
   return filteredData;

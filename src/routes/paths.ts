@@ -16,12 +16,16 @@ export const api = {
   dashboard: {
     login: `${ROOTS_API.DASHBOARD}/login`,
     register: `${ROOTS_API.DASHBOARD}/register`,
+    jalur: `${ROOTS_API.DASHBOARD}/jalur`,
+    deleteJalur: (id: string) => `${ROOTS_API.DASHBOARD}/del-jalur/${id}`,
   },
 
   user: {
     login: `${ROOTS_API.USER}/login`,
     register: `${ROOTS_API.USER}/register`,
-    me: `${ROOTS_API.USER}/me`, // get current user data
+    me: `${ROOTS_API.USER}/me`,
+    jalur: `${ROOTS_API.USER}/jalur`,
+    jalurFinal: `${ROOTS_API.USER}/jalur-final`, // get current user data
   },
 };
 
@@ -31,6 +35,7 @@ export const paths = {
   maintenance: "/maintenance",
   page404: "/404",
   page500: "/500",
+  unauthorized: "/unauthorized",
 
   authDashboard: {
     root: ROOTS.AUTH,

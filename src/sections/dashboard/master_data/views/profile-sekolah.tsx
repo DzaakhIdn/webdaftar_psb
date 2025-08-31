@@ -1,7 +1,10 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useBoolean, useSetState } from "minimal-shared/hooks";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 
 import Box from "@mui/material/Box";
 import Card from "@mui/material/Card";
@@ -12,7 +15,7 @@ import TableBody from "@mui/material/TableBody";
 import IconButton from "@mui/material/IconButton";
 import { DashboardContent } from "@/layout/dashboard";
 import { Label } from "@/components/label";
-import { toast } from "@/components/snackbar";
+
 import { Iconify } from "@/components/iconify";
 import { Scrollbar } from "@/components/scrollbar";
 import { ConfirmDialog } from "@/components/custom-dialog";
@@ -42,6 +45,10 @@ import Typography from "@mui/material/Typography";
 import DialogTitle from "@mui/material/DialogTitle";
 import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
+import { Form, FormField } from "@/components/ui/form";
+import { insertData } from "@/models/insert-data";
+import { showAllData } from "@/models/show-all-data";
+import { useToast } from "@/components/providers/toast-provider";
 
 // =======================================================================
 
@@ -65,10 +72,31 @@ const TABLE_HEAD = [
 
 export function ListProfileSekolahView() {
   const table = useTable();
-
   const confirmDialog = useBoolean();
+  const [tableData, setTableData] = useState<ProfileSekolah[]>([]);
+  const { showSuccess, showError } = useToast();
 
-  const [tableData, setTableData] = useState<ProfileSekolah[]>(_profileSekolah as ProfileSekolah[]);
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const data = await showAllData("profile_sekolah");
+        // console.log("Profile sekolah data:", data);
+        setTableData(data as ProfileSekolah[]);
+      } catch (error) {
+        console.error("Error loading profile sekolah data:", error);
+        showError("Failed to load profile sekolah data");
+      }
+    };
+
+    loadData();
+  }, [showError]);
+
+  const createProfileSekolah = z.object({
+    npsn: z.string().min(1, "NPSN is required"),
+    nama_sekolah: z.string().min(1, "Nama Sekolah is required"),
+    alamat_sekolah: z.string().min(1, "Alamat Sekolah is required"),
+    no_telp: z.string().min(1, "No Telp is required"),
+  });
 
   const filtersState = useSetState({
     name: "",
@@ -106,67 +134,129 @@ export function ListProfileSekolahView() {
     (id: string) => {
       const deleteRow = tableData.filter((row) => row.id !== id);
 
-      toast.success("Delete success!");
-
       setTableData(deleteRow);
-
       table.onUpdatePageDeleteRow(dataInPage.length);
     },
     [dataInPage.length, table, tableData]
   );
   const openDialog = useBoolean();
+  const form = useForm({
+    resolver: zodResolver(createProfileSekolah),
+    defaultValues: {
+      npsn: "",
+      nama_sekolah: "",
+      alamat_sekolah: "",
+      no_telp: "",
+    },
+  });
 
+  const handleAddData = async (data: z.infer<typeof createProfileSekolah>) => {
+    try {
+      console.log("Attempting to insert data:", data);
+      await insertData("profile_sekolah", data);
+
+      showSuccess("Data berhasil ditambahkan!");
+      form.reset();
+      openDialog.onFalse(); // Close dialog after successful insert
+    } catch (error) {
+      console.error("Insert error:", error);
+      showError(
+        `Error: ${error instanceof Error ? error.message : "Unknown error"}`
+      );
+    }
+  };
   const renderFormDialog = () => (
     <Dialog open={openDialog.value} onClose={openDialog.onFalse}>
-      <DialogTitle>Edit Pembayaran</DialogTitle>
+      <DialogTitle>Tambah Profile Sekolah</DialogTitle>
 
       <DialogContent>
-        <Typography sx={{ mb: 3 }}>
-          Lorem ipsum, dolor sit amet consectetur adipisicing elit. Error
-          corporis reprehenderit nobis tempore distinctio maiores neque quos
-          eius rerum dolore.
-        </Typography>
-
-        <TextField
-          autoFocus
-          fullWidth
-          type="text"
-          margin="dense"
-          variant="outlined"
-          label="Kode Pembayaran"
-        />
-        <TextField
-          autoFocus
-          fullWidth
-          type="text"
-          margin="dense"
-          variant="outlined"
-          label="Nama Pembayaran"
-        />
-        <TextField
-          autoFocus
-          fullWidth
-          type="number"
-          margin="dense"
-          variant="outlined"
-          label="Jumlah Biaya"
-        />
+        <Form {...form}>
+          <form action="#" onSubmit={form.handleSubmit(handleAddData)}>
+            <FormField
+              control={form.control}
+              name="npsn"
+              render={({ field }) => (
+                <TextField
+                  {...field}
+                  label="NPSN"
+                  variant="outlined"
+                  margin="dense"
+                  fullWidth
+                  autoFocus
+                />
+              )}
+            ></FormField>
+            <FormField
+              control={form.control}
+              name="nama_sekolah"
+              render={({ field }) => (
+                <TextField
+                  {...field}
+                  label="Nama Sekolah"
+                  variant="outlined"
+                  margin="dense"
+                  fullWidth
+                />
+              )}
+            ></FormField>
+            <FormField
+              control={form.control}
+              name="alamat_sekolah"
+              render={({ field }) => (
+                <TextField
+                  {...field}
+                  label="Alamat Sekolah"
+                  variant="outlined"
+                  margin="dense"
+                  fullWidth
+                />
+              )}
+            ></FormField>
+            <FormField
+              control={form.control}
+              name="no_telp"
+              render={({ field }) => (
+                <TextField
+                  {...field}
+                  label="No Telp"
+                  variant="outlined"
+                  margin="dense"
+                  fullWidth
+                />
+              )}
+            ></FormField>
+            <DialogActions>
+              <Button
+                onClick={openDialog.onFalse}
+                variant="outlined"
+                color="inherit"
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                onClick={openDialog.onFalse}
+                variant="contained"
+              >
+                Save
+              </Button>
+            </DialogActions>
+          </form>
+        </Form>
       </DialogContent>
-
-      <DialogActions>
-        <Button onClick={openDialog.onFalse} variant="outlined" color="inherit">
-          Cancel
-        </Button>
-        <Button onClick={openDialog.onFalse} variant="contained">
-          Save
-        </Button>
-      </DialogActions>
     </Dialog>
   );
 
   return (
     <>
-      <DashboardContent maxWidth={false}>
+      <DashboardContent
+        maxWidth={false}
+        sx={{
+          borderTop: `solid 1px rgba(145, 158, 171, 0.12)`,
+          pt: 3,
+          mb: { xs: 3, md: 5 },
+        }}
+      >
         <CustomBreadcrumbs
           heading="List Profile Sekolah"
           links={[
@@ -255,6 +345,16 @@ export function ListProfileSekolahView() {
                         selected={table.selected.includes(row.id)}
                         onSelectRow={() => table.onSelectRow(row.id)}
                         onDeleteRow={() => handleDeleteRow(row.id)}
+                        onUpdateRow={(updatedData) => {
+                          // Update the row in the table data
+                          setTableData((prev) =>
+                            prev.map((item) =>
+                              item.id === row.id
+                                ? { ...item, ...updatedData }
+                                : item
+                            )
+                          );
+                        }}
                         editHref={paths.dashboard.user.edit(row.id)}
                       />
                     ))}
@@ -300,10 +400,9 @@ function applyFilter({
 }): ProfileSekolah[] {
   const { status } = filters;
 
-  const stabilizedThis: [ProfileSekolah, number][] = inputData.map((el, index) => [
-    el,
-    index,
-  ]);
+  const stabilizedThis: [ProfileSekolah, number][] = inputData.map(
+    (el, index) => [el, index]
+  );
 
   stabilizedThis.sort((a, b) => {
     const order = comparator(a[0], b[0]);

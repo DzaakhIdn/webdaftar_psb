@@ -53,7 +53,7 @@ export function middleware(req: NextRequest) {
     if (req.nextUrl.pathname.startsWith("/dashboard")) {
       // validasi role admin
       if (decoded.role !== "admin") {
-        return clearTokenAndRedirect(paths.authDashboard.signIn);
+        return NextResponse.redirect(new URL(paths.unauthorized, req.url));
       }
     }
 
@@ -61,7 +61,7 @@ export function middleware(req: NextRequest) {
     if (req.nextUrl.pathname.startsWith("/user")) {
       // validasi role user
       if (decoded.role !== "user") {
-        return clearTokenAndRedirect(paths.authUser.signIn);
+        return NextResponse.redirect(new URL(paths.unauthorized, req.url));
       }
     }
 

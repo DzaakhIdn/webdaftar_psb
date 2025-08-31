@@ -10,7 +10,7 @@ const jwtSecret = process.env.JWT_SECRET!;
 const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
 export async function POST(req: Request) {
-  try { 
+  try {
     const body = await req.json();
     const { username, password } = body;
 
@@ -59,7 +59,7 @@ export async function POST(req: Request) {
       },
     });
 
-    response.cookies.set("token", token, {
+    response.cookies.set("token_dashboard", token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       path: "/",
