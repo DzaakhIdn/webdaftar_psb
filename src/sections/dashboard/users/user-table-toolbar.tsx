@@ -107,12 +107,12 @@ export function UserTableToolbar({
         }}
       >
         <FormControl sx={{ flexShrink: 0, width: { xs: 1, md: 200 } }}>
-          <InputLabel htmlFor="filter-role-select">Role</InputLabel>
+          <InputLabel htmlFor="filter-role-select">Jalur</InputLabel>
           <Select
             multiple
             value={currentFilters.role}
             onChange={handleFilterRole}
-            input={<OutlinedInput label="Role" />}
+            input={<OutlinedInput label="Jalur" />}
             renderValue={(selected) =>
               selected.map((value) => value).join(", ")
             }

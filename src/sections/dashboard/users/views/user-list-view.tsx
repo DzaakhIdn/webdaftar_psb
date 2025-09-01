@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { varAlpha } from "minimal-shared/utils";
 import { useBoolean, useSetState } from "minimal-shared/hooks";
 
@@ -13,12 +13,13 @@ import Button from "@mui/material/Button";
 import Tooltip from "@mui/material/Tooltip";
 import TableBody from "@mui/material/TableBody";
 import IconButton from "@mui/material/IconButton";
+import CircularProgress from "@mui/material/CircularProgress";
+import Backdrop from "@mui/material/Backdrop";
 
-import { paths } from "@/routes/paths";
+import { paths, api } from "@/routes/paths";
 import { RouterLink } from "@/routes/components";
 
 import { DashboardContent } from "@/layout/dashboard";
-import { _roles, _userList, USER_STATUS_OPTIONS } from "@/_mock";
 
 import { Label } from "@/components/label";
 import { toast } from "@/components/snackbar";
@@ -41,38 +42,38 @@ import {
 import { UserTableRow } from "../user-table-row";
 import { UserTableToolbar } from "../user-table-toolbar";
 import { UserTableFiltersResult } from "../user-table-filters-result";
+import { showAllRegistant } from "@/models";
+import { Registant } from "@/models/types/registant";
+import { supabase } from "@/utils/supabase/client";
+
+// Type for the data returned by showAllRegistant (subset of Registant)
+interface RegistantListItem {
+  id_siswa: string;
+  nama_lengkap: string;
+  register_id: string;
+  email: string;
+  sekolah_asal: string;
+  no_hp: string;
+  status_pendaftaran: "pending" | "diterima" | "ditolak" | "sedang tes";
+  jalur_final_id: string | null;
+  jalurfinal: {
+    kode_final: string;
+    nama_jalur_final: string;
+    jalur: {
+      nama_jalur: string;
+    }[];
+  } | null;
+}
 
 // ----------------------------------------------------------------------
 
-interface User {
-  id: string;
-  name: string;
-  email: string;
-  avatarUrl: string;
-  phoneNumber: string;
-  company: string;
-  role: string;
-  asalSekolah: string;
-  pembayaran: string;
-  status:
-    | "active"
-    | "pending"
-    | "banned"
-    | "rejected"
-    | "none"
-    | "some"
-    | "complete";
-  files: string[];
-  zipCode?: string;
-  state?: string;
-  city?: string;
-  address?: string;
-  isVerified?: boolean;
-  country?: string;
-  id_daftar: string;
-}
-
-const STATUS_OPTIONS = [{ value: "all", label: "All" }, ...USER_STATUS_OPTIONS];
+const STATUS_OPTIONS = [
+  { value: "all", label: "All" },
+  { value: "pending", label: "Pending" },
+  { value: "diterima", label: "Diterima" },
+  { value: "ditolak", label: "Ditolak" },
+  { value: "sedang tes", label: "Sedang Tes" },
+];
 
 const TABLE_HEAD = [
   { id: "name", label: "Name", width: 250 },
@@ -88,10 +89,74 @@ const TABLE_HEAD = [
 
 export function UserListView() {
   const table = useTable();
-
   const confirmDialog = useBoolean();
+  const [tableData, setTableData] = useState<RegistantListItem[]>([]);
+  const [loading, setLoading] = useState(false);
 
-  const [tableData, setTableData] = useState<User[]>(_userList as User[]);
+  const loadData = useCallback(async () => {
+    try {
+      setLoading(true);
+      const data = await showAllRegistant();
+      console.log("Raw data from showAllRegistant:", data);
+      console.log("First item jalurfinal:", data?.[0]?.jalurfinal);
+      setTableData(data as RegistantListItem[]);
+    } catch (error) {
+      console.error("Error loading registant data:", error);
+      toast.error("Gagal memuat data registrant");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadData();
+
+    // Set up real-time subscription
+    const subscription = supabase
+      .channel("calonsiswa-changes")
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "calonsiswa",
+        },
+        (payload) => {
+          console.log("Real-time change detected:", payload);
+
+          // Handle different types of changes
+          if (payload.eventType === "INSERT") {
+            // Add new record to the list
+            loadData(); // For now, just reload all data
+          } else if (payload.eventType === "UPDATE") {
+            // Update existing record
+            loadData(); // For now, just reload all data
+          } else if (payload.eventType === "DELETE") {
+            // Remove record from list
+            const deletedId = payload.old?.id_siswa;
+            if (deletedId) {
+              setTableData((prev) =>
+                prev.filter((row) => row.id_siswa !== deletedId)
+              );
+            }
+          }
+        }
+      )
+      .subscribe();
+
+    // Set up periodic refresh as fallback (every 30 seconds)
+    const refreshInterval = setInterval(() => {
+      if (!loading) {
+        loadData();
+      }
+    }, 30000);
+
+    // Cleanup subscription and interval on unmount
+    return () => {
+      subscription.unsubscribe();
+      clearInterval(refreshInterval);
+    };
+  }, [loadData, loading]);
 
   const filtersState = useSetState({
     name: "",
@@ -126,28 +191,70 @@ export function UserListView() {
   const notFound = (!dataFiltered.length && canReset) || !dataFiltered.length;
 
   const handleDeleteRow = useCallback(
-    (id: string) => {
-      const deleteRow = tableData.filter((row) => row.id !== id);
+    async (id: string) => {
+      try {
+        // Call delete API
+        const response = await fetch(api.dashboard.deleteRegistrant(id), {
+          method: "DELETE",
+        });
 
-      toast.success("Delete success!");
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || "Failed to delete registrant");
+        }
 
-      setTableData(deleteRow);
+        toast.success("Registrant berhasil dihapus!");
 
-      table.onUpdatePageDeleteRow(dataInPage.length);
+        // Real-time subscription will handle the removal automatically
+        // But we can also remove locally for immediate feedback
+        const deleteRow = tableData.filter((row) => row.id_siswa !== id);
+        setTableData(deleteRow);
+        table.onUpdatePageDeleteRow(dataInPage.length);
+      } catch (error) {
+        console.error("Delete error:", error);
+        toast.error(
+          error instanceof Error ? error.message : "Gagal menghapus registrant"
+        );
+      }
     },
     [dataInPage.length, table, tableData]
   );
 
-  const handleDeleteRows = useCallback(() => {
-    const deleteRows = tableData.filter(
-      (row) => !table.selected.includes(row.id)
-    );
+  const handleDeleteRows = useCallback(async () => {
+    try {
+      // Delete multiple registrants
+      const deletePromises = table.selected.map(async (id) => {
+        const response = await fetch(api.dashboard.deleteRegistrant(id), {
+          method: "DELETE",
+        });
 
-    toast.success("Delete success!");
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(`Failed to delete ${id}: ${errorData.error}`);
+        }
 
-    setTableData(deleteRows);
+        return id;
+      });
 
-    table.onUpdatePageDeleteRows(dataInPage.length, dataFiltered.length);
+      await Promise.all(deletePromises);
+
+      toast.success(`${table.selected.length} registrant(s) berhasil dihapus!`);
+
+      // Remove from local state
+      const deleteRows = tableData.filter(
+        (row) => !table.selected.includes(row.id_siswa)
+      );
+      setTableData(deleteRows);
+      table.onUpdatePageDeleteRows(dataInPage.length, dataFiltered.length);
+
+      // Clear selection
+      table.onSelectAllRows(false, []);
+    } catch (error) {
+      console.error("Bulk delete error:", error);
+      toast.error(
+        error instanceof Error ? error.message : "Gagal menghapus registrant"
+      );
+    }
   }, [dataFiltered.length, dataInPage.length, table, tableData]);
 
   const handleFilterStatus = useCallback(
@@ -195,14 +302,24 @@ export function UserListView() {
             { name: "List Pendaftar" },
           ]}
           action={
-            <Button
-              component={RouterLink}
-              href={paths.dashboard.user.new}
-              variant="contained"
-              startIcon={<Iconify icon="mingcute:add-line" />}
-            >
-              New user
-            </Button>
+            <Box sx={{ display: "flex", gap: 1 }}>
+              <Button
+                variant="outlined"
+                onClick={loadData}
+                disabled={loading}
+                startIcon={<Iconify icon="solar:refresh-bold" />}
+              >
+                Refresh
+              </Button>
+              <Button
+                component={RouterLink}
+                href={paths.dashboard.user.new}
+                variant="contained"
+                startIcon={<Iconify icon="mingcute:add-line" />}
+              >
+                New user
+              </Button>
+            </Box>
           }
           sx={{ mb: { xs: 3, md: 5 } }}
         />
@@ -236,17 +353,18 @@ export function UserListView() {
                       "soft"
                     }
                     color={
-                      (tab.value === "active" && "success") ||
-                      (tab.value === "pending" && "warning") ||
-                      (tab.value === "banned" && "error") ||
+                      (tab.value === "diterima" && "success") ||
+                      (tab.value === "sedang tes" && "warning") ||
+                      (tab.value === "ditolak" && "error") ||
                       "default"
                     }
                   >
-                    {["active", "pending", "banned", "rejected"].includes(
+                    {["pending", "diterima", "ditolak", "sedang tes"].includes(
                       tab.value
                     )
-                      ? tableData.filter((user) => user.status === tab.value)
-                          .length
+                      ? tableData.filter(
+                          (user) => user.status_pendaftaran === tab.value
+                        ).length
                       : tableData.length}
                   </Label>
                 }
@@ -254,11 +372,11 @@ export function UserListView() {
             ))}
           </Tabs>
 
-          <UserTableToolbar
+          {/* <UserTableToolbar
             filters={filters}
             onResetPage={table.onResetPage}
             options={{ roles: _roles }}
-          />
+          /> */}
 
           {canReset && (
             <UserTableFiltersResult
@@ -270,6 +388,19 @@ export function UserListView() {
           )}
 
           <Box sx={{ position: "relative" }}>
+            {loading && (
+              <Backdrop
+                open={loading}
+                sx={{
+                  position: "absolute",
+                  zIndex: 1,
+                  backgroundColor: "rgba(255, 255, 255, 0.8)",
+                }}
+              >
+                <CircularProgress />
+              </Backdrop>
+            )}
+
             <TableSelectedAction
               dense={table.dense}
               numSelected={table.selected.length}
@@ -277,7 +408,7 @@ export function UserListView() {
               onSelectAllRows={(checked) =>
                 table.onSelectAllRows(
                   checked,
-                  dataFiltered.map((row: { id: string }) => row.id)
+                  dataFiltered.map((row: RegistantListItem) => row.id_siswa)
                 )
               }
               action={
@@ -304,7 +435,7 @@ export function UserListView() {
                   onSelectAllRows={(checked) =>
                     table.onSelectAllRows(
                       checked,
-                      dataFiltered.map((row: { id: string }) => row.id)
+                      dataFiltered.map((row: RegistantListItem) => row.id_siswa)
                     )
                   }
                 />
@@ -315,14 +446,14 @@ export function UserListView() {
                       table.page * table.rowsPerPage,
                       table.page * table.rowsPerPage + table.rowsPerPage
                     )
-                    .map((row: User) => (
+                    .map((row: RegistantListItem) => (
                       <UserTableRow
-                        key={row.id}
-                        row={row}
-                        selected={table.selected.includes(row.id)}
-                        onSelectRow={() => table.onSelectRow(row.id)}
-                        onDeleteRow={() => handleDeleteRow(row.id)}
-                        editHref={paths.dashboard.user.edit(row.id)}
+                        key={row.id_siswa}
+                        row={row as any}
+                        selected={table.selected.includes(row.id_siswa)}
+                        onSelectRow={() => table.onSelectRow(row.id_siswa)}
+                        onDeleteRow={() => handleDeleteRow(row.id_siswa)}
+                        editHref={paths.dashboard.user.edit(row.id_siswa)}
                       />
                     ))}
 
@@ -365,16 +496,15 @@ function applyFilter({
   comparator,
   filters,
 }: {
-  inputData: User[];
-  comparator: (a: User, b: User) => number;
+  inputData: RegistantListItem[];
+  comparator: (a: RegistantListItem, b: RegistantListItem) => number;
   filters: { name: string; role: string[]; status: string };
-}): User[] {
+}): RegistantListItem[] {
   const { name, status, role } = filters;
 
-  const stabilizedThis: [User, number][] = inputData.map((el, index) => [
-    el,
-    index,
-  ]);
+  const stabilizedThis: [RegistantListItem, number][] = inputData.map(
+    (el, index) => [el, index]
+  );
 
   stabilizedThis.sort((a, b) => {
     const order = comparator(a[0], b[0]);
@@ -382,21 +512,23 @@ function applyFilter({
     return a[1] - b[1];
   });
 
-  let filteredData: User[] = stabilizedThis.map((el) => el[0]);
+  let filteredData: RegistantListItem[] = stabilizedThis.map((el) => el[0]);
 
   if (name) {
     filteredData = filteredData.filter((user) =>
-      user.name.toLowerCase().includes(name.toLowerCase())
+      user.nama_lengkap.toLowerCase().includes(name.toLowerCase())
     );
   }
 
   if (status !== "all") {
-    filteredData = filteredData.filter((user) => user.status === status);
+    filteredData = filteredData.filter(
+      (user) => user.status_pendaftaran === status
+    );
   }
 
-  if (role.length) {
-    filteredData = filteredData.filter((user) => role.includes(user.role));
-  }
+  // if (role.length) {
+  //   filteredData = filteredData.filter((user) => role.includes(user.role));
+  // }
 
   return filteredData;
 }

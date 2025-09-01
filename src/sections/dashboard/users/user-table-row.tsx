@@ -128,8 +128,8 @@ export function UserTableRow({
             onClick={onSelectRow}
             slotProps={{
               input: {
-                id: `${row.id}-checkbox`,
-                "aria-label": `${row.id} checkbox`,
+                id: `${row.id_siswa}-checkbox`,
+                "aria-label": `${row.id_siswa} checkbox`,
               },
             }}
           />
@@ -137,7 +137,9 @@ export function UserTableRow({
 
         <TableCell>
           <Box sx={{ gap: 2, display: "flex", alignItems: "center" }}>
-            <Avatar alt={row.name} src={row.avatarUrl} />
+            <Avatar alt={row.nama_lengkap}>
+              {row.nama_lengkap.charAt(0).toUpperCase()}
+            </Avatar>
 
             <Stack
               sx={{
@@ -152,7 +154,7 @@ export function UserTableRow({
                 color="inherit"
                 sx={{ cursor: "pointer" }}
               >
-                {row.name}
+                {row.nama_lengkap}
               </Link>
               <Box component="span" sx={{ color: "text.disabled" }}>
                 {row.email}
@@ -161,25 +163,27 @@ export function UserTableRow({
           </Box>
         </TableCell>
 
-        <TableCell sx={{ whiteSpace: "nowrap" }}>{row.id_daftar}</TableCell>
+        <TableCell sx={{ whiteSpace: "nowrap" }}>{row.register_id}</TableCell>
 
-        <TableCell sx={{ whiteSpace: "nowrap" }}>{row.phoneNumber}</TableCell>
+        <TableCell sx={{ whiteSpace: "nowrap" }}>{row.no_hp}</TableCell>
 
-        <TableCell sx={{ whiteSpace: "nowrap" }}>{row.asalSekolah}</TableCell>
+        <TableCell sx={{ whiteSpace: "nowrap" }}>{row.sekolah_asal}</TableCell>
 
-        <TableCell sx={{ whiteSpace: "nowrap" }}>{row.pembayaran}</TableCell>
+        <TableCell sx={{ whiteSpace: "nowrap" }}>
+          {row.jalurfinal?.nama_jalur_final || "-"}
+        </TableCell>
 
         <TableCell>
           <Label
             variant="soft"
             color={
-              (row.status === "active" && "success") ||
-              (row.status === "pending" && "warning") ||
-              (row.status === "banned" && "error") ||
+              (row.status_pendaftaran === "diterima" && "success") ||
+              (row.status_pendaftaran === "sedang tes" && "warning") ||
+              (row.status_pendaftaran === "ditolak" && "error") ||
               "default"
             }
           >
-            {row.status}
+            {row.status_pendaftaran}
           </Label>
         </TableCell>
 

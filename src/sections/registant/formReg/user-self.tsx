@@ -53,6 +53,7 @@ const userSelfSchema = z.object({
         message: "Format nomor HP tidak valid (contoh: 08123456789)",
       }
     ),
+  sekolah_asal: z.string().min(1, "Sekolah asal harus diisi"),
 });
 
 type UserSelfFormValues = z.infer<typeof userSelfSchema>;
@@ -96,6 +97,7 @@ export function UserSelf() {
       jenis_kelamin: "",
       jalur_final_id: null,
       no_hp: "",
+      sekolah_asal: "",
     },
   });
 
@@ -142,6 +144,7 @@ export function UserSelf() {
             ? userData.jalur_final_id
             : null,
           no_hp: userData.no_hp || "",
+          sekolah_asal: userData.sekolah_asal || "",
         });
 
         // Clear any existing errors
@@ -278,6 +281,20 @@ export function UserSelf() {
                   field.onChange(date ? date.format("YYYY-MM-DD") : "")
                 }
                 slotProps={{ textField: { fullWidth: true } }}
+              />
+            )}
+          />
+
+          {/* Sekolah Asal */}
+          <FormField
+            control={form.control}
+            name="sekolah_asal"
+            render={({ field }) => (
+              <TextField
+                {...field}
+                label="Sekolah Asal"
+                placeholder="Masukkan sekolah asal"
+                variant="outlined"
               />
             )}
           />

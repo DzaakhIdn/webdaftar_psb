@@ -18,6 +18,7 @@ export const api = {
     register: `${ROOTS_API.DASHBOARD}/register`,
     jalur: `${ROOTS_API.DASHBOARD}/jalur`,
     deleteJalur: (id: string) => `${ROOTS_API.DASHBOARD}/del-jalur/${id}`,
+    deleteRegistrant: (id: string) => `${ROOTS_API.DASHBOARD}/registrant/${id}`,
   },
 
   user: {
@@ -100,7 +101,7 @@ export const paths = {
     register: `${ROOTS.REGISTANT}/register`,
     biodata: {
       form: `${ROOTS.REGISTANT}/biodata`,
-      file: `${ROOTS.REGISTANT}/files`,
+      file: `${ROOTS.REGISTANT}/files-upload`,
     },
     finance: {
       payment: `${ROOTS.REGISTANT}/payment`,

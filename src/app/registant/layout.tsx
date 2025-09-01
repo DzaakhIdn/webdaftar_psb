@@ -1,7 +1,9 @@
 import AuthGuard from "@/auth/guard/auth-guard";
 import { Providers } from "../dashboard/providers";
 import { Suspense } from "react";
+import { Box, CircularProgress } from "@mui/material";
 import { RegistantLayout } from "@/layout/dashboard_user";
+// import { ProgressBar } from "@/components/progress-bar/progress-bar";
 
 export const metadata = {
   title: "User Dashboard",
@@ -15,8 +17,22 @@ export default function UserLayout({
 }) {
   return (
     <Providers>
-      <Suspense>
+      <Suspense
+        fallback={
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              height: "100vh",
+            }}
+          >
+            <CircularProgress />
+          </Box>
+        }
+      >
         <AuthGuard allowedRoles={["user"]} loginPath="/auth/auth-user">
+          {/* <ProgressBar /> */}
           <RegistantLayout>{children}</RegistantLayout>
         </AuthGuard>
       </Suspense>

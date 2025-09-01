@@ -5,6 +5,7 @@ import { Providers } from "./providers";
 import AuthGuard from "@/auth/guard/auth-guard";
 import "./globals.css";
 import { paths } from "@/routes/paths";
+// import { ProgressBar } from "@/components/progress-bar/progress-bar";
 
 export const metadata: Metadata = {
   title: "Dashboard App",
@@ -23,6 +24,7 @@ export default function DashboardRootLayout({
           allowedRoles={["admin", "user"]}
           loginPath={paths.authDashboard.signIn}
         >
+          {/* <ProgressBar /> */}
           <DashboardLayout>{children}</DashboardLayout>
         </AuthGuard>
       </Suspense>

@@ -5,6 +5,7 @@ import { DashboardContent } from "@/layout/dashboard";
 import { RegistrationAnnouncement } from "../anouncement";
 import { useCurrentUser } from "@/hooks/getCurrentUsers";
 import { api } from "@/routes/paths";
+import { FileUploadReminder } from "../file-upload-reminder";
 
 export function OverviewRegistantView() {
   const { user } = useCurrentUser(api.user.me);
@@ -26,7 +27,10 @@ export function OverviewRegistantView() {
           sx={{ color: "text.secondary" }}
         >{`Selamat datang di dashboard pendaftaran siswa baru!`}</Typography>
       </Box>
-      <RegistrationAnnouncement />
+      <Box sx={{  display: "flex", flexDirection: "column", gap: 3 }}>
+        <RegistrationAnnouncement />
+        <FileUploadReminder />
+      </Box>
     </DashboardContent>
   );
 }

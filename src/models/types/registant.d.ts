@@ -8,10 +8,10 @@ export interface Registant {
   tanggal_lahir: string;
   jenis_kelamin: string;
   jalur_final_id: string;
-  anak_ke: string;
   no_hp: string;
   email: string;
-  status_pendaftaran: string;
+  sekolah_asal: string;
+  status_pendaftaran: "pending" | "diterima" | "ditolak" | "sedang tes";
   rt: string;
   rw: string;
   alamat_jalan: string;
@@ -24,8 +24,10 @@ export interface Registant {
   pekerjaan_ayah: string;
   pendidikan_ayah: string;
   no_hp_ayah: string;
+  penghasilan_ayah: string;
   nama_ibu: string;
   pekerjaan_ibu: string;
   pendidikan_ibu: string;
   no_hp_ibu: string;
+  avatar_url?: string; // Add avatar_url field
 }

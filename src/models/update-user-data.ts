@@ -26,6 +26,7 @@ export interface UpdateCalonSiswa {
   no_hp_ibu?: string;
   pekerjaan_ibu?: string;
   pendidikan_ibu?: string;
+  avatar_url?: string; // Add avatar_url field
 }
 
 // Function untuk update data calon siswa
@@ -34,7 +35,6 @@ export const updateCalonSiswa = async (
   userData: UpdateCalonSiswa
 ) => {
   try {
-
     if (!userId) throw new Error("User ID tidak ditemukan");
 
     // Siapkan field yang akan diupdate

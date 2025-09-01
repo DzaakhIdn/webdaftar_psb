@@ -1,134 +1,135 @@
-import { forwardRef, useCallback } from 'react';
+import { useDropzone } from "react-dropzone";
+import { varAlpha, mergeClasses } from "minimal-shared/utils";
 
-import Box from '@mui/material/Box';
-import Button from '@mui/material/Button';
-import Typography from '@mui/material/Typography';
-import { styled } from '@mui/material/styles';
+import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
+import FormHelperText from "@mui/material/FormHelperText";
+import { SxProps, Theme } from "@mui/material/styles";
+
+import { Iconify } from "@/components/iconify";
+import { uploadClasses } from "./classes";
+import { UploadPlaceholder } from "./components/placeholder";
+import { RejectionFiles } from "./components/rejection-files";
+import {
+  DeleteButton,
+  SingleFilePreview,
+} from "./components/preview-single-file";
 
 // ----------------------------------------------------------------------
 
 interface UploadProps {
+  sx?: SxProps<Theme>;
   value?: File | File[] | string;
-  onDrop?: (files: File[]) => void;
   error?: boolean;
-  helperText?: string;
-  multiple?: boolean;
-  accept?: Record<string, string[]>;
   disabled?: boolean;
+  onDelete?: () => void;
+  onUpload?: (files: File[]) => void;
+  onRemove?: (file: File | string) => void;
+  thumbnail?: boolean;
+  helperText?: string;
+  onRemoveAll?: () => void;
+  className?: string;
+  multiple?: boolean;
+  [key: string]: any;
 }
 
-const UploadRoot = styled(Box)(({ theme }) => ({
-  border: `2px dashed ${theme.palette.divider}`,
-  borderRadius: theme.shape.borderRadius,
-  padding: theme.spacing(3),
-  textAlign: 'center',
-  cursor: 'pointer',
-  transition: theme.transitions.create(['border-color', 'background-color']),
-  '&:hover': {
-    borderColor: theme.palette.primary.main,
-    backgroundColor: theme.palette.action.hover,
-  },
-}));
+export function Upload({
+  sx,
+  value,
+  error,
+  disabled,
+  onDelete,
+  onUpload,
+  onRemove,
+  thumbnail,
+  helperText,
+  onRemoveAll,
+  className,
+  multiple = false,
+  ...other
+}: UploadProps) {
+  const {
+    getRootProps,
+    getInputProps,
+    isDragActive,
+    isDragReject,
+    fileRejections,
+  } = useDropzone({
+    multiple,
+    disabled,
+    ...other,
+  });
 
-export const Upload = forwardRef<HTMLDivElement, UploadProps>(
-  ({ value, onDrop, error, helperText, multiple = false, accept, disabled, ...other }, ref) => {
-    const handleFileChange = useCallback(
-      (event: React.ChangeEvent<HTMLInputElement>) => {
-        const files = Array.from(event.target.files || []);
-        if (onDrop) {
-          onDrop(files);
-        }
-      },
-      [onDrop]
-    );
+  const isArray = Array.isArray(value) && multiple;
 
-    const hasValue = value && (Array.isArray(value) ? value.length > 0 : true);
+  const hasFile = !isArray && !!value;
+  const hasFiles = isArray && !!value.length;
 
-    return (
-      <Box ref={ref} {...other}>
-        <UploadRoot
-          sx={{
-            ...(error && {
-              borderColor: 'error.main',
+  const hasError = isDragReject || !!error;
+
+  return (
+    <Box
+      className={mergeClasses([uploadClasses.upload, className])}
+      sx={{ width: 1, position: "relative", ...sx }}
+    >
+      <Box
+        {...getRootProps()}
+        sx={[
+          (theme) => ({
+            p: 5,
+            outline: "none",
+            borderRadius: 1,
+            cursor: "pointer",
+            overflow: "hidden",
+            position: "relative",
+            bgcolor: varAlpha(theme.vars.palette.grey["500Channel"], 0.08),
+            border: `1px dashed ${varAlpha(
+              theme.vars.palette.grey["500Channel"],
+              0.2
+            )}`,
+            transition: theme.transitions.create(["opacity", "padding"]),
+            "&:hover": { opacity: 0.72 },
+            ...(isDragActive && { opacity: 0.72 }),
+            ...(disabled && { opacity: 0.48, pointerEvents: "none" }),
+            ...(hasError && {
+              color: "error.main",
+              borderColor: "error.main",
+              bgcolor: varAlpha(theme.vars.palette.error.mainChannel, 0.08),
             }),
-            ...(disabled && {
-              opacity: 0.5,
-              cursor: 'not-allowed',
-            }),
-          }}
-        >
-          <input
-            type="file"
-            multiple={multiple}
-            accept={accept ? Object.keys(accept).join(',') : undefined}
-            onChange={handleFileChange}
-            disabled={disabled}
-            style={{ display: 'none' }}
-            id="upload-input"
+            ...(hasFile && { padding: "28% 0" }),
+          }),
+        ]}
+      >
+        <input {...getInputProps()} />
+
+        {/* Single file */}
+        {hasFile ? (
+          <SingleFilePreview
+            file={value}
+            sx={undefined}
+            className={undefined}
           />
-          <label htmlFor="upload-input" style={{ cursor: 'inherit', display: 'block' }}>
-            <Typography variant="h6" gutterBottom>
-              {hasValue ? 'File uploaded' : 'Drop files here or click to browse'}
-            </Typography>
-            <Typography variant="body2" color="text.secondary">
-              {multiple ? 'Select multiple files' : 'Select a file'}
-            </Typography>
-            <Button variant="outlined" sx={{ mt: 2 }}>
-              Browse Files
-            </Button>
-          </label>
-        </UploadRoot>
-        {helperText && (
-          <Typography
-            variant="caption"
-            color={error ? 'error' : 'text.secondary'}
-            sx={{ mt: 1, display: 'block' }}
-          >
-            {helperText}
-          </Typography>
+        ) : (
+          <UploadPlaceholder sx={undefined} className={undefined} />
         )}
       </Box>
-    );
-  }
-);
 
-Upload.displayName = 'Upload';
+      {/* Single file */}
+      {hasFile && <DeleteButton onClick={onDelete} sx={undefined} />}
 
-// ----------------------------------------------------------------------
+      {helperText && (
+        <FormHelperText error={!!error} sx={{ mx: 1.75 }}>
+          {helperText}
+        </FormHelperText>
+      )}
 
-export const UploadBox = forwardRef<HTMLDivElement, UploadProps>(
-  ({ value, onDrop, error, multiple = false, ...other }, ref) => {
-    return (
-      <Upload
-        ref={ref}
-        value={value}
-        onDrop={onDrop}
-        error={error}
-        multiple={multiple}
-        {...other}
-      />
-    );
-  }
-);
-
-UploadBox.displayName = 'UploadBox';
-
-// ----------------------------------------------------------------------
-
-export const UploadAvatar = forwardRef<HTMLDivElement, UploadProps>(
-  ({ value, onDrop, error, ...other }, ref) => {
-    return (
-      <Upload
-        ref={ref}
-        value={value}
-        onDrop={onDrop}
-        error={error}
-        multiple={false}
-        accept={{ 'image/*': [] }}
-        {...other}
-      />
-    );
-  }
-);
-
-UploadAvatar.displayName = 'UploadAvatar';
+      {!!fileRejections.length && (
+        <RejectionFiles
+          files={fileRejections}
+          sx={undefined}
+          className={undefined}
+        />
+      )}
+    </Box>
+  );
+}
