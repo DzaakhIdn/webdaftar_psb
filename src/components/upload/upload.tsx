@@ -105,7 +105,7 @@ export function Upload({
         {/* Single file */}
         {hasFile ? (
           <SingleFilePreview
-            file={value}
+            file={value as File | string}
             sx={undefined}
             className={undefined}
           />
@@ -125,7 +125,7 @@ export function Upload({
 
       {!!fileRejections.length && (
         <RejectionFiles
-          files={fileRejections}
+          files={[...fileRejections]}
           sx={undefined}
           className={undefined}
         />

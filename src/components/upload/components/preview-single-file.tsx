@@ -3,7 +3,7 @@ import { varAlpha, mergeClasses } from "minimal-shared/utils";
 import { styled, SxProps, Theme } from "@mui/material/styles";
 import IconButton from "@mui/material/IconButton";
 
-import { Iconify } from "../../iconify";
+import { Iconify } from "@/components/iconify";
 import { uploadClasses } from "../classes";
 
 // ----------------------------------------------------------------------

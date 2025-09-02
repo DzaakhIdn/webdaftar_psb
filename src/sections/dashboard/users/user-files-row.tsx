@@ -12,6 +12,7 @@ import TableRow from "@mui/material/TableRow";
 import Checkbox from "@mui/material/Checkbox";
 import TableCell from "@mui/material/TableCell";
 import IconButton from "@mui/material/IconButton";
+import Chip from "@mui/material/Chip";
 
 import { RouterLink } from "@/routes/components";
 
@@ -25,31 +26,12 @@ import { UserQuickEditForm } from "./user-quick-edit-form";
 // ----------------------------------------------------------------------
 
 interface User {
-  id: string;
-  id_daftar?: string;
-  name: string;
-  email?: string;
-  avatarUrl?: string;
-  phoneNumber: string;
-  company?: string;
-  role?: string;
-  asalSekolah?: string;
-  pembayaran?: string;
-  status:
-    | "active"
-    | "pending"
-    | "banned"
-    | "rejected"
-    | "none"
-    | "some"
-    | "complete";
-  files?: string[];
-  zipCode?: string;
-  state?: string;
-  city?: string;
-  address?: string;
-  isVerified?: boolean;
-  country?: string;
+  id_siswa: number;
+  register_id: string;
+  nama_lengkap: string;
+  no_hp: string;
+  files: string[];
+  status_upload: string;
 }
 
 interface UserFilesRowProps {
@@ -67,57 +49,6 @@ export function UserFilesRow({
   onSelectRow,
   onDeleteRow,
 }: UserFilesRowProps) {
-  const menuActions = usePopover();
-  const confirmDialog = useBoolean();
-  const quickEditForm = useBoolean();
-
-  const renderMenuActions = () => (
-    <CustomPopover
-      open={menuActions.open}
-      anchorEl={menuActions.anchorEl}
-      onClose={menuActions.onClose}
-      slotProps={{ arrow: { placement: "right-top" } }}
-    >
-      <MenuList>
-        <li>
-          <MenuItem
-            component={RouterLink}
-            href={editHref}
-            onClick={() => menuActions.onClose()}
-          >
-            <Iconify icon="solar:pen-bold" />
-            Edit
-          </MenuItem>
-        </li>
-
-        <MenuItem
-          onClick={() => {
-            confirmDialog.onTrue();
-            menuActions.onClose();
-          }}
-          sx={{ color: "error.main" }}
-        >
-          <Iconify icon="solar:trash-bin-trash-bold" />
-          Delete
-        </MenuItem>
-      </MenuList>
-    </CustomPopover>
-  );
-
-  const renderConfirmDialog = () => (
-    <ConfirmDialog
-      open={confirmDialog.value}
-      onClose={confirmDialog.onFalse}
-      title="Delete"
-      content="Are you sure want to delete?"
-      action={
-        <Button variant="contained" color="error" onClick={onDeleteRow}>
-          Delete
-        </Button>
-      }
-    />
-  );
-
   return (
     <>
       <TableRow hover selected={selected} aria-checked={selected} tabIndex={-1}>
@@ -127,8 +58,8 @@ export function UserFilesRow({
             onClick={onSelectRow}
             slotProps={{
               input: {
-                id: `${row.id}-checkbox`,
-                "aria-label": `${row.id} checkbox`,
+                id: `${row.id_siswa}-checkbox`,
+                "aria-label": `${row.id_siswa} checkbox`,
               },
             }}
           />
@@ -147,60 +78,56 @@ export function UserFilesRow({
               color="inherit"
               sx={{ cursor: "pointer" }}
             >
-              {row.name}
+              {row.nama_lengkap}
             </Link>
             <Box component="span" sx={{ color: "text.disabled" }}>
-              {row.id_daftar}
+              {row.register_id}
             </Box>
           </Stack>
         </TableCell>
-        <TableCell sx={{ whiteSpace: "nowrap" }}>{row.phoneNumber}</TableCell>
+        <TableCell sx={{ whiteSpace: "nowrap" }}>{row.no_hp}</TableCell>
         <TableCell>
           <Label
             variant="soft"
             color={
-              (row.status === "complete" && "success") ||
-              (row.status === "some" && "warning") ||
-              (row.status === "none" && "error") ||
+              (row.status_upload === "Lengkap" && "success") ||
+              (row.status_upload === "Sebagian" && "warning") ||
+              (row.status_upload === "Belum Upload" && "error") ||
               "default"
             }
           >
-            {row.status}
+            {row.status_upload}
           </Label>
         </TableCell>
-        <TableCell sx={{ whiteSpace: "nowrap" }}>
-          {row.files?.map((file) => (
-            <Box key={file}>
-              <Link href={file} target="_blank">
-                {file}
-              </Link>
-            </Box>
-          ))}
+        <TableCell>
+          {row.files && row.files.length > 0 ? (
+            row.files.map((file: string, idx: number) => {
+              // kalau path di DB cuma nama file, bikin URL full ke bucket
+              // Replace spaces with underscores for URL compatibility
+              const fileUrlSafe = file.replace(/\s+/g, "_");
+              // Add .pdf extension if not already present
+              const fileWithExtension = fileUrlSafe.endsWith(".jpg")
+                ? fileUrlSafe
+                : `${fileUrlSafe}.jpg`;
+              const fileUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/requiredfile/${row.id_siswa}/${fileWithExtension}`;
+              return (
+                <div key={idx}>
+                  <Link
+                    href={fileUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{ color: "#1976d2", textDecoration: "underline" }}
+                  >
+                    {file}
+                  </Link>
+                </div>
+              );
+            })
+          ) : (
+            <span style={{ color: "gray" }}>Belum upload</span>
+          )}
         </TableCell>
-
-        {/* <TableCell>
-          <Box sx={{ display: "flex", alignItems: "center" }}>
-            <Tooltip title="Quick Edit" placement="top" arrow>
-              <IconButton
-                color={quickEditForm.value ? "inherit" : "default"}
-                onClick={quickEditForm.onTrue}
-              >
-                <Iconify icon="solar:pen-bold" />
-              </IconButton>
-            </Tooltip>
-
-            <IconButton
-              color={menuActions.open ? "inherit" : "default"}
-              onClick={menuActions.onOpen}
-            >
-              <Iconify icon="eva:more-vertical-fill" />
-            </IconButton>
-          </Box>
-        </TableCell> */}
       </TableRow>
-
-      {renderMenuActions()}
-      {renderConfirmDialog()}
     </>
   );
 }

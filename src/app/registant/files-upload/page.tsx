@@ -1,7 +1,5 @@
+import { FileUploadView } from "@/sections/registant/file-upload/views";
+
 export default function Page() {
-  return (
-    <div>
-      <h1>Files Upload</h1>
-    </div>
-  );
+  return <FileUploadView />;
 }

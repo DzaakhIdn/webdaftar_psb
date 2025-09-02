@@ -1,6 +1,10 @@
 import { useBoolean, usePopover } from "minimal-shared/hooks";
-import { useState, useCallback, useEffect } from "react";
+import { useState, useEffect } from "react";
+import { useForm, FormProvider } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { useToast } from "@/components/providers/toast-provider";
+import { FormField } from "@/components/ui/form";
 
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
@@ -17,21 +21,22 @@ import { ConfirmDialog } from "@/components/custom-dialog";
 
 import Dialog from "@mui/material/Dialog";
 import TextField from "@mui/material/TextField";
-import Typography from "@mui/material/Typography";
 import DialogTitle from "@mui/material/DialogTitle";
 import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import Switch from "@mui/material/Switch";
 import FormControlLabel from "@mui/material/FormControlLabel";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { updateData, showAllData } from "@/models";
-import { useToast } from "@/components/providers/toast-provider";
-import { Form, FormField } from "@/components/ui/form";
+import { updateData, deleteData } from "@/models";
 
 // ----------------------------------------------------------------------
 
-interface InvoiceTableRowProps {
+const updateRequiredFileSchema = z.object({
+  nama_berkas: z.string().min(1, "Kode jenjang harus diisi").trim(),
+  deskripsi: z.string().min(1, "Nama jenjang harus diisi").trim(),
+  wajib: z.boolean(),
+});
+
+interface TrackTableRowProps {
   row: any;
   selected: boolean;
   editHref: string;
@@ -40,47 +45,40 @@ interface InvoiceTableRowProps {
   onUpdateRow?: (updatedData: any) => void;
 }
 
-const updateBiayaSchema = z.object({
-  kode_biaya: z.string().min(1, "Kode Pembayaran is required"),
-  nama_biaya: z.string().min(1, "Nama Pembayaran is required"),
-  jumlah: z.number().min(1, "Jumlah Biaya is required"),
-  status: z.enum(["wajib", "optional"]),
-});
-
-export function ListPaymentTableRow({
+export function ListRequiredFilesTableRow({
   row,
   selected,
   editHref,
   onSelectRow,
   onDeleteRow,
   onUpdateRow,
-}: InvoiceTableRowProps) {
+}: TrackTableRowProps) {
   const confirmDialog = useBoolean();
   const openDialog = useBoolean();
   const { showSuccess, showError } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const form = useForm({
-    resolver: zodResolver(updateBiayaSchema),
+    resolver: zodResolver(updateRequiredFileSchema),
+    mode: "onChange",
     defaultValues: {
-      kode_biaya: "",
-      nama_biaya: "",
-      jumlah: 0,
-      status: "wajib" as "wajib" | "optional",
+      nama_berkas: "",
+      deskripsi: "",
+      wajib: false,
     },
   });
 
+  // Set form values when dialog opens
   useEffect(() => {
     if (openDialog.value && row) {
       const formValues = {
-        kode_biaya: row.kode_biaya || "",
-        nama_biaya: row.nama_biaya || "",
-        jumlah: row.jumlah || 0,
-        status: row.status || "wajib",
+        nama_berkas: row.nama_berkas || "",
+        deskripsi: row.deskripsi || "",
+        wajib: row.wajib || false,
       };
       form.reset(formValues);
     }
-  }, [openDialog.value, row.id_jalur]); // Remove form from dependencies to prevent infinite resets
+  }, [openDialog.value, row.id_required]);
 
   const handleCloseDialog = () => {
     form.reset();
@@ -88,7 +86,9 @@ export function ListPaymentTableRow({
   };
 
   const handleUpdateData = async () => {
+    console.log("handleUpdateData called!");
     if (isSubmitting) return;
+
     setIsSubmitting(true);
     try {
       const data = form.getValues();
@@ -97,24 +97,24 @@ export function ListPaymentTableRow({
       console.log("Form data:", data);
 
       const dbData = {
-        kode_biaya: data.kode_biaya.trim(),
-        nama_biaya: data.nama_biaya.trim(),
-        jumlah: data.jumlah,
-        status: data.status,
+        nama_berkas: data.nama_berkas.trim(),
+        deskripsi: data.deskripsi.trim(),
+        wajib: data.wajib,
       };
 
-      // console.log("Update params:", {
-      //   table: "biaya",
-      //   id: row.id_biaya,
-      //   id_name: "id_biaya",
-      //   data: dbData,
-      // });
+      console.log("Update params:", {
+        table: "requiredfile",
+        id: row.id_required,
+        id_name: "id_required",
+        data: dbData,
+      });
 
-      // console.log("Updating with ID:", row.id_biaya);
-      await updateData("biaya", row.id_biaya, "id_biaya", dbData);
+      await updateData("requiredfile", row.id_required, "id_required", dbData);
+
       if (onUpdateRow) {
         onUpdateRow(dbData);
       }
+
       showSuccess("Data berhasil diubah!");
       handleCloseDialog();
     } catch (error) {
@@ -127,14 +127,33 @@ export function ListPaymentTableRow({
     }
   };
 
+  const handleDeleteData = async () => {
+    try {
+      console.log("Deleting requiredfile with ID:", row.id_required);
+      await deleteData("requiredfile", row.id_required, "id_required");
+
+      showSuccess("Data berhasil dihapus!");
+      confirmDialog.onFalse();
+
+      if (onDeleteRow) {
+        onDeleteRow();
+      }
+    } catch (error) {
+      console.error("Delete error:", error);
+      showError(
+        `Error: ${error instanceof Error ? error.message : "Unknown error"}`
+      );
+    }
+  };
+
   const renderConfirmDialog = () => (
     <ConfirmDialog
       open={confirmDialog.value}
       onClose={confirmDialog.onFalse}
-      title="Delete"
-      content="Are you sure want to delete?"
+      title="Delete File Wajib"
+      content="Apakah Anda yakin ingin menghapus data file wajib ini?"
       action={
-        <Button variant="contained" color="error" onClick={onDeleteRow}>
+        <Button variant="contained" color="error" onClick={handleDeleteData}>
           Delete
         </Button>
       }
@@ -142,93 +161,84 @@ export function ListPaymentTableRow({
   );
 
   const renderFormDialog = () => (
-    <Dialog open={openDialog.value} onClose={openDialog.onFalse}>
-      <DialogTitle>Tambah Pembayaran</DialogTitle>
+    <Dialog open={openDialog.value} onClose={handleCloseDialog}>
+      <DialogTitle>Edit File Wajib</DialogTitle>
 
       <DialogContent>
-        <Form {...form}>
-          <form action="#" onSubmit={form.handleSubmit(handleUpdateData)}>
+        <FormProvider {...form}>
+          <form
+            id="edit-required-file-form"
+            onSubmit={form.handleSubmit(handleUpdateData, (errors) => {
+              console.log("Form validation errors:", errors);
+              showError("Please check form validation errors");
+            })}
+            noValidate
+          >
             <FormField
               control={form.control}
-              name="kode_biaya"
-              render={({ field }) => (
+              name="nama_berkas"
+              render={({ field, fieldState }) => (
                 <TextField
                   {...field}
-                  label="Kode Pembayaran"
+                  label="Nama Berkas"
                   variant="outlined"
                   margin="dense"
                   fullWidth
                   autoFocus
+                  error={!!fieldState.error}
+                  helperText={fieldState.error?.message}
                 />
               )}
-            ></FormField>
+            />
             <FormField
               control={form.control}
-              name="nama_biaya"
-              render={({ field }) => (
+              name="deskripsi"
+              render={({ field, fieldState }) => (
                 <TextField
                   {...field}
-                  label="Nama Pembayaran"
+                  label="Deskripsi"
                   variant="outlined"
                   margin="dense"
                   fullWidth
+                  error={!!fieldState.error}
+                  helperText={fieldState.error?.message}
                 />
               )}
-            ></FormField>
+            />
             <FormField
               control={form.control}
-              name="jumlah"
-              render={({ field }) => (
-                <TextField
-                  {...field}
-                  label="Jumlah Biaya"
-                  variant="outlined"
-                  margin="dense"
-                  fullWidth
-                  type="number"
-                  value={field.value || 0}
-                  onChange={(e) =>
-                    field.onChange(parseInt(e.target.value) || 0)
-                  }
-                />
-              )}
-            ></FormField>
-            <FormField
-              control={form.control}
-              name="status"
+              name="wajib"
               render={({ field }) => (
                 <FormControlLabel
                   control={
                     <Switch
-                      checked={field.value === "wajib"}
+                      checked={field.value === true}
                       onChange={(e) =>
-                        field.onChange(e.target.checked ? "wajib" : "optional")
+                        field.onChange(e.target.checked)
                       }
                     />
                   }
                   label="Wajib"
                 />
               )}
-            ></FormField>
-            <DialogActions>
-              <Button
-                onClick={openDialog.onFalse}
-                variant="outlined"
-                color="inherit"
-              >
-                Cancel
-              </Button>
-              <Button
-                type="submit"
-                onClick={openDialog.onFalse}
-                variant="contained"
-              >
-                Save
-              </Button>
-            </DialogActions>
+            />
           </form>
-        </Form>
+        </FormProvider>
       </DialogContent>
+
+      <DialogActions>
+        <Button onClick={handleCloseDialog} variant="outlined" color="inherit">
+          Cancel
+        </Button>
+        <Button
+          type="submit"
+          variant="contained"
+          form="edit-required-file-form"
+          disabled={isSubmitting}
+        >
+          {isSubmitting ? "Saving..." : "Save"}
+        </Button>
+      </DialogActions>
     </Dialog>
   );
 
@@ -241,8 +251,8 @@ export function ListPaymentTableRow({
             onClick={onSelectRow}
             slotProps={{
               input: {
-                id: `${row.id}-checkbox`,
-                "aria-label": `${row.id} checkbox`,
+                id: `${row.id_required}-checkbox`,
+                "aria-label": `${row.id_required} checkbox`,
               },
             }}
           />
@@ -250,7 +260,7 @@ export function ListPaymentTableRow({
 
         <TableCell>
           <ListItemText
-            primary={row.kode_biaya}
+            primary={row.nama_berkas}
             slotProps={{
               primary: { noWrap: true, sx: { typography: "body2" } },
               secondary: { sx: { mt: 0.5, typography: "caption" } },
@@ -260,17 +270,7 @@ export function ListPaymentTableRow({
 
         <TableCell>
           <ListItemText
-            primary={row.nama_biaya}
-            slotProps={{
-              primary: { noWrap: true, sx: { typography: "body2" } },
-              secondary: { sx: { mt: 0.5, typography: "caption" } },
-            }}
-          />
-        </TableCell>
-
-        <TableCell>
-          <ListItemText
-            primary={row.jumlah}
+            primary={row.deskripsi}
             slotProps={{
               primary: { noWrap: true, sx: { typography: "body2" } },
               secondary: { sx: { mt: 0.5, typography: "caption" } },
@@ -282,12 +282,12 @@ export function ListPaymentTableRow({
           <Label
             variant="soft"
             color={
-              (row.status === "wajib" && "error") ||
-              (row.status === "optional" && "warning") ||
+              (row.wajib === true && "success") ||
+              (row.wajib === false && "error") ||
               "default"
             }
           >
-            {row.status}
+            {row.wajib ? "Wajib" : "Optional"}
           </Label>
         </TableCell>
 

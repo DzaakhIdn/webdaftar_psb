@@ -19,8 +19,6 @@ const ICONS = {
   users: <Iconify icon="solar:user-plus-bold" />,
   notebook: <Iconify icon="solar:notebook-bold-duotone" />,
   inbox: <Iconify icon="solar:inbox-in-bold-duotone" />,
-  loading: <Iconify icon="solar:refresh-circle-bold-duotone" />,
-  demo: <Iconify icon="solar:play-circle-bold-duotone" />,
 };
 
 // ----------------------------------------------------------------------
@@ -31,29 +29,6 @@ export const navData = [
     items: [{ title: "App", path: "/dashboard", icon: ICONS.dashboard }],
   },
   {
-    subheader: "Loading Demos",
-    items: [
-      {
-        title: "Loading Animations",
-        path: paths.dashboard.demoLoading,
-        icon: ICONS.loading,
-        children: [
-          { title: "Basic Demo", path: paths.dashboard.demoLoading },
-          {
-            title: "Realistic Loading",
-            path: paths.dashboard.realisticLoading,
-          },
-          { title: "Advanced Loading", path: paths.dashboard.advancedLoading },
-          { title: "Comparison", path: paths.dashboard.loadingComparison },
-          {
-            title: "Navigation Loading",
-            path: paths.dashboard.navigationLoadingDemo,
-          },
-        ],
-      },
-    ],
-  },
-  {
     subheader: "Management",
     items: [
       {
@@ -62,6 +37,7 @@ export const navData = [
         icon: ICONS.notebook,
         children: [
           { title: "List Jalur", path: paths.dashboard.master.listJalur },
+          { title: "File Wajib", path: paths.dashboard.master.fileWajib },
           { title: "Jenjang", path: paths.dashboard.master.jenjang },
           {
             title: "Profile Sekolah",

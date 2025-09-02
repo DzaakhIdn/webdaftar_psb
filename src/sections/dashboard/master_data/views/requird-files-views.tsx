@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useCallback, useEffect } from "react";
-import { z } from "zod";
 import { useBoolean, useSetState } from "minimal-shared/hooks";
+import { z } from "zod";
 
 import Box from "@mui/material/Box";
 import Card from "@mui/material/Card";
@@ -12,6 +12,7 @@ import Tooltip from "@mui/material/Tooltip";
 import TableBody from "@mui/material/TableBody";
 import IconButton from "@mui/material/IconButton";
 import { DashboardContent } from "@/layout/dashboard";
+import { Label } from "@/components/label";
 import { toast } from "@/components/snackbar";
 import { Iconify } from "@/components/iconify";
 import { Scrollbar } from "@/components/scrollbar";
@@ -30,12 +31,14 @@ import {
   TablePaginationCustom,
 } from "@/components/table";
 
-import { ListPaymentTableRow } from "../list-payment-row";
-import { ListPaymentToolbar } from "../list-payment-toolbar";
-import { InvoiceTableFiltersResult } from "../invoice-table-filters-result";
-import { _listPayment, PAYMENT_STATUS } from "@/_mock";
+import { ListRequiredFilesTableRow } from "../required-files-row";
+import { TrackTableToolbar } from "../track-table-toolbar";
+import { TrackTableFiltersResult } from "../track-table-filters-result";
+import { _jenjang } from "@/_mock/_invoice";
 import { paths } from "@/routes/paths";
-import { RouterLink } from "@/routes/components";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Form, FormField } from "@/components/ui/form";
 
 import Dialog from "@mui/material/Dialog";
 import TextField from "@mui/material/TextField";
@@ -43,52 +46,47 @@ import Typography from "@mui/material/Typography";
 import DialogTitle from "@mui/material/DialogTitle";
 import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
-import { Form, FormField } from "@/components/ui/form";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { insertData, showAllData } from "@/models";
 import { useToast } from "@/components/providers/toast-provider";
 
 // =======================================================================
 
-interface payment {
-  id: string;
-  paymentCode: string;
-  paymentName: string;
-  amountPayments: number;
-  status: "wajib" | "optional";
+interface RequiredFile {
+  id_required: string;
+  nama_berkas: string;
+  deskripsi: string;
+  wajib: boolean;
 }
 
-const createPayment = z.object({
-  kode_biaya: z.string().min(1, "Kode Pembayaran is required"),
-  nama_biaya: z.string().min(1, "Nama Pembayaran is required"),
-  jumlah: z.number().min(1, "Jumlah Biaya is required"),
+const createJenjang = z.object({
+  nama_berkas: z.string().min(1, "Kode jenjang harus diisi"),
+  deskripsi: z.string().min(1, "Nama jenjang harus diisi"),
 });
 
 const TABLE_HEAD = [
-  { id: "paymentsCode", label: "Kode Pembayaran", width: 250 },
-  { id: "paymentName", label: "Nama Pembayaran", width: 200 },
-  { id: "amount", label: "Jumlah Biaya", width: 200 },
+  { id: "nama_berkas", label: "Nama Berkas", width: 250 },
+  { id: "deskripsi", label: "Deskripsi", width: 200 },
   { id: "status", label: "Status", width: 120 },
   { id: "actions", label: "", width: 100 },
 ];
 
 // =======================================================================
 
-export function ListPaymentView() {
+export function ListRequiredFilesView() {
   const table = useTable();
   const confirmDialog = useBoolean();
-  const [tableData, setTableData] = useState<payment[]>([]);
+  const [tableData, setTableData] = useState<RequiredFile[]>([]);
   const { showSuccess, showError } = useToast();
 
+  // Load data on component mount
   useEffect(() => {
     const loadData = async () => {
       try {
-        const data = await showAllData("biaya");
-        setTableData(data as payment[]);
+        const data = await showAllData("requiredfile");
+        setTableData(data as RequiredFile[]);
       } catch (error) {
-        console.error("Error loading biaya data:", error);
-        showError("Failed to load biaya data");
+        console.error("Error loading jenjang data:", error);
+        showError("Failed to load jenjang data");
       }
     };
 
@@ -119,7 +117,6 @@ export function ListPaymentView() {
   });
 
   const dataInPage = rowInPage(dataFiltered, table.page, table.rowsPerPage);
-
   const canReset =
     !!currentFilters.name ||
     currentFilters.role.length > 0 ||
@@ -129,31 +126,26 @@ export function ListPaymentView() {
 
   const handleDeleteRow = useCallback(
     (id: string) => {
-      const deleteRow = tableData.filter((row) => row.id !== id);
-
-      toast.success("Delete success!");
+      const deleteRow = tableData.filter((row) => row.id_required !== id);
 
       setTableData(deleteRow);
-
       table.onUpdatePageDeleteRow(dataInPage.length);
     },
     [dataInPage.length, table, tableData]
   );
   const openDialog = useBoolean();
-
   const form = useForm({
-    resolver: zodResolver(createPayment),
+    resolver: zodResolver(createJenjang),
     defaultValues: {
-      kode_biaya: "",
-      nama_biaya: "",
-      jumlah: 0,
+      nama_berkas: "",
+      deskripsi: "",
     },
   });
 
-  const handleAddData = async (data: z.infer<typeof createPayment>) => {
+  const handleAddData = async (data: z.infer<typeof createJenjang>) => {
     try {
       console.log("Attempting to insert data:", data);
-      await insertData("biaya", data);
+      await insertData("requiredfile", data);
 
       showSuccess("Data berhasil ditambahkan!");
       form.reset();
@@ -165,21 +157,20 @@ export function ListPaymentView() {
       );
     }
   };
-
   const renderFormDialog = () => (
     <Dialog open={openDialog.value} onClose={openDialog.onFalse}>
-      <DialogTitle>Tambah Pembayaran</DialogTitle>
+      <DialogTitle>Tambah File Wajib</DialogTitle>
 
       <DialogContent>
         <Form {...form}>
-          <form action="#" onSubmit={form.handleSubmit(handleAddData)}>
+          <form onSubmit={form.handleSubmit(handleAddData)}>
             <FormField
               control={form.control}
-              name="kode_biaya"
+              name="nama_berkas"
               render={({ field }) => (
                 <TextField
                   {...field}
-                  label="Kode Pembayaran"
+                  label="Nama Berkas"
                   variant="outlined"
                   margin="dense"
                   fullWidth
@@ -189,36 +180,17 @@ export function ListPaymentView() {
             ></FormField>
             <FormField
               control={form.control}
-              name="nama_biaya"
+              name="deskripsi"
               render={({ field }) => (
                 <TextField
                   {...field}
-                  label="Nama Pembayaran"
+                  label="Deskripsi"
                   variant="outlined"
                   margin="dense"
                   fullWidth
                 />
               )}
             ></FormField>
-            <FormField
-              control={form.control}
-              name="jumlah"
-              render={({ field }) => (
-                <TextField
-                  {...field}
-                  label="Jumlah Biaya"
-                  variant="outlined"
-                  margin="dense"
-                  fullWidth
-                  type="number"
-                  value={field.value || 0}
-                  onChange={(e) =>
-                    field.onChange(parseInt(e.target.value) || 0)
-                  }
-                />
-              )}
-            ></FormField>
-
             <DialogActions>
               <Button
                 onClick={openDialog.onFalse}
@@ -227,11 +199,7 @@ export function ListPaymentView() {
               >
                 Cancel
               </Button>
-              <Button
-                type="submit"
-                onClick={openDialog.onFalse}
-                variant="contained"
-              >
+              <Button type="submit" variant="contained">
                 Save
               </Button>
             </DialogActions>
@@ -243,13 +211,19 @@ export function ListPaymentView() {
 
   return (
     <>
-      <DashboardContent>
+      <DashboardContent
+        sx={{
+          borderTop: `solid 1px rgba(145, 158, 171, 0.12)`,
+          pt: 3,
+          mb: { xs: 3, md: 5 },
+        }}
+      >
         <CustomBreadcrumbs
-          heading="List Pembayaran"
+          heading="List File Wajib"
           links={[
             { name: "Dashboard", href: paths.dashboard.root },
-            { name: "Finance", href: paths.dashboard.finance.root },
-            { name: "List Pembayaran" },
+            { name: "Master Data", href: paths.dashboard.finance.root },
+            { name: "List File Wajib" },
           ]}
           action={
             <Button
@@ -257,20 +231,21 @@ export function ListPaymentView() {
               variant="contained"
               startIcon={<Iconify icon="mingcute:add-line" />}
             >
-              Pembayaran Baru
+              File Wajib Baru
             </Button>
           }
           sx={{ mb: { xs: 3, md: 5 } }}
         />
 
         <Card sx={{ width: "100%", overflow: "hidden" }}>
-          <ListPaymentToolbar
+          <TrackTableToolbar
             filters={filters}
             onResetPage={table.onResetPage}
+            options={{ services: [] }}
           />
 
           {canReset && (
-            <InvoiceTableFiltersResult
+            <TrackTableFiltersResult
               filters={filters}
               totalResults={dataFiltered.length}
               onResetPage={table.onResetPage}
@@ -286,7 +261,7 @@ export function ListPaymentView() {
               onSelectAllRows={(checked) =>
                 table.onSelectAllRows(
                   checked,
-                  dataFiltered.map((row: { id: string }) => row.id)
+                  dataFiltered.map((row) => row.id_required)
                 )
               }
               action={
@@ -313,7 +288,7 @@ export function ListPaymentView() {
                   onSelectAllRows={(checked) =>
                     table.onSelectAllRows(
                       checked,
-                      dataFiltered.map((row: { id: string }) => row.id)
+                      dataFiltered.map((row) => row.id_required)
                     )
                   }
                 />
@@ -324,14 +299,24 @@ export function ListPaymentView() {
                       table.page * table.rowsPerPage,
                       table.page * table.rowsPerPage + table.rowsPerPage
                     )
-                    .map((row: payment) => (
-                      <ListPaymentTableRow
-                        key={row.id}
+                    .map((row: RequiredFile) => (
+                      <ListRequiredFilesTableRow
+                        key={row.id_required}
                         row={row}
-                        selected={table.selected.includes(row.id)}
-                        onSelectRow={() => table.onSelectRow(row.id)}
-                        onDeleteRow={() => handleDeleteRow(row.id)}
-                        editHref={paths.dashboard.user.edit(row.id)}
+                        selected={table.selected.includes(row.id_required)}
+                        onSelectRow={() => table.onSelectRow(row.id_required)}
+                        onDeleteRow={() => handleDeleteRow(row.id_required)}
+                        onUpdateRow={(updatedData) => {
+                          // Update the row in the table data
+                          setTableData((prev) =>
+                            prev.map((item) =>
+                              item.id_required === row.id_required
+                                ? { ...item, ...updatedData }
+                                : item
+                            )
+                          );
+                        }}
+                        editHref={paths.dashboard.user.edit(row.id_required)}
                       />
                     ))}
 
@@ -370,16 +355,15 @@ function applyFilter({
   comparator,
   filters,
 }: {
-  inputData: payment[];
-  comparator: (a: payment, b: payment) => number;
+  inputData: RequiredFile[];
+  comparator: (a: RequiredFile, b: RequiredFile) => number;
   filters: { name: string; role: string[]; status: string };
-}): payment[] {
-  const { status } = filters;
+}): RequiredFile[] {
+  // const { status } = filters; // Unused since RequiredFile doesn't have status property
 
-  const stabilizedThis: [payment, number][] = inputData.map((el, index) => [
-    el,
-    index,
-  ]);
+  const stabilizedThis: [RequiredFile, number][] = inputData.map(
+    (el, index) => [el, index]
+  );
 
   stabilizedThis.sort((a, b) => {
     const order = comparator(a[0], b[0]);
@@ -387,11 +371,12 @@ function applyFilter({
     return a[1] - b[1];
   });
 
-  let filteredData: payment[] = stabilizedThis.map((el) => el[0]);
+  let filteredData: RequiredFile[] = stabilizedThis.map((el) => el[0]);
 
-  if (status !== "all") {
-    filteredData = filteredData.filter((user) => user.status === status);
-  }
+  // Note: RequiredFile doesn't have a status property, so this filter is commented out
+  // if (status !== "all") {
+  //   filteredData = filteredData.filter((user) => user.status === status);
+  // }
 
   return filteredData;
 }

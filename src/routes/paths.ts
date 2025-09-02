@@ -64,6 +64,7 @@ export const paths = {
     master: {
       root: `${ROOTS.DASHBOARD}/master`,
       listJalur: `${ROOTS.DASHBOARD}/master/list-jalur`,
+      fileWajib: `${ROOTS.DASHBOARD}/master/required-files`,
       jenjang: `${ROOTS.DASHBOARD}/master/jenjang`,
       profileSekolah: `${ROOTS.DASHBOARD}/master/profile-sekolah`,
     },

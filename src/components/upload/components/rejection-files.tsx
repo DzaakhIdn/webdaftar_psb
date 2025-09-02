@@ -11,10 +11,10 @@ import { uploadClasses } from "../classes";
 
 interface FileRejection {
   file: File;
-  errors: Array<{
+  errors: readonly {
     code: string;
     message: string;
-  }>;
+  }[];
 }
 
 interface RejectionFilesProps {

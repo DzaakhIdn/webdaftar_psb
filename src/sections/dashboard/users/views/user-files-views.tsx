@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { varAlpha } from "minimal-shared/utils";
 import { useBoolean, useSetState } from "minimal-shared/hooks";
 
@@ -15,7 +15,7 @@ import TableBody from "@mui/material/TableBody";
 import IconButton from "@mui/material/IconButton";
 import { DashboardContent } from "@/layout/dashboard";
 import { Label } from "@/components/label";
-import { toast } from "@/components/snackbar";
+import { useToast } from "@/components/providers/toast-provider";
 import { Iconify } from "@/components/iconify";
 import { Scrollbar } from "@/components/scrollbar";
 import { ConfirmDialog } from "@/components/custom-dialog";
@@ -36,39 +36,24 @@ import {
 import { UserFilesRow } from "../user-files-row";
 import { UserTableToolbar } from "../user-table-toolbar";
 import { UserTableFiltersResult } from "../user-table-filters-result";
-import { _userList, USER_STATUS_FILES } from "@/_mock";
 import { paths } from "@/routes/paths";
-import { RouterLink } from "@/routes/components";
+import { fetchSiswaWithBerkas } from "@/models/datas/fetch-files";
 
 interface User {
-  id: string;
-  id_daftar?: string;
-  name: string;
-  email?: string;
-  avatarUrl?: string;
-  phoneNumber: string;
-  company?: string;
-  role?: string;
-  asalSekolah?: string;
-  pembayaran?: string;
-  status:
-    | "active"
-    | "pending"
-    | "banned"
-    | "rejected"
-    | "none"
-    | "some"
-    | "complete";
-  files?: string[];
-  zipCode?: string;
-  state?: string;
-  city?: string;
-  address?: string;
-  isVerified?: boolean;
-  country?: string;
+  id_siswa: string;
+  register_id: string;
+  nama_lengkap: string;
+  no_hp: string;
+  files: string[];
+  status_upload: string;
 }
 
-const STATUS_OPTIONS = [{ value: "all", label: "All" }, ...USER_STATUS_FILES];
+const STATUS_OPTIONS = [
+  { value: "all", label: "All" },
+  { value: "none", label: "Belum Upload" },
+  { value: "some", label: "Sebagian" },
+  { value: "complete", label: "Lengkap" },
+];
 
 const TABLE_HEAD = [
   { id: "name", label: "Name", width: 250 },
@@ -83,8 +68,34 @@ export function UserFilesView() {
   const table = useTable();
 
   const confirmDialog = useBoolean();
+  const [tableData, setTableData] = useState<User[]>([]);
+  const { showSuccess, showError } = useToast();
 
-  const [tableData, setTableData] = useState<User[]>(_userList as User[]);
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const data = await fetchSiswaWithBerkas();
+
+        // console.log("Raw data from fetchSiswaWithBerkas:", data);
+
+        // Check if data exists and is an array
+        if (!data || !Array.isArray(data)) {
+          console.log("No data or data is not an array");
+          setTableData([]);
+          return;
+        }
+
+        // Just set the data directly for now to see what we get
+        setTableData(data);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+        showError("Failed to fetch data");
+        setTableData([]);
+      }
+    };
+
+    fetchData();
+  }, [showError]);
 
   const filtersState = useSetState({
     name: "",
@@ -120,19 +131,19 @@ export function UserFilesView() {
 
   const handleDeleteRow = useCallback(
     (id: string) => {
-      const deleteRow = tableData.filter((row) => row.id !== id);
+      const deleteRow = tableData.filter((row) => row.id_siswa !== id);
 
-      toast.success("Delete success!");
+      showSuccess("Delete success!");
 
       setTableData(deleteRow);
 
       table.onUpdatePageDeleteRow(dataInPage.length);
     },
-    [dataInPage.length, table, tableData]
+    [dataInPage.length, table, tableData, showSuccess]
   );
 
   const handleFilterStatus = useCallback(
-    (event: React.SyntheticEvent, newValue: string) => {
+    (_event: React.SyntheticEvent, newValue: string) => {
       table.onResetPage();
       updateFilters({ status: newValue });
     },
@@ -197,10 +208,17 @@ export function UserFilesView() {
                       "default"
                     }
                   >
-                    {["none", "some", "complete"].includes(tab.value)
-                      ? tableData.filter((user) => user.status === tab.value)
-                          .length
-                      : tableData.length}
+                    {tab.value === "all"
+                      ? tableData.length
+                      : tableData.filter((user) => {
+                          if (tab.value === "none")
+                            return user.status_upload === "Belum Upload";
+                          if (tab.value === "some")
+                            return user.status_upload === "Sebagian";
+                          if (tab.value === "complete")
+                            return user.status_upload === "Lengkap";
+                          return user.status_upload === tab.value;
+                        }).length}
                   </Label>
                 }
               />
@@ -270,12 +288,14 @@ export function UserFilesView() {
                     )
                     .map((row: User) => (
                       <UserFilesRow
-                        key={row.id}
+                        key={row.id_siswa}
                         row={row}
-                        selected={table.selected.includes(row.id)}
-                        onSelectRow={() => table.onSelectRow(row.id)}
-                        onDeleteRow={() => handleDeleteRow(row.id)}
-                        editHref={paths.dashboard.user.edit(row.id)}
+                        selected={table.selected.includes(row.id_siswa)}
+                        onSelectRow={() => table.onSelectRow(row.id_siswa)}
+                        onDeleteRow={() => handleDeleteRow(row.id_siswa)}
+                        editHref={paths.dashboard.user.edit(
+                          String(row.id_siswa)
+                        )}
                       />
                     ))}
 
@@ -317,7 +337,7 @@ function applyFilter({
   comparator: (a: User, b: User) => number;
   filters: { name: string; role: string[]; status: string };
 }): User[] {
-  const { name, status, role } = filters;
+  const { name, status } = filters;
 
   const stabilizedThis: [User, number][] = inputData.map((el, index) => [
     el,
@@ -334,12 +354,17 @@ function applyFilter({
 
   if (name) {
     filteredData = filteredData.filter((user) =>
-      user.name.toLowerCase().includes(name.toLowerCase())
+      user.nama_lengkap.toLowerCase().includes(name.toLowerCase())
     );
   }
 
   if (status !== "all") {
-    filteredData = filteredData.filter((user) => user.status === status);
+    filteredData = filteredData.filter((user) => {
+      if (status === "none") return user.status_upload === "Belum Upload";
+      if (status === "some") return user.status_upload === "Sebagian";
+      if (status === "complete") return user.status_upload === "Lengkap";
+      return user.status_upload === status;
+    });
   }
 
   return filteredData;
