@@ -61,10 +61,6 @@ export const navData = [
         children: [
           { title: "Overview", path: paths.dashboard.finance.overview },
           {
-            title: "Payment Recipts",
-            path: paths.dashboard.finance.paymentRecipts,
-          },
-          {
             title: "List Payments",
             path: paths.dashboard.finance.listPayments,
           },

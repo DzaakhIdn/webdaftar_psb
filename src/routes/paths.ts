@@ -79,7 +79,6 @@ export const paths = {
     finance: {
       root: `${ROOTS.DASHBOARD}/finance`,
       overview: `${ROOTS.DASHBOARD}/finance/overview`,
-      paymentRecipts: `${ROOTS.DASHBOARD}/finance/payment-recipts`,
       listPayments: `${ROOTS.DASHBOARD}/finance/list-payments`,
     },
     information: {

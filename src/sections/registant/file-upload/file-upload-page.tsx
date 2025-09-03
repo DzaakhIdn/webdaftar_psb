@@ -229,12 +229,12 @@ export function FileUploadPage() {
         const existingUrl = existingFiles[file.id_required];
         const uploadedFile = uploadedFiles[file.id_required];
 
-        console.log(`File ${file.id_required}:`, {
-          existingUrl,
-          uploadedFile,
-          hasExisting: !!existingUrl,
-          hasUploaded: !!uploadedFile,
-        });
+        // console.log(`File ${file.id_required}:`, {
+        //   existingUrl,
+        //   uploadedFile,
+        //   hasExisting: !!existingUrl,
+        //   hasUploaded: !!uploadedFile,
+        // });
 
         return (
           <FileUpload

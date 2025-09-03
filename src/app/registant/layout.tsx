@@ -4,6 +4,7 @@ import { Suspense } from "react";
 import { Box, CircularProgress } from "@mui/material";
 import { RegistantLayout } from "@/layout/dashboard_user";
 // import { ProgressBar } from "@/components/progress-bar/progress-bar";
+import "./globals.css";
 
 export const metadata = {
   title: "User Dashboard",

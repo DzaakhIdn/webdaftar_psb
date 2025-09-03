@@ -5,3 +5,6 @@ export * from "./update-data";
 export * from "./update-user-data";
 export * from "./show-all-registant";
 export * from "./upload-avatar";
+export * from "./upload-payment-proof";
+export * from "./add-payment";
+export * from "./fetch-payment-status";

@@ -44,7 +44,7 @@ const updateBiayaSchema = z.object({
   kode_biaya: z.string().min(1, "Kode Pembayaran is required"),
   nama_biaya: z.string().min(1, "Nama Pembayaran is required"),
   jumlah: z.number().min(1, "Jumlah Biaya is required"),
-  status: z.enum(["wajib", "optional"]),
+  status_biaya: z.enum(["wajib", "optional"]),
 });
 
 export function ListPaymentTableRow({
@@ -66,7 +66,7 @@ export function ListPaymentTableRow({
       kode_biaya: "",
       nama_biaya: "",
       jumlah: 0,
-      status: "wajib" as "wajib" | "optional",
+      status_biaya: "wajib" as "wajib" | "optional",
     },
   });
 
@@ -76,7 +76,7 @@ export function ListPaymentTableRow({
         kode_biaya: row.kode_biaya || "",
         nama_biaya: row.nama_biaya || "",
         jumlah: row.jumlah || 0,
-        status: row.status || "wajib",
+        status_biaya: row.status_biaya || "wajib",
       };
       form.reset(formValues);
     }
@@ -100,7 +100,7 @@ export function ListPaymentTableRow({
         kode_biaya: data.kode_biaya.trim(),
         nama_biaya: data.nama_biaya.trim(),
         jumlah: data.jumlah,
-        status: data.status,
+        status_biaya: data.status_biaya,
       };
 
       // console.log("Update params:", {
@@ -195,7 +195,7 @@ export function ListPaymentTableRow({
             ></FormField>
             <FormField
               control={form.control}
-              name="status"
+              name="status_biaya"
               render={({ field }) => (
                 <FormControlLabel
                   control={
@@ -282,12 +282,12 @@ export function ListPaymentTableRow({
           <Label
             variant="soft"
             color={
-              (row.status === "wajib" && "error") ||
-              (row.status === "optional" && "warning") ||
+              (row.status_biaya === "wajib" && "error") ||
+              (row.status_biaya === "optional" && "warning") ||
               "default"
             }
           >
-            {row.status}
+            {row.status_biaya}
           </Label>
         </TableCell>
 

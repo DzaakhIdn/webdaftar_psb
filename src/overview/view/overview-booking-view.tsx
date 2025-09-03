@@ -128,68 +128,6 @@ export function OverviewBookingView() {
                 sx={{ boxShadow: { md: "none" } }}
               />
             </Box>
-
-            <BookingStatistics
-              subheader="Statistics"
-              title="Statistics"
-              chart={{
-                series: [
-                  {
-                    name: "Weekly",
-                    categories: [
-                      "Week 1",
-                      "Week 2",
-                      "Week 3",
-                      "Week 4",
-                      "Week 5",
-                    ],
-                    data: [
-                      { name: "Sold", value: [20, 56, 77, 88, 99] },
-                      { name: "Canceled", value: [20, 56, 77, 88, 99] },
-                    ],
-                  },
-                  {
-                    name: "Monthly",
-                    categories: [
-                      "Jan",
-                      "Feb",
-                      "Mar",
-                      "Apr",
-                      "May",
-                      "Jun",
-                      "Jul",
-                      "Aug",
-                      "Sep",
-                    ],
-                    data: [
-                      {
-                        name: "Sold",
-                        value: [83, 112, 119, 88, 103, 112, 114, 108, 93],
-                      },
-                      {
-                        name: "Canceled",
-                        value: [46, 46, 43, 58, 40, 59, 54, 42, 51],
-                      },
-                    ],
-                  },
-                  {
-                    name: "Yearly",
-                    categories: [
-                      "2018",
-                      "2019",
-                      "2020",
-                      "2021",
-                      "2022",
-                      "2023",
-                    ],
-                    data: [
-                      { name: "Sold", value: [76, 42, 29, 41, 27, 96] },
-                      { name: "Canceled", value: [46, 44, 24, 43, 44, 43] },
-                    ],
-                  },
-                ],
-              }}
-            />
           </Grid>
 
           <Grid size={{ xs: 12, md: 5, lg: 4 }}>
@@ -205,22 +143,64 @@ export function OverviewBookingView() {
                   ],
                 }}
               />
-
-              <BookingCustomerReviews
-                title="Customer reviews"
-                subheader={`${_bookingReview.length} Reviews`}
-                list={_bookingReview}
-              />
             </Box>
           </Grid>
         </Grid>
 
         <Grid size={12}>
-          <BookingNewest
-            sx={{ boxShadow: { md: "none" } }}
-            title="Newest booking"
-            subheader={`${_bookingNew.length} bookings`}
-            list={_bookingNew}
+          <BookingStatistics
+            subheader="Statistics"
+            title="Statistics"
+            chart={{
+              series: [
+                {
+                  name: "Weekly",
+                  categories: [
+                    "Week 1",
+                    "Week 2",
+                    "Week 3",
+                    "Week 4",
+                    "Week 5",
+                  ],
+                  data: [
+                    { name: "Sold", value: [20, 56, 77, 88, 99] },
+                    { name: "Canceled", value: [20, 56, 77, 88, 99] },
+                  ],
+                },
+                {
+                  name: "Monthly",
+                  categories: [
+                    "Jan",
+                    "Feb",
+                    "Mar",
+                    "Apr",
+                    "May",
+                    "Jun",
+                    "Jul",
+                    "Aug",
+                    "Sep",
+                  ],
+                  data: [
+                    {
+                      name: "Sold",
+                      value: [83, 112, 119, 88, 103, 112, 114, 108, 93],
+                    },
+                    {
+                      name: "Canceled",
+                      value: [46, 46, 43, 58, 40, 59, 54, 42, 51],
+                    },
+                  ],
+                },
+                {
+                  name: "Yearly",
+                  categories: ["2018", "2019", "2020", "2021", "2022", "2023"],
+                  data: [
+                    { name: "Sold", value: [76, 42, 29, 41, 27, 96] },
+                    { name: "Canceled", value: [46, 44, 24, 43, 44, 43] },
+                  ],
+                },
+              ],
+            }}
           />
         </Grid>
 
