@@ -20,6 +20,7 @@ import { useCurrentUser } from "@/hooks/getCurrentUsers";
 import { useToast } from "@/components/providers/toast-provider";
 import { showAllData } from "@/models";
 import { api } from "@/routes/paths";
+import { supabase } from "@/utils/supabase/client";
 
 // ----------------------------------------------------------------------
 
@@ -35,23 +36,52 @@ interface FileUploadReminderProps {
   onUploadClick?: () => void;
 }
 
-// Daftar file yang harus diupload
-const requiredFiles = [
-  {
-    name: "Kartu Keluarga (KK)",
-    icon: "solar:users-group-rounded-bold-duotone",
-  },
-  { name: "Akta Kelahiran", icon: "solar:document-text-bold-duotone" },
-  { name: "Ijazah/Surat Keterangan Lulus", icon: "solar:diploma-bold-duotone" },
-  { name: "Pas Foto 3x4", icon: "solar:camera-bold-duotone" },
-  { name: "Surat Keterangan Sehat", icon: "solar:health-bold-duotone" },
-];
+// Interface untuk required files dari database
+interface RequiredFile {
+  id_required: number;
+  nama_berkas: string;
+  deskripsi: string;
+  wajib: boolean;
+}
+
+interface UploadedFile {
+  id_berkas: number;
+  id_required: number;
+  path_berkas: string;
+  status_verifikasi: string;
+}
+
+// Helper function to get icon based on file name
+const getFileIcon = (fileName: string): string => {
+  const name = fileName.toLowerCase();
+
+  if (name.includes("kartu keluarga") || name.includes("kk")) {
+    return "solar:users-group-rounded-bold-duotone";
+  }
+  if (name.includes("akta") || name.includes("kelahiran")) {
+    return "solar:document-text-bold-duotone";
+  }
+  if (name.includes("ijazah") || name.includes("lulus")) {
+    return "solar:diploma-bold-duotone";
+  }
+  if (name.includes("foto") || name.includes("pas foto")) {
+    return "solar:camera-bold-duotone";
+  }
+  if (name.includes("sehat") || name.includes("kesehatan")) {
+    return "solar:health-bold-duotone";
+  }
+
+  // Default icon for other documents
+  return "solar:document-bold-duotone";
+};
 
 export function FileUploadReminder({ onUploadClick }: FileUploadReminderProps) {
+  const [requiredFiles, setRequiredFiles] = useState<RequiredFile[]>([]);
+  const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
   const [uploadStatus, setUploadStatus] = useState<FileUploadStatus>({
     isComplete: false,
     completedFiles: [],
-    pendingFiles: requiredFiles.map((f) => f.name),
+    pendingFiles: [],
     title: "Upload Dokumen Pendaftaran",
     description:
       "Silakan upload dokumen-dokumen yang diperlukan untuk melengkapi pendaftaran Anda.",
@@ -60,53 +90,90 @@ export function FileUploadReminder({ onUploadClick }: FileUploadReminderProps) {
   const { user: currentUser } = useCurrentUser(api.user.me);
   const { showError } = useToast();
 
-  // Pengecekan status upload dari database
+  // Fetch required files from database
   useEffect(() => {
-    const checkUploadStatus = async () => {
-      if (!currentUser) return;
-
+    const fetchRequiredFiles = async () => {
       try {
-        const data = await showAllData("calonsiswa");
-        const userData = data.find((r: any) => r.id_siswa === currentUser.id);
-
-        if (userData) {
-          // Cek apakah status pendaftaran sudah lengkap
-          const hasAllFiles = userData.status_pendaftaran === "lengkap";
-
-          if (hasAllFiles) {
-            setUploadStatus({
-              isComplete: true,
-              completedFiles: requiredFiles.map((f) => f.name),
-              pendingFiles: [],
-              title: "Dokumen Lengkap",
-              description:
-                "Semua dokumen telah berhasil diupload. Pendaftaran Anda sudah lengkap!",
-            });
-          } else {
-            // Simulasi file yang sudah diupload (bisa disesuaikan dengan field database)
-            const completedFiles = userData.foto_siswa ? ["Pas Foto 3x4"] : [];
-            const pendingFiles = requiredFiles
-              .map((f) => f.name)
-              .filter((name) => !completedFiles.includes(name));
-
-            setUploadStatus({
-              isComplete: false,
-              completedFiles,
-              pendingFiles,
-              title: "Upload Dokumen Pendaftaran",
-              description:
-                "Silakan upload dokumen-dokumen yang diperlukan untuk melengkapi pendaftaran Anda.",
-            });
-          }
-        }
+        const data = await showAllData("requiredfile");
+        setRequiredFiles(data as RequiredFile[]);
       } catch (error) {
-        console.error("Error checking upload status:", error);
-        showError("Gagal memuat status upload");
+        console.error("Error fetching required files:", error);
+        showError("Gagal memuat daftar berkas yang diperlukan");
       }
     };
 
-    checkUploadStatus();
+    fetchRequiredFiles();
+  }, [showError]);
+
+  // Fetch uploaded files for current user
+  useEffect(() => {
+    const fetchUploadedFiles = async () => {
+      if (!currentUser?.id) return;
+
+      try {
+        // Get uploaded files for current user
+        const { data, error } = await supabase
+          .from("berkassiswa")
+          .select(
+            `
+            id_berkas,
+            id_required,
+            path_berkas,
+            status_verifikasi
+          `
+          )
+          .eq("id_siswa", currentUser.id);
+
+        if (error) throw error;
+
+        setUploadedFiles(data || []);
+      } catch (error) {
+        console.error("Error fetching uploaded files:", error);
+        showError("Gagal memuat status upload berkas");
+      }
+    };
+
+    fetchUploadedFiles();
   }, [currentUser, showError]);
+
+  // Update upload status based on required files and uploaded files
+  useEffect(() => {
+    if (requiredFiles.length === 0) return;
+
+    const completedFiles: string[] = [];
+    const pendingFiles: string[] = [];
+    const mandatoryFiles = requiredFiles.filter((file) => file.wajib);
+
+    requiredFiles.forEach((requiredFile) => {
+      const uploadedFile = uploadedFiles.find(
+        (uploaded) => uploaded.id_required === requiredFile.id_required
+      );
+
+      if (uploadedFile && uploadedFile.path_berkas) {
+        completedFiles.push(requiredFile.nama_berkas);
+      } else {
+        pendingFiles.push(requiredFile.nama_berkas);
+      }
+    });
+
+    // Check if all mandatory files are completed
+    const completedMandatoryFiles = mandatoryFiles.filter((file) =>
+      completedFiles.includes(file.nama_berkas)
+    );
+    const isComplete =
+      completedMandatoryFiles.length === mandatoryFiles.length &&
+      mandatoryFiles.length > 0;
+
+    setUploadStatus({
+      isComplete,
+      completedFiles,
+      pendingFiles,
+      title: isComplete ? "Dokumen Lengkap" : "Upload Dokumen Pendaftaran",
+      description: isComplete
+        ? "Semua dokumen wajib telah berhasil diupload. Pendaftaran Anda sudah lengkap!"
+        : `Silakan upload dokumen-dokumen yang diperlukan untuk melengkapi pendaftaran Anda. ${mandatoryFiles.length} dokumen wajib harus diupload.`,
+    });
+  }, [requiredFiles, uploadedFiles]);
 
   const handleUploadClick = () => {
     if (onUploadClick) {
@@ -204,8 +271,8 @@ export function FileUploadReminder({ onUploadClick }: FileUploadReminderProps) {
                   Dokumen yang telah diupload:
                 </Typography>
                 <List dense sx={{ py: 0 }}>
-                  {requiredFiles.map((file) => (
-                    <ListItem key={file.name} sx={{ py: 0.5, px: 0 }}>
+                  {uploadStatus.completedFiles.map((fileName) => (
+                    <ListItem key={fileName} sx={{ py: 0.5, px: 0 }}>
                       <ListItemIcon sx={{ minWidth: 32 }}>
                         <Iconify
                           icon="solar:check-circle-bold"
@@ -214,10 +281,12 @@ export function FileUploadReminder({ onUploadClick }: FileUploadReminderProps) {
                         />
                       </ListItemIcon>
                       <ListItemText
-                        primary={file.name}
-                        primaryTypographyProps={{
-                          variant: "body2",
-                          color: "text.secondary",
+                        primary={fileName}
+                        slotProps={{
+                          primary: {
+                            variant: "body2",
+                            color: "text.secondary",
+                          },
                         }}
                       />
                     </ListItem>
@@ -318,48 +387,65 @@ export function FileUploadReminder({ onUploadClick }: FileUploadReminderProps) {
               <List dense sx={{ py: 0 }}>
                 {requiredFiles.map((file) => {
                   const isCompleted = uploadStatus.completedFiles.includes(
-                    file.name
+                    file.nama_berkas
                   );
                   return (
-                    <ListItem key={file.name} sx={{ py: 0.5, px: 0 }}>
+                    <ListItem key={file.id_required} sx={{ py: 0.5, px: 0 }}>
                       <ListItemIcon sx={{ minWidth: 32 }}>
                         <Iconify
                           icon={
                             isCompleted
                               ? "solar:check-circle-bold"
-                              : "solar:clock-circle-bold"
+                              : getFileIcon(file.nama_berkas)
                           }
                           width={20}
                           sx={{
                             color: isCompleted
                               ? "success.main"
-                              : "warning.main",
+                              : "primary.main",
                           }}
                         />
                       </ListItemIcon>
                       <ListItemText
-                        primary={file.name}
-                        primaryTypographyProps={{
-                          variant: "body2",
-                          color: isCompleted
-                            ? "text.secondary"
-                            : "text.primary",
-                          sx: {
-                            textDecoration: isCompleted
-                              ? "line-through"
-                              : "none",
-                            opacity: isCompleted ? 0.7 : 1,
+                        primary={file.nama_berkas}
+                        secondary={file.deskripsi}
+                        slotProps={{
+                          primary: {
+                            variant: "body2",
+                            color: isCompleted
+                              ? "text.secondary"
+                              : "text.primary",
+                            sx: {
+                              textDecoration: isCompleted
+                                ? "line-through"
+                                : "none",
+                              opacity: isCompleted ? 0.7 : 1,
+                            },
+                          },
+                          secondary: {
+                            variant: "caption",
+                            color: "text.disabled",
                           },
                         }}
                       />
-                      {isCompleted && (
-                        <Chip
-                          label="Selesai"
-                          size="small"
-                          color="success"
-                          variant="outlined"
-                        />
-                      )}
+                      <Stack direction="row" spacing={1} alignItems="center">
+                        {file.wajib && (
+                          <Chip
+                            label="Wajib"
+                            size="small"
+                            color="error"
+                            variant="outlined"
+                          />
+                        )}
+                        {isCompleted && (
+                          <Chip
+                            label="Selesai"
+                            size="small"
+                            color="success"
+                            variant="outlined"
+                          />
+                        )}
+                      </Stack>
                     </ListItem>
                   );
                 })}
