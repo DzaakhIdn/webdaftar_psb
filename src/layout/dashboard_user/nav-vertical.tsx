@@ -11,7 +11,6 @@ import { NavSectionVertical } from "@/components/nav-section";
 import { NavSectionMini } from "@/components/nav-section/mini";
 
 import { layoutClasses } from "../core/classes";
-// import { NavUpgrade } from '../components/nav-upgrade';
 import { NavToggleButton } from "../components/nav-toggle-button";
 
 // ----------------------------------------------------------------------

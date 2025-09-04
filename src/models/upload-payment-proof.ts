@@ -9,18 +9,22 @@ import { supabase } from "@/utils/supabase/client";
 export async function uploadBuktiPembayaran(
   file: File,
   siswaId: number,
-  paymentIds: number[]
+  namaSiswa: string,
 ) {
   try {
     // Get file extension from original file
     const fileExtension = file.name.split(".").pop() || "pdf";
 
-    // Create filename with timestamp and payment info
-    const timestamp = Date.now();
-    const paymentIdsStr = paymentIds.join("-");
-    const fileName = `bukti_pembayaran_${siswaId}_${paymentIdsStr}_${timestamp}.${fileExtension}`;
+    // Sanitize nama siswa untuk nama folder (hapus karakter yang tidak diizinkan)
+    const sanitizedNamaSiswa = namaSiswa
+      .replace(/[^a-zA-Z0-9\s]/g, "") // hapus karakter khusus
+      .replace(/\s+/g, "_") // ganti spasi dengan underscore
+      .toLowerCase();
 
-    const filePath = `${siswaId}/${fileName}`;
+    // Create filename with timestamp and payment info
+    const fileName = `bukti_pembayaran_${namaSiswa}.${fileExtension}`;
+
+    const filePath = `${sanitizedNamaSiswa}/${fileName}`;
 
     // 1️⃣ Upload to storage bucket
     const { error: uploadError } = await supabase.storage

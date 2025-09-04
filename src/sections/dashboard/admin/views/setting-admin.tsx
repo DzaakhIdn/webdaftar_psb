@@ -216,14 +216,10 @@ export function WebSettingsView() {
           <Typography variant="subtitle2" sx={{ mb: 2 }}>
             Logo Sekolah
           </Typography>
-          <Field.UploadAvatar name="schoolLogo" slotProps={{}} />
-          <Typography
-            variant="caption"
-            color="text.secondary"
-            sx={{ mt: 1, display: "block" }}
-          >
-            Upload logo sekolah (format: PNG, JPG, SVG. Maksimal 2MB)
-          </Typography>
+          <Field.UploadAvatar
+            name="schoolLogo"
+            helperText="Upload logo sekolah (format: PNG, JPG, SVG. Maksimal 2MB)"
+          />
         </Box>
         <Box>
           <Typography variant="subtitle2" sx={{ mb: 2 }}>

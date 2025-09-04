@@ -38,25 +38,14 @@ export function AccountDrawer({
   data = [
     {
       label: "Home",
-      href: "/",
+      href: "/registant",
       icon: <Iconify icon="solar:home-angle-bold-duotone" />,
     },
     {
-      label: "Profile",
-      href: "#",
+      label: "Biodata",
+      href: "/registant/biodata",
       icon: <Iconify icon="custom:profile-duotone" />,
-    },
-    {
-      label: "Projects",
-      href: "#",
-      icon: <Iconify icon="solar:notes-bold-duotone" />,
-      info: "3",
-    },
-    {
-      label: "Account settings",
-      href: "#",
-      icon: <Iconify icon="solar:settings-bold-duotone" />,
-    },
+    }
   ],
   sx,
   ...other
@@ -79,10 +68,14 @@ export function AccountDrawer({
           width: "100%",
           height: "100%",
           border: "2px solid",
-          borderColor: "primary.main"
+          borderColor: "primary.main",
         }}
       >
-        {user?.nama_lengkap?.charAt(0).toUpperCase()}
+        {user?.avatar_url ? (
+          <img src={user?.avatar_url} alt={user?.nama_lengkap} />
+        ) : (
+          user?.nama_lengkap?.charAt(0).toUpperCase()
+        )}
       </Avatar>
     </AnimateBorder>
   );

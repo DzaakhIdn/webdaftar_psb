@@ -28,6 +28,7 @@ interface DialogFormProps {
   handleSelectAll: () => void;
   handlePaymentToggle: (paymentId: number) => void;
   selectedAmount: number;
+  isSubmitting?: boolean;
 }
 
 export function DialogForm({
@@ -42,6 +43,7 @@ export function DialogForm({
   handleSelectAll,
   handlePaymentToggle,
   selectedAmount,
+  isSubmitting = false,
 }: DialogFormProps) {
   return (
     <Dialog open={open} onClose={onClose}>
@@ -193,15 +195,20 @@ export function DialogForm({
             </Box>
 
             <DialogActions sx={{ px: 0, pt: 3 }}>
-              <Button onClick={onClose} variant="outlined" color="inherit">
+              <Button
+                onClick={onClose}
+                variant="outlined"
+                color="inherit"
+                disabled={isSubmitting}
+              >
                 Batal
               </Button>
               <Button
                 type="submit"
                 variant="contained"
-                disabled={selectedPayments.length === 0}
+                disabled={selectedPayments.length === 0 || isSubmitting}
               >
-                Simpan Pembayaran
+                {isSubmitting ? "Menyimpan..." : "Simpan Pembayaran"}
               </Button>
             </DialogActions>
           </form>

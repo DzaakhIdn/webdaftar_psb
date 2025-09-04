@@ -81,6 +81,7 @@ export function PaymentUser() {
   const { user: currentUser } = useCurrentUser(api.user.me);
   const { showSuccess, showError } = useToast();
   const [selectedPayments, setSelectedPayments] = useState<number[]>([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Form setup
   const form = useForm({
@@ -235,6 +236,8 @@ export function PaymentUser() {
 
   const handleAddData = async (data: z.infer<typeof paymentSchema>) => {
     try {
+      setIsSubmitting(true);
+
       if (!currentUser?.id) {
         showError("User tidak ditemukan");
         return;
@@ -251,6 +254,7 @@ export function PaymentUser() {
 
       await tambahPembayaran(
         currentUser.id,
+        currentUser.nama_lengkap,
         data.selectedPayments,
         totalSelectedAmount,
         data.buktiPembayaran
@@ -261,8 +265,13 @@ export function PaymentUser() {
       setSelectedPayments([]);
       openDialog.onFalse();
 
-      // Refresh payment data after successful payment
-      const paymentStatuses = await fetchPaymentStatusByUser(currentUser.id);
+      // Refresh all payment data after successful payment
+      const [userPayments, paymentStatuses] = await Promise.all([
+        fetchPaymentUser(currentUser.id),
+        fetchPaymentStatusByUser(currentUser.id),
+      ]);
+
+      setUserPaymentData(userPayments);
       setPaymentStatusData(paymentStatuses);
       setTableData(paymentStatuses);
     } catch (error) {
@@ -270,6 +279,8 @@ export function PaymentUser() {
       showError(
         `Error: ${error instanceof Error ? error.message : "Unknown error"}`
       );
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -286,6 +297,7 @@ export function PaymentUser() {
       handleSelectAll={handleSelectAll}
       handlePaymentToggle={handlePaymentToggle}
       selectedAmount={selectedAmount}
+      isSubmitting={isSubmitting}
     />
   );
 
