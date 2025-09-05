@@ -21,7 +21,7 @@ export default function DashboardRootLayout({
     <Providers>
       <Suspense>
         <AuthGuard
-          allowedRoles={["admin", "user"]}
+          allowedRoles={["admin"]}
           loginPath={paths.authDashboard.signIn}
         >
           {/* <ProgressBar /> */}

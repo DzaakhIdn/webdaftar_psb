@@ -82,6 +82,7 @@ interface RHFUploadProps {
   name: string;
   multiple?: boolean;
   helperText?: string;
+  maxSize?: number;
   [key: string]: any;
 }
 
@@ -89,6 +90,7 @@ export function RHFUpload({
   name,
   multiple,
   helperText,
+  maxSize = 5242880, // 5MB default
   ...other
 }: RHFUploadProps) {
   const { control, setValue } = useFormContext();
@@ -106,11 +108,31 @@ export function RHFUpload({
         };
 
         const onDrop = (acceptedFiles: File[]) => {
+          // Validate file size
+          const validFiles = acceptedFiles.filter((file) => {
+            if (file.size > maxSize) {
+              // You could show a toast error here
+              console.error(
+                `File ${file.name} is too large. Maximum size is ${
+                  maxSize / 1024 / 1024
+                }MB`
+              );
+              return false;
+            }
+            return true;
+          });
+
+          if (validFiles.length === 0) return;
+
           const value = multiple
-            ? [...field.value, ...acceptedFiles]
-            : acceptedFiles[0];
+            ? [...(field.value || []), ...validFiles]
+            : validFiles[0];
 
           setValue(name, value, { shouldValidate: true });
+        };
+
+        const onDelete = () => {
+          setValue(name, multiple ? [] : null, { shouldValidate: true });
         };
 
         return (
@@ -118,6 +140,7 @@ export function RHFUpload({
             {...uploadProps}
             value={field.value}
             onDrop={onDrop}
+            onDelete={onDelete}
             {...other}
           />
         );

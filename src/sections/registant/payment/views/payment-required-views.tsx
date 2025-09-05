@@ -11,7 +11,7 @@ import { PaymentUser } from "../payment-user";
 export function PaymentView() {
   return (
     <DashboardContent
-      maxWidth={false}
+      maxWidth="xl"
       sx={{ pt: 3, borderTop: `solid 1px rgba(145, 158, 171, 0.12)` }}
     >
       <CustomBreadcrumbs

@@ -1,5 +1,5 @@
 "use client";
-import { SplashScreen } from "@/components/splash-screen";
+import SplashScreen from "@/components/splash-screen";
 import { useAuth } from "../hooks/use-check-auth";
 
 export default function AuthGuard({
@@ -16,7 +16,12 @@ export default function AuthGuard({
     allowedRoles,
   });
 
-  if (loading) return <SplashScreen />;
+  if (loading)
+    return (
+      <SplashScreen>
+        <div />
+      </SplashScreen>
+    );
   if (!isAuthenticated) return null;
   return <>{children}</>;
 }

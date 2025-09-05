@@ -28,7 +28,7 @@ export function PaymentRequiredRow({
         />
       </TableCell>
       <TableCell>{row.nama_biaya}</TableCell>
-      <TableCell>{row.jumlah}</TableCell>
+      <TableCell>Rp {row.jumlah.toLocaleString("id-ID")}</TableCell>
     </TableRow>
   );
 }

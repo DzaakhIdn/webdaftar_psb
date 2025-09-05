@@ -43,6 +43,8 @@ interface OrderTableRowProps {
   selected: boolean;
   onSelectRow: () => void;
   onDeleteRow: () => void;
+  onApprovePayment?: (kode_bayar: string) => void;
+  onRejectPayment?: (kode_bayar: string) => void;
   detailsHref: string;
 }
 
@@ -51,6 +53,8 @@ export function OrderTableRow({
   selected,
   onSelectRow,
   onDeleteRow,
+  onApprovePayment,
+  onRejectPayment,
   detailsHref,
 }: OrderTableRowProps) {
   const confirmDialog = useBoolean();
@@ -113,7 +117,7 @@ export function OrderTableRow({
         <Label
           variant="soft"
           color={
-            (row.status_verifikasi === "sukses" && "success") ||
+            (row.status_verifikasi === "diterima" && "success") ||
             (row.status_verifikasi === "pending" && "warning") ||
             (row.status_verifikasi === "ditolak" && "error") ||
             "default"
@@ -200,28 +204,63 @@ export function OrderTableRow({
                     }}
                   />
 
-                  {payment.bukti_bayar_path && (
-                    <Button
-                      onClick={() => {
-                        const link = document.createElement("a");
-                        link.href = payment.bukti_bayar_path!;
-                        link.download = `bukti_bayar_${payment.kode_bayar}`;
-                        link.target = "_blank";
-                        document.body.appendChild(link);
-                        link.click();
-                        document.body.removeChild(link);
-                      }}
-                      variant="soft"
-                      color="primary"
-                      size="small"
-                      sx={{ ml: 1 }}
-                    >
-                      <Iconify
-                        icon="solar:cloud-download-bold-duotone"
-                        width={20}
-                      />
-                    </Button>
-                  )}
+                  <Stack direction="row" spacing={1} sx={{ ml: 1 }}>
+                    {payment.bukti_bayar_path && (
+                      <Button
+                        onClick={() => {
+                          const link = document.createElement("a");
+                          link.href = payment.bukti_bayar_path!;
+                          link.download = `bukti_bayar_${payment.kode_bayar}`;
+                          link.target = "_blank";
+                          document.body.appendChild(link);
+                          link.click();
+                          document.body.removeChild(link);
+                        }}
+                        variant="soft"
+                        color="primary"
+                        size="small"
+                      >
+                        <Iconify
+                          icon="solar:cloud-download-bold-duotone"
+                          width={20}
+                        />
+                      </Button>
+                    )}
+
+                    {/* Action buttons for pending payments */}
+                    {payment.status_verifikasi === "pending" && (
+                      <>
+                        <Button
+                          onClick={() => onApprovePayment?.(payment.kode_bayar)}
+                          variant="soft"
+                          color="success"
+                          size="small"
+                          startIcon={
+                            <Iconify
+                              icon="solar:check-circle-bold"
+                              width={16}
+                            />
+                          }
+                        >
+                          Konfirmasi
+                        </Button>
+                        <Button
+                          onClick={() => onRejectPayment?.(payment.kode_bayar)}
+                          variant="soft"
+                          color="error"
+                          size="small"
+                          startIcon={
+                            <Iconify
+                              icon="solar:close-circle-bold"
+                              width={16}
+                            />
+                          }
+                        >
+                          Tolak
+                        </Button>
+                      </>
+                    )}
+                  </Stack>
                 </Box>
               ))
             ) : (

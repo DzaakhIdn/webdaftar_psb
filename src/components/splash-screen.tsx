@@ -1,298 +1,226 @@
 "use client";
 
-import { useEffect, useRef } from "react";
-import { Box, Typography } from "@mui/material";
-import { gsap } from "gsap";
+import React from "react";
+import styled from "styled-components";
+import { useEffect, useState } from "react";
 
-interface SplashScreenProps {
-  loading?: boolean;
-  onComplete?: () => void;
-  duration?: number;
-}
+const StyledWrapper = styled.div`
+  .loader {
+    --background: linear-gradient(135deg, #23c4f8, #275efe);
+    --shadow: rgba(39, 94, 254, 0.28);
+    --text: #6c7486;
+    --page: rgba(255, 255, 255, 0.36);
+    --page-fold: rgba(255, 255, 255, 0.52);
+    --duration: 3s;
+    width: 200px;
+    height: 140px;
+    position: relative;
+  }
 
-export function SplashScreen({
-  loading = true,
-  onComplete,
-  duration = 2000,
-}: SplashScreenProps) {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const contentRef = useRef<HTMLDivElement>(null);
-  const logoRef = useRef<HTMLDivElement>(null);
-  const dotsRef = useRef<HTMLDivElement>(null);
+  .loader:before,
+  .loader:after {
+    --r: -6deg;
+    content: "";
+    position: absolute;
+    bottom: 8px;
+    width: 120px;
+    top: 80%;
+    box-shadow: 0 16px 12px var(--shadow);
+    transform: rotate(var(--r));
+  }
+
+  .loader:before {
+    left: 4px;
+  }
+
+  .loader:after {
+    --r: 6deg;
+    right: 4px;
+  }
+
+  .loader div {
+    width: 100%;
+    height: 100%;
+    border-radius: 13px;
+    position: relative;
+    z-index: 1;
+    perspective: 600px;
+    box-shadow: 0 4px 6px var(--shadow);
+    background-image: var(--background);
+  }
+
+  .loader div ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    position: relative;
+  }
+
+  .loader div ul li {
+    --r: 180deg;
+    --o: 0;
+    --c: var(--page);
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    transform-origin: 100% 50%;
+    color: var(--c);
+    opacity: var(--o);
+    transform: rotateY(var(--r));
+    -webkit-animation: var(--duration) ease infinite;
+    animation: var(--duration) ease infinite;
+  }
+
+  .loader div ul li:nth-child(2) {
+    --c: var(--page-fold);
+    -webkit-animation-name: page-2;
+    animation-name: page-2;
+  }
+
+  .loader div ul li:nth-child(3) {
+    --c: var(--page-fold);
+    -webkit-animation-name: page-3;
+    animation-name: page-3;
+  }
+
+  .loader div ul li:nth-child(4) {
+    --c: var(--page-fold);
+    -webkit-animation-name: page-4;
+    animation-name: page-4;
+  }
+
+  .loader div ul li:nth-child(5) {
+    --c: var(--page-fold);
+    -webkit-animation-name: page-5;
+    animation-name: page-5;
+  }
+
+  .loader div ul li svg {
+    width: 90px;
+    height: 120px;
+    display: block;
+  }
+
+  .loader div ul li:first-child {
+    --r: 0deg;
+    --o: 1;
+  }
+
+  .loader div ul li:last-child {
+    --o: 1;
+  }
+
+  .loader span {
+    display: block;
+    left: 0;
+    right: 0;
+    top: 100%;
+    margin-top: 20px;
+    text-align: center;
+    color: var(--text);
+  }
+
+  @keyframes page-2 {
+    0% {
+      transform: rotateY(180deg);
+      opacity: 0;
+    }
+    20% {
+      opacity: 1;
+    }
+    35%, 100% {
+      opacity: 0;
+    }
+    50%, 100% {
+      transform: rotateY(0deg);
+    }
+  }
+
+  @keyframes page-3 {
+    15% {
+      transform: rotateY(180deg);
+      opacity: 0;
+    }
+    35% {
+      opacity: 1;
+    }
+    50%, 100% {
+      opacity: 0;
+    }
+    65%, 100% {
+      transform: rotateY(0deg);
+    }
+  }
+
+  @keyframes page-4 {
+    30% {
+      transform: rotateY(180deg);
+      opacity: 0;
+    }
+    50% {
+      opacity: 1;
+    }
+    65%, 100% {
+      opacity: 0;
+    }
+    80%, 100% {
+      transform: rotateY(0deg);
+    }
+  }
+
+  @keyframes page-5 {
+    45% {
+      transform: rotateY(180deg);
+      opacity: 0;
+    }
+    65% {
+      opacity: 1;
+    }
+    80%, 100% {
+      opacity: 0;
+    }
+    95%, 100% {
+      transform: rotateY(0deg);
+    }
+  }
+`;
+
+export default function SplashScreen({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    if (!loading) return;
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 2000);
 
-    const container = containerRef.current;
-    const content = contentRef.current;
-    const logo = logoRef.current;
-    const dots = dotsRef.current;
+    return () => clearTimeout(timer);
+  }, []);
 
-    if (!container || !content || !logo || !dots) return;
+  if (isLoading) {
+    return (
+      <div className="fixed inset-0 flex items-center justify-center bg-white z-50">
+        <StyledWrapper>
+          <div className="loader">
+            <div>
+              <ul>
+                {[...Array(6)].map((_, index) => (
+                  <li key={index}>
+                    <svg fill="currentColor" viewBox="0 0 90 120">
+                      <path d="M90,0 L90,120 L11,120 C4.92486775,120 0,115.075132 0,109 L0,11 C0,4.92486775 4.92486775,0 11,0 L90,0 Z M71.5,81 L18.5,81 C17.1192881,81 16,82.1192881 16,83.5 C16,84.8254834 17.0315359,85.9100387 18.3356243,85.9946823 L18.5,86 L71.5,86 C72.8807119,86 74,84.8807119 74,83.5 C74,82.1745166 72.9684641,81.0899613 71.6643757,81.0053177 L71.5,81 Z M71.5,57 L18.5,57 C17.1192881,57 16,58.1192881 16,59.5 C16,60.8254834 17.0315359,61.9100387 18.3356243,61.9946823 L18.5,62 L71.5,62 C72.8807119,62 74,60.8807119 74,59.5 C74,58.1192881 72.8807119,57 71.5,57 Z M71.5,33 L18.5,33 C17.1192881,33 16,34.1192881 16,35.5 C16,36.8254834 17.0315359,37.9100387 18.3356243,37.9946823 L18.5,38 L71.5,38 C72.8807119,38 74,36.8807119 74,35.5 C74,34.1192881 72.8807119,33 71.5,33 Z" />
+                    </svg>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        </StyledWrapper>
+      </div>
+    );
+  }
 
-    // Initial state
-    gsap.set([content, logo], { opacity: 0, y: 30 });
-    gsap.set(dots, { opacity: 0 });
-
-    // Animation timeline
-    const tl = gsap.timeline({
-      onComplete: () => {
-        gsap.to(container, {
-          opacity: 0,
-          duration: 0.5,
-          ease: "power2.inOut",
-          onComplete: () => {
-            onComplete?.();
-          },
-        });
-      },
-    });
-
-    // Logo animation
-    tl.to(logo, {
-      opacity: 1,
-      y: 0,
-      duration: 0.8,
-      ease: "power3.out",
-    })
-      // Dots animation
-      .to(
-        dots,
-        {
-          opacity: 1,
-          duration: 0.4,
-          ease: "power2.out",
-        },
-        "-=0.2"
-      )
-      // Content fade in
-      .to(
-        content,
-        {
-          opacity: 1,
-          y: 0,
-          duration: 0.6,
-          ease: "power2.out",
-        },
-        "-=0.3"
-      );
-
-    // Animate dots
-    gsap.to(dots.children, {
-      scale: 1.2,
-      duration: 0.6,
-      ease: "power2.inOut",
-      stagger: 0.1,
-      repeat: -1,
-      yoyo: true,
-    });
-
-    // Hold for duration
-    tl.to({}, { duration: duration / 1000 });
-  }, [loading, onComplete, duration]);
-
-  if (!loading) return null;
-
-  return (
-    <Box
-      ref={containerRef}
-      sx={{
-        position: "fixed",
-        top: 0,
-        left: 0,
-        width: "100%",
-        height: "100%",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        background: "linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)",
-        overflow: "hidden",
-        "&::before": {
-          content: '""',
-          position: "absolute",
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          background: `
-            radial-gradient(circle at 20% 80%, rgba(59, 130, 246, 0.3) 0%, transparent 50%),
-            radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
-            radial-gradient(circle at 40% 40%, rgba(29, 78, 216, 0.2) 0%, transparent 50%)
-          `,
-        },
-        zIndex: 9999,
-      }}
-    >
-      <Box
-        sx={{
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          gap: 4,
-          textAlign: "center",
-          position: "relative",
-          zIndex: 1,
-        }}
-      >
-        {/* Logo/Brand */}
-        <Box
-          ref={logoRef}
-          sx={{
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            gap: 2,
-          }}
-        >
-          <Box
-            sx={{
-              width: 80,
-              height: 80,
-              borderRadius: "50%",
-              background: "rgba(255, 255, 255, 0.15)",
-              backdropFilter: "blur(20px)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              border: "2px solid rgba(255, 255, 255, 0.3)",
-              boxShadow: "0 8px 32px rgba(0, 0, 0, 0.1)",
-              position: "relative",
-              "&::before": {
-                content: '""',
-                position: "absolute",
-                top: -2,
-                left: -2,
-                right: -2,
-                bottom: -2,
-                borderRadius: "50%",
-                background:
-                  "linear-gradient(45deg, rgba(255,255,255,0.3), rgba(255,255,255,0.1))",
-                zIndex: -1,
-              },
-            }}
-          >
-            <img src="/assets/important/logo.png" alt="Logo" />
-          </Box>
-
-          <Box
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              gap: 1,
-            }}
-          >
-            {/* Animated Loading Text */}
-            {["L", "O", "A", "D", "I", "N", "G"].map((letter, index) => (
-              <Typography
-                key={index}
-                variant="h5"
-                sx={{
-                  color: "white",
-                  fontWeight: 600,
-                  fontSize: "1.2rem",
-                  letterSpacing: "0.05em",
-                  textShadow: "0 2px 8px rgba(0, 0, 0, 0.3)",
-                  animation: `fadeInUp 0.6s ease-out ${index * 0.1}s both`,
-                  "@keyframes fadeInUp": {
-                    "0%": {
-                      opacity: 0,
-                      transform: "translateY(20px)",
-                    },
-                    "100%": {
-                      opacity: 1,
-                      transform: "translateY(0)",
-                    },
-                  },
-                }}
-              >
-                {letter}
-              </Typography>
-            ))}
-
-            {/* Animated dots */}
-            <Box sx={{ display: "flex", gap: 0.5, ml: 1 }}>
-              {[0, 1, 2].map((index) => (
-                <Box
-                  key={index}
-                  sx={{
-                    width: 4,
-                    height: 4,
-                    borderRadius: "50%",
-                    backgroundColor: "white",
-                    animation: `pulse 1.4s ease-in-out ${
-                      index * 0.2
-                    }s infinite`,
-                    "@keyframes pulse": {
-                      "0%, 80%, 100%": {
-                        opacity: 0.3,
-                        transform: "scale(1)",
-                      },
-                      "40%": {
-                        opacity: 1,
-                        transform: "scale(1.2)",
-                      },
-                    },
-                  }}
-                />
-              ))}
-            </Box>
-          </Box>
-        </Box>
-
-        {/* Progress Bar */}
-        <Box
-          ref={dotsRef}
-          sx={{
-            width: 200,
-            height: 4,
-            borderRadius: 2,
-            backgroundColor: "rgba(255, 255, 255, 0.2)",
-            overflow: "hidden",
-            position: "relative",
-          }}
-        >
-          <Box
-            sx={{
-              height: "100%",
-              borderRadius: 2,
-              background:
-                "linear-gradient(90deg, rgba(255,255,255,0.8), rgba(255,255,255,0.4))",
-              animation: "loading 2s ease-in-out infinite",
-              "@keyframes loading": {
-                "0%": {
-                  width: "0%",
-                  transform: "translateX(-100%)",
-                },
-                "50%": {
-                  width: "100%",
-                  transform: "translateX(0%)",
-                },
-                "100%": {
-                  width: "100%",
-                  transform: "translateX(100%)",
-                },
-              },
-            }}
-          />
-        </Box>
-
-        {/* Subtitle */}
-        <Box ref={contentRef}>
-          <Typography
-            variant="body2"
-            sx={{
-              color: "rgba(255, 255, 255, 0.7)",
-              fontSize: "0.8rem",
-              fontWeight: 300,
-              letterSpacing: "0.1em",
-              textShadow: "0 1px 3px rgba(0, 0, 0, 0.3)",
-              opacity: 0.9,
-            }}
-          >
-            SISTEM PENDAFTARAN
-          </Typography>
-        </Box>
-      </Box>
-    </Box>
-  );
+  return <>{children}</>;
 }

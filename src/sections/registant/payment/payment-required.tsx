@@ -6,7 +6,6 @@ import Card from "@mui/material/Card";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
 import { Iconify } from "@/components/iconify";
-import { Scrollbar } from "@/components/scrollbar";
 
 import {
   useTable,
@@ -24,6 +23,7 @@ import { useCurrentUser } from "@/hooks/getCurrentUsers";
 import { fetchUnpaidPaymentsByUser } from "@/models/payments-required";
 import { api } from "@/routes/paths";
 import { Typography } from "@mui/material";
+import { Scrollbar } from "@/components/scrollbar";
 
 // ================================= // ============================== //
 
@@ -34,8 +34,8 @@ interface JenisPembayaran {
 }
 
 const TABLE_HEAD = [
-  { id: "paymentName", label: "Nama Pembayaran", width: 150 },
-  { id: "amount", label: "Jumlah Biaya", width: 150 },
+  { id: "paymentName", label: "Nama Pembayaran", width: 50 },
+  { id: "amount", label: "Jumlah Biaya", width: 50 },
 ];
 
 export function PaymentRequired() {
@@ -86,7 +86,8 @@ export function PaymentRequired() {
   return (
     <Card sx={{ width: "100%", overflow: "hidden" }}>
       <Box sx={{ position: "relative" }}>
-          <Table size={table.dense ? "small" : "medium"} sx={{ minWidth: 800 }}>
+        <Scrollbar>
+          <Table size={table.dense ? "small" : "medium"} sx={{ minWidth: 500 }}>
             <TableHeadCustom
               order={table.order}
               orderBy={table.orderBy}
@@ -129,14 +130,20 @@ export function PaymentRequired() {
               <TableNoData notFound={notFound} />
             </TableBody>
           </Table>
-          <Card sx={{ width: "100%", overflow: "hidden", padding: 2, display: "flex", flexDirection: "row", justifyContent: "space-between" }}>
-            <Typography>
-              Total Pembayaran:
-            </Typography>
-            <Typography variant="h6">
-              Rp {totalAmount}
-            </Typography>
-          </Card>
+        </Scrollbar>
+        <Card
+          sx={{
+            width: "100%",
+            overflow: "hidden",
+            padding: 2,
+            display: "flex",
+            flexDirection: "row",
+            justifyContent: "space-between",
+          }}
+        >
+          <Typography>Total Pembayaran:</Typography>
+          <Typography variant="h6">Rp {totalAmount.toLocaleString("id-ID")}</Typography>
+        </Card>
       </Box>
     </Card>
   );

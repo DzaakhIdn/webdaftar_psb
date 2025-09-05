@@ -5,7 +5,7 @@ export async function tambahPembayaran(
   idSiswa: number,
   namaSiswa: string,
   selectedPembayaran: number[], // array of id_jenis_pembayaran
-  nominal: number,
+  paymentData: { id_biaya: number; jumlah: number }[], // array of payment data with individual amounts
   buktiPembayaran?: File
 ) {
   try {
@@ -16,8 +16,7 @@ export async function tambahPembayaran(
       const uploadResult = await uploadBuktiPembayaran(
         buktiPembayaran,
         idSiswa,
-        namaSiswa,
-        selectedPembayaran
+        namaSiswa
       );
       buktiUrl = uploadResult.path_berkas;
     }
@@ -35,12 +34,12 @@ export async function tambahPembayaran(
       newId = `INV-${(last_num + 1).toString().padStart(3, "0")}`;
     }
 
-    const records = selectedPembayaran.map((idJenis) => ({
+    const records = paymentData.map((payment) => ({
       kode_bayar: newId,
       tanggal_bayar: new Date(),
       id_siswa: idSiswa,
-      id_biaya: idJenis,
-      jumlah_bayar: nominal,
+      id_biaya: payment.id_biaya,
+      jumlah_bayar: payment.jumlah,
       bukti_bayar_path: buktiUrl,
     }));
 

@@ -52,6 +52,7 @@ import {
   getPembayaranGroupedByUser,
   getSimplePembayaran,
 } from "@/models/datas/fetch-payment-datas";
+import { approvePayment, rejectPayment } from "@/models/update-payment-status";
 
 // ----------------------------------------------------------------------
 
@@ -224,18 +225,17 @@ export function InvoiceListView() {
 
   const notFound = (!dataFiltered.length && canReset) || !dataFiltered.length;
 
-  const getInvoiceLength = (status: "paid" | "pending" | "overdue" | "draft") =>
+  const getInvoiceLength = (status: "diterima" | "pending" | "ditolak") =>
     tableData.filter((item) => item.status_verifikasi === status).length;
 
-  const getTotalAmount = (status: "paid" | "pending" | "overdue" | "draft") =>
+  const getTotalAmount = (status: "diterima" | "pending" | "ditolak") =>
     sumBy(
       tableData.filter((item) => item.status_verifikasi === status),
       (invoice) => invoice.jumlah_bayar
     );
 
-  const getPercentByStatus = (
-    status: "paid" | "pending" | "overdue" | "draft"
-  ) => (getInvoiceLength(status) / tableData.length) * 100;
+  const getPercentByStatus = (status: "diterima" | "pending" | "ditolak") =>
+    (getInvoiceLength(status) / tableData.length) * 100;
 
   const TABS = [
     {
@@ -245,10 +245,10 @@ export function InvoiceListView() {
       count: tableData.length,
     },
     {
-      value: "paid",
-      label: "Paid",
+      value: "diterima",
+      label: "Diterima",
       color: "success" as const,
-      count: getInvoiceLength("paid"),
+      count: getInvoiceLength("diterima"),
     },
     {
       value: "pending",
@@ -257,16 +257,10 @@ export function InvoiceListView() {
       count: getInvoiceLength("pending"),
     },
     {
-      value: "overdue",
-      label: "Overdue",
+      value: "ditolak",
+      label: "Ditolak",
       color: "error" as const,
-      count: getInvoiceLength("overdue"),
-    },
-    {
-      value: "draft",
-      label: "Draft",
-      color: "default" as const,
-      count: getInvoiceLength("draft"),
+      count: getInvoiceLength("ditolak"),
     },
   ];
 
@@ -282,6 +276,76 @@ export function InvoiceListView() {
     },
     [dataInPage.length, table, tableData]
   );
+
+  const handleApprovePayment = useCallback(async (kode_bayar: string) => {
+    try {
+      await approvePayment(kode_bayar);
+      toast.success("Pembayaran berhasil dikonfirmasi!");
+
+      // Refresh data
+      const data = await getPembayaranGroupedByUser();
+      const transformedData = data.map((userGroup, userIndex) => {
+        const totalAmount = userGroup.pembayaran.reduce(
+          (sum, payment) => sum + payment.jumlah_bayar,
+          0
+        );
+        const latestPayment = userGroup.pembayaran[0];
+
+        return {
+          id_biaya: `user-${userIndex}`,
+          kode_bayar: latestPayment?.kode_bayar || "",
+          status_verifikasi: latestPayment?.status_verifikasi || "",
+          bukti_bayar_path: latestPayment?.bukti_bayar_path || null,
+          tanggal_bayar: latestPayment?.tanggal_bayar || "",
+          jenis_bayar: latestPayment?.jenis_bayar || null,
+          jumlah_bayar: totalAmount,
+          nama_siswa: userGroup.nama_siswa,
+          register_id: userGroup.register_id,
+          no_hp: userGroup.no_hp,
+          pembayaran: userGroup.pembayaran,
+        };
+      });
+      setTableData(transformedData);
+    } catch (error) {
+      console.error("Error approving payment:", error);
+      toast.error("Gagal mengkonfirmasi pembayaran");
+    }
+  }, []);
+
+  const handleRejectPayment = useCallback(async (kode_bayar: string) => {
+    try {
+      await rejectPayment(kode_bayar);
+      toast.success("Pembayaran berhasil ditolak!");
+
+      // Refresh data
+      const data = await getPembayaranGroupedByUser();
+      const transformedData = data.map((userGroup, userIndex) => {
+        const totalAmount = userGroup.pembayaran.reduce(
+          (sum, payment) => sum + payment.jumlah_bayar,
+          0
+        );
+        const latestPayment = userGroup.pembayaran[0];
+
+        return {
+          id_biaya: `user-${userIndex}`,
+          kode_bayar: latestPayment?.kode_bayar || "",
+          status_verifikasi: latestPayment?.status_verifikasi || "",
+          bukti_bayar_path: latestPayment?.bukti_bayar_path || null,
+          tanggal_bayar: latestPayment?.tanggal_bayar || "",
+          jenis_bayar: latestPayment?.jenis_bayar || null,
+          jumlah_bayar: totalAmount,
+          nama_siswa: userGroup.nama_siswa,
+          register_id: userGroup.register_id,
+          no_hp: userGroup.no_hp,
+          pembayaran: userGroup.pembayaran,
+        };
+      });
+      setTableData(transformedData);
+    } catch (error) {
+      console.error("Error rejecting payment:", error);
+      toast.error("Gagal menolak pembayaran");
+    }
+  }, []);
 
   const handleDeleteRows = useCallback(() => {
     const deleteRows = tableData.filter(
@@ -374,10 +438,10 @@ export function InvoiceListView() {
               />
 
               <InvoiceAnalytic
-                title="Paid"
-                total={getInvoiceLength("paid")}
-                percent={getPercentByStatus("paid")}
-                price={getTotalAmount("paid")}
+                title="Diterima"
+                total={getInvoiceLength("diterima")}
+                percent={getPercentByStatus("diterima")}
+                price={getTotalAmount("diterima")}
                 icon="solar:file-check-bold-duotone"
                 color={theme.vars.palette.success.main}
               />
@@ -423,15 +487,13 @@ export function InvoiceListView() {
                       "soft"
                     }
                     color={
-                      (tab.value === "completed" && "success") ||
+                      (tab.value === "diterima" && "success") ||
                       (tab.value === "pending" && "warning") ||
-                      (tab.value === "cancelled" && "error") ||
+                      (tab.value === "ditolak" && "error") ||
                       "default"
                     }
                   >
-                    {["completed", "pending", "cancelled", "refunded"].includes(
-                      tab.value
-                    )
+                    {["diterima", "pending", "ditolak"].includes(tab.value)
                       ? tableData.filter(
                           (user) => user.status_verifikasi === tab.value
                         ).length
@@ -511,6 +573,8 @@ export function InvoiceListView() {
                         selected={table.selected.includes(row.id_biaya)}
                         onSelectRow={() => table.onSelectRow(row.id_biaya)}
                         onDeleteRow={() => handleDeleteRow(row.id_biaya)}
+                        onApprovePayment={handleApprovePayment}
+                        onRejectPayment={handleRejectPayment}
                         detailsHref={paths.dashboard.finance.overview}
                       />
                     ))}

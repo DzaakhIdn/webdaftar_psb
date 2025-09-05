@@ -50,21 +50,24 @@ export async function getPembayaranGroupedByUser() {
     console.log("Raw data from Supabase:", data);
     console.log("Data length:", data?.length || 0);
 
-    // Group by user
+    // Group by user, then by kode_bayar
     const grouped: Record<
       string,
       {
         nama_siswa: string | null;
         register_id: string | null;
         no_hp: string | null;
-        pembayaran: {
-          kode_bayar: string;
-          tanggal_bayar: string;
-          jenis_bayar: string | null;
-          bukti_bayar_path: string | null;
-          jumlah_bayar: number;
-          status_verifikasi: string;
-        }[];
+        pembayaran: Record<
+          string,
+          {
+            kode_bayar: string;
+            tanggal_bayar: string;
+            jenis_bayar: string[];
+            bukti_bayar_path: string | null;
+            jumlah_bayar: number;
+            status_verifikasi: string;
+          }
+        >;
       }
     > = {};
 
@@ -89,26 +92,49 @@ export async function getPembayaranGroupedByUser() {
           nama_siswa: calonsiswa?.nama_lengkap || null,
           register_id: calonsiswa?.register_id || null,
           no_hp: calonsiswa?.no_hp || null,
-          pembayaran: [],
+          pembayaran: {},
         };
         console.log(`Created new group for userId ${userId}:`, grouped[userId]);
       }
 
       const biaya = Array.isArray(row.biaya) ? row.biaya[0] : row.biaya;
-      const payment = {
-        kode_bayar: row.kode_bayar,
-        tanggal_bayar: row.tanggal_bayar,
-        jenis_bayar: biaya?.nama_biaya || null,
-        bukti_bayar_path: row.bukti_bayar_path,
-        jumlah_bayar: row.jumlah_bayar,
-        status_verifikasi: row.status_verifikasi,
-      };
+      const kodeBayar = row.kode_bayar;
 
-      grouped[userId].pembayaran.push(payment);
-      console.log(`Added payment to userId ${userId}:`, payment);
+      // Group by kode_bayar (same invoice)
+      if (!grouped[userId].pembayaran[kodeBayar]) {
+        grouped[userId].pembayaran[kodeBayar] = {
+          kode_bayar: kodeBayar,
+          tanggal_bayar: row.tanggal_bayar,
+          jenis_bayar: [],
+          bukti_bayar_path: row.bukti_bayar_path,
+          jumlah_bayar: 0,
+          status_verifikasi: row.status_verifikasi,
+        };
+      }
+
+      // Add jenis_bayar to array and sum jumlah_bayar
+      if (biaya?.nama_biaya) {
+        grouped[userId].pembayaran[kodeBayar].jenis_bayar.push(
+          biaya.nama_biaya
+        );
+      }
+      grouped[userId].pembayaran[kodeBayar].jumlah_bayar += row.jumlah_bayar;
+
+      console.log(
+        `Updated payment for userId ${userId}, kode_bayar ${kodeBayar}:`,
+        grouped[userId].pembayaran[kodeBayar]
+      );
     });
 
-    const result = Object.values(grouped);
+    // Convert pembayaran object to array and format jenis_bayar
+    const result = Object.values(grouped).map((user) => ({
+      ...user,
+      pembayaran: Object.values(user.pembayaran).map((payment) => ({
+        ...payment,
+        jenis_bayar: payment.jenis_bayar.join(", "), // Convert array to string
+      })),
+    }));
+
     console.log("Final grouped result:", result);
     console.log("Final result length:", result.length);
 

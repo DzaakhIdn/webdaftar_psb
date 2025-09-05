@@ -82,6 +82,7 @@ export function PaymentUser() {
   const { showSuccess, showError } = useToast();
   const [selectedPayments, setSelectedPayments] = useState<number[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   // Form setup
   const form = useForm({
@@ -122,6 +123,25 @@ export function PaymentUser() {
         // Also set tableData with the same data for display
         setTableData(paymentStatuses);
         console.log("Table data set:", paymentStatuses);
+
+        // Validate data consistency
+        const availableCount = paymentStatuses.filter(
+          (p) => p.status === "available"
+        ).length;
+        const paidCount = paymentStatuses.filter(
+          (p) => p.status === "paid"
+        ).length;
+        const pendingCount = paymentStatuses.filter(
+          (p) => p.status === "pending"
+        ).length;
+
+        console.log("Payment data validation:", {
+          total: paymentStatuses.length,
+          available: availableCount,
+          paid: paidCount,
+          pending: pendingCount,
+          allCompleted: availableCount === 0,
+        });
       } catch (error) {
         console.error("Error fetching payment data:", error);
       }
@@ -129,6 +149,42 @@ export function PaymentUser() {
 
     fetchPaymentData();
   }, [currentUser]);
+
+  // Auto-refresh data every 30 seconds to ensure data consistency
+  useEffect(() => {
+    if (!currentUser?.id) return;
+
+    const interval = setInterval(async () => {
+      try {
+        const paymentStatuses = await fetchPaymentStatusByUser(currentUser.id);
+        const currentAvailable = paymentStatusData.filter(
+          (p) => p.status === "available"
+        ).length;
+        const newAvailable = paymentStatuses.filter(
+          (p) => p.status === "available"
+        ).length;
+
+        // Only update if there's a change in available payments
+        if (currentAvailable !== newAvailable) {
+          console.log("Auto-refresh detected changes:", {
+            previousAvailable: currentAvailable,
+            newAvailable: newAvailable,
+          });
+
+          setPaymentStatusData(paymentStatuses);
+          setTableData(paymentStatuses);
+
+          // Also refresh user payment data
+          const userPayments = await fetchPaymentUser(currentUser.id);
+          setUserPaymentData(userPayments);
+        }
+      } catch (error) {
+        console.error("Auto-refresh error:", error);
+      }
+    }, 30000); // 30 seconds
+
+    return () => clearInterval(interval);
+  }, [currentUser?.id, paymentStatusData]);
 
   const filtersState = useSetState({
     name: "",
@@ -156,20 +212,44 @@ export function PaymentUser() {
 
   // Calculate payment statistics
   const totalPaid = userPaymentData
-    .filter((payment) => payment.status === "sukses")
+    .filter((payment) => payment.status === "diterima")
     .reduce((acc, row) => acc + row.jumlah_bayar, 0);
 
   const totalPending = userPaymentData
     .filter((payment) => payment.status === "pending")
     .reduce((acc, row) => acc + row.jumlah_bayar, 0);
 
-  // Calculate remaining payments (available + rejected from paymentStatusData)
+  // Calculate remaining payments (available payments from paymentStatusData)
   const remainingPayments = paymentStatusData
-    .filter(
-      (payment) =>
-        payment.status === "available" || payment.status === "rejected"
-    )
+    .filter((payment) => payment.status === "available")
     .reduce((acc, row) => acc + row.jumlah, 0);
+
+  // Additional validation: Check if all payments are completed
+  const allPaymentsCompleted =
+    paymentStatusData.length > 0 &&
+    paymentStatusData.every(
+      (payment) => payment.status === "paid" || payment.status === "pending"
+    );
+
+  // Log for debugging
+  console.log("Payment Status Debug in Component:", {
+    totalPaymentTypes: paymentStatusData.length,
+    availablePayments: paymentStatusData.filter((p) => p.status === "available")
+      .length,
+    paidPayments: paymentStatusData.filter((p) => p.status === "paid").length,
+    pendingPayments: paymentStatusData.filter((p) => p.status === "pending")
+      .length,
+    rejectedPayments: paymentStatusData.filter((p) => p.status === "rejected")
+      .length,
+    remainingPayments,
+    allPaymentsCompleted,
+    detailedPaymentStatus: paymentStatusData.map((p) => ({
+      id: p.id_biaya,
+      name: p.nama_biaya,
+      status: p.status,
+      amount: p.jumlah,
+    })),
+  });
 
   const selectedAmount = selectedPayments.reduce((acc, paymentId) => {
     const payment = tableData.find((p) => p.id_biaya === paymentId);
@@ -183,22 +263,50 @@ export function PaymentUser() {
 
   const openDialog = useBoolean();
 
+  // Manual refresh function for data validation
+  const refreshPaymentData = async () => {
+    if (!currentUser?.id) return;
+
+    setIsRefreshing(true);
+    try {
+      const [userPayments, paymentStatuses] = await Promise.all([
+        fetchPaymentUser(currentUser.id),
+        fetchPaymentStatusByUser(currentUser.id),
+      ]);
+
+      console.log("Manual refresh - Payment data:", {
+        userPayments: userPayments.length,
+        paymentStatuses: paymentStatuses.length,
+        available: paymentStatuses.filter((p) => p.status === "available")
+          .length,
+        paid: paymentStatuses.filter((p) => p.status === "paid").length,
+        pending: paymentStatuses.filter((p) => p.status === "pending").length,
+      });
+
+      setUserPaymentData(userPayments);
+      setPaymentStatusData(paymentStatuses);
+      setTableData(paymentStatuses);
+
+      showSuccess("Data pembayaran berhasil diperbarui!");
+    } catch (error) {
+      console.error("Error refreshing payment data:", error);
+      showError("Gagal memperbarui data pembayaran");
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
+
   // Helper function to check if payment can be selected
   const canSelectPayment = (paymentId: number): boolean => {
     const paymentStatus = paymentStatusData.find(
       (p) => p.id_biaya === paymentId
     );
-    return (
-      paymentStatus?.status === "available" ||
-      paymentStatus?.status === "rejected"
-    );
+    return paymentStatus?.status === "available";
   };
-
   // Helper function to get payment status info
   const getPaymentStatusInfo = (paymentId: number) => {
     return paymentStatusData.find((p) => p.id_biaya === paymentId);
   };
-
   // Handler functions
   const handlePaymentToggle = (paymentId: number) => {
     // Check if payment can be selected
@@ -221,7 +329,6 @@ export function PaymentUser() {
       return newSelected;
     });
   };
-
   const handleSelectAll = () => {
     // Only select payments that are available
     const availableIds = tableData
@@ -233,7 +340,6 @@ export function PaymentUser() {
     setSelectedPayments(newSelected);
     form.setValue("selectedPayments", newSelected);
   };
-
   const handleAddData = async (data: z.infer<typeof paymentSchema>) => {
     try {
       setIsSubmitting(true);
@@ -243,20 +349,20 @@ export function PaymentUser() {
         return;
       }
 
-      // Calculate total amount for selected payments
-      const totalSelectedAmount = data.selectedPayments.reduce(
-        (acc, paymentId) => {
-          const payment = tableData.find((p) => p.id_biaya === paymentId);
-          return acc + (payment?.jumlah || 0);
-        },
-        0
-      );
+      // Prepare payment data with individual amounts
+      const paymentData = data.selectedPayments.map((paymentId) => {
+        const payment = tableData.find((p) => p.id_biaya === paymentId);
+        return {
+          id_biaya: paymentId,
+          jumlah: payment?.jumlah || 0,
+        };
+      });
 
       await tambahPembayaran(
         currentUser.id,
         currentUser.nama_lengkap,
         data.selectedPayments,
-        totalSelectedAmount,
+        paymentData,
         data.buktiPembayaran
       );
 
@@ -265,15 +371,48 @@ export function PaymentUser() {
       setSelectedPayments([]);
       openDialog.onFalse();
 
+      // Wait a bit for database to update, then refresh
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
       // Refresh all payment data after successful payment
       const [userPayments, paymentStatuses] = await Promise.all([
         fetchPaymentUser(currentUser.id),
         fetchPaymentStatusByUser(currentUser.id),
       ]);
 
+      console.log("Data after payment refresh:", {
+        userPayments: userPayments.length,
+        paymentStatuses: paymentStatuses.length,
+        availableCount: paymentStatuses.filter((p) => p.status === "available")
+          .length,
+        paidCount: paymentStatuses.filter((p) => p.status === "paid").length,
+        pendingCount: paymentStatuses.filter((p) => p.status === "pending")
+          .length,
+        rejectedCount: paymentStatuses.filter((p) => p.status === "rejected")
+          .length,
+        detailedStatuses: paymentStatuses.map((p) => ({
+          id: p.id_biaya,
+          name: p.nama_biaya,
+          status: p.status,
+          kode_bayar: p.kode_bayar,
+        })),
+      });
+
       setUserPaymentData(userPayments);
       setPaymentStatusData(paymentStatuses);
       setTableData(paymentStatuses);
+
+      // Additional validation: Check if data was properly updated
+      const stillAvailable = paymentStatuses.filter(
+        (p) => p.status === "available"
+      ).length;
+      if (stillAvailable === 0) {
+        showSuccess("Semua pembayaran telah selesai!");
+      } else {
+        showSuccess(
+          `Pembayaran berhasil! Masih ada ${stillAvailable} pembayaran yang belum dibayar.`
+        );
+      }
     } catch (error) {
       console.error("Payment error:", error);
       showError(
@@ -283,7 +422,6 @@ export function PaymentUser() {
       setIsSubmitting(false);
     }
   };
-
   const renderFormDialog = () => (
     <DialogForm
       open={openDialog.value}
@@ -311,10 +449,35 @@ export function PaymentUser() {
           p: 3,
         }}
       >
-        <Typography variant="h5" sx={{ mb: 2 }}>
-          Pembayaran Saya
-        </Typography>
+        <Box>
+          <Typography
+            variant="h5"
+            sx={{
+              mb: { xs: 1, sm: 2 },
+              fontSize: { xs: "1rem", sm: "1.5rem" },
+            }}
+          >
+            Pembayaran Saya
+          </Typography>
+        </Box>
         <Box sx={{ display: "flex", flexDirection: "row", gap: 2 }}>
+          <Button
+            variant="soft"
+            color="info"
+            onClick={refreshPaymentData}
+            disabled={isRefreshing}
+          >
+            <Iconify
+              icon={
+                isRefreshing
+                  ? "solar:refresh-bold"
+                  : "solar:refresh-line-duotone"
+              }
+            />
+            <Typography variant="body2" sx={{ ml: 1 }}>
+              {isRefreshing ? "Memperbarui..." : "Refresh"}
+            </Typography>
+          </Button>
           <Button variant="soft" color="success" onClick={openDialog.onTrue}>
             <Iconify icon="solar:info-square-bold" />
           </Button>
@@ -373,14 +536,14 @@ export function PaymentUser() {
                       <Label
                         variant="soft"
                         color={
-                          row.status === "sukses"
+                          row.status === "diterima"
                             ? "success"
                             : row.status === "pending"
                             ? "warning"
                             : "error"
                         }
                       >
-                        {row.status === "sukses"
+                        {row.status === "diterima"
                           ? "LUNAS"
                           : row.status === "pending"
                           ? "PENDING"
@@ -573,64 +736,6 @@ export function PaymentUser() {
             </Box>
           </Card>
         </Box>
-
-        {/* Total Summary */}
-        <Card
-          sx={{
-            p: 3,
-            bgcolor: "primary.lighter",
-            border: "2px solid",
-            borderColor: "primary.main",
-            transition: "all 0.3s ease",
-            "&:hover": {
-              transform: "translateY(-2px)",
-              boxShadow: 4,
-              bgcolor: "primary.light",
-            },
-          }}
-        >
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-            }}
-          >
-            <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-              <Box
-                sx={{
-                  width: 56,
-                  height: 56,
-                  borderRadius: "50%",
-                  bgcolor: "primary.main",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-              >
-                <Iconify
-                  icon="solar:wallet-money-bold-duotone"
-                  width={32}
-                  color="white"
-                />
-              </Box>
-              <Box>
-                <Typography variant="h6" color="primary.dark" fontWeight={600}>
-                  Total Keseluruhan Pembayaran
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  Semua jenis pembayaran yang tersedia
-                </Typography>
-              </Box>
-            </Box>
-            <Typography variant="h4" color="primary.dark" fontWeight={700}>
-              Rp{" "}
-              {(totalPaid + totalPending + remainingPayments).toLocaleString(
-                "id-ID"
-              )}
-            </Typography>
-          </Box>
-        </Card>
       </Box>
       {renderFormDialog()}
     </Card>

@@ -163,13 +163,13 @@ export function Hero({ id }: { id: string }) {
                 size="lg"
                 isGradient
                 text="Daftar Beasiswa"
-                onClick={() => window.location.href = "/page/auth"}
+                onClick={() => window.location.href = "/registant"}
               />
 
               <Button
                 size="lg"
                 text="Daftar Reguler"
-                onClick={() => window.location.href = "/page/auth"}
+                onClick={() => window.location.href = "/registant"}
                 className={`hover:cursor-pointer`}
               />
             </div>
@@ -177,11 +177,11 @@ export function Hero({ id }: { id: string }) {
             {/* Stats */}
             <div className="mt-12 grid grid-cols-3 gap-8 text-center lg:text-left">
               <div>
-                <CountUp to={1000} className={`${spaceGrotesk.className} text-3xl font-bold text-blue-400`} />
-                <div className={`${montserrat.className} text-slate-700 text-base lg:text-lg`}>Siswa Aktif</div>
+                <CountUp to={150} className={`${spaceGrotesk.className} text-3xl font-bold text-blue-400`} />
+                <div className={`${montserrat.className} text-slate-700 text-base lg:text-lg`}>+ Siswa Aktif</div>
               </div>
               <div>
-                <CountUp to={50} className={`${spaceGrotesk.className} text-3xl font-bold text-blue-500`} />
+                <CountUp to={20} className={`${spaceGrotesk.className} text-3xl font-bold text-blue-500`} />
                 <div className={`${montserrat.className} text-slate-700 text-base lg:text-lg`}>Guru Berpengalaman</div>
               </div>
               <div>
