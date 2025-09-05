@@ -97,8 +97,6 @@ export function UserListView() {
     try {
       setLoading(true);
       const data = await showAllRegistant();
-      console.log("Raw data from showAllRegistant:", data);
-      console.log("First item jalurfinal:", data?.[0]?.jalurfinal);
       setTableData(data as RegistantListItem[]);
     } catch (error) {
       console.error("Error loading registant data:", error);
@@ -122,8 +120,6 @@ export function UserListView() {
           table: "calonsiswa",
         },
         (payload) => {
-          console.log("Real-time change detected:", payload);
-
           // Handle different types of changes
           if (payload.eventType === "INSERT") {
             // Add new record to the list
@@ -144,19 +140,11 @@ export function UserListView() {
       )
       .subscribe();
 
-    // Set up periodic refresh as fallback (every 30 seconds)
-    const refreshInterval = setInterval(() => {
-      if (!loading) {
-        loadData();
-      }
-    }, 30000);
-
-    // Cleanup subscription and interval on unmount
+    // Cleanup subscription on unmount
     return () => {
       subscription.unsubscribe();
-      clearInterval(refreshInterval);
     };
-  }, [loadData, loading]);
+  }, []); // ← PERBAIKAN: Hapus loadData dan loading dari dependency
 
   const filtersState = useSetState({
     name: "",
@@ -218,6 +206,17 @@ export function UserListView() {
       }
     },
     [dataInPage.length, table, tableData]
+  );
+
+  const handleUpdateRow = useCallback(
+    (id: string, updatedData: Partial<RegistantListItem>) => {
+      setTableData((prevData) =>
+        prevData.map((row) =>
+          row.id_siswa === id ? { ...row, ...updatedData } : row
+        )
+      );
+    },
+    []
   );
 
   const handleDeleteRows = useCallback(async () => {
@@ -453,6 +452,9 @@ export function UserListView() {
                         selected={table.selected.includes(row.id_siswa)}
                         onSelectRow={() => table.onSelectRow(row.id_siswa)}
                         onDeleteRow={() => handleDeleteRow(row.id_siswa)}
+                        onUpdateRow={(updatedData) =>
+                          handleUpdateRow(row.id_siswa, updatedData)
+                        }
                         editHref={paths.dashboard.user.edit(row.id_siswa)}
                       />
                     ))}

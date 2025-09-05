@@ -8,3 +8,5 @@ export * from "./upload-avatar";
 export * from "./upload-payment-proof";
 export * from "./add-payment";
 export * from "./fetch-payment-status";
+export * from "./whatsapp-service";
+export * from "./update-registrant-status";

@@ -19,6 +19,7 @@ const ICONS = {
   users: <Iconify icon="solar:user-plus-bold" />,
   notebook: <Iconify icon="solar:notebook-bold-duotone" />,
   inbox: <Iconify icon="solar:inbox-in-bold-duotone" />,
+  template: <Iconify icon="solar:chat-round-line-bold-duotone" />,
 };
 
 // ----------------------------------------------------------------------
@@ -44,6 +45,11 @@ export const navData = [
             path: paths.dashboard.master.profileSekolah,
           },
         ],
+      },
+      {
+        title: "Template Pesan",
+        path: paths.dashboard.template,
+        icon: ICONS.template,
       },
       {
         title: "Registrant",

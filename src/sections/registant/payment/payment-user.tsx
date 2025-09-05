@@ -157,34 +157,39 @@ export function PaymentUser() {
     const interval = setInterval(async () => {
       try {
         const paymentStatuses = await fetchPaymentStatusByUser(currentUser.id);
-        const currentAvailable = paymentStatusData.filter(
-          (p) => p.status === "available"
-        ).length;
-        const newAvailable = paymentStatuses.filter(
-          (p) => p.status === "available"
-        ).length;
 
-        // Only update if there's a change in available payments
-        if (currentAvailable !== newAvailable) {
-          console.log("Auto-refresh detected changes:", {
-            previousAvailable: currentAvailable,
-            newAvailable: newAvailable,
-          });
+        // Use ref to get current state without causing re-renders
+        setPaymentStatusData((currentData) => {
+          const currentAvailable = currentData.filter(
+            (p) => p.status === "available"
+          ).length;
+          const newAvailable = paymentStatuses.filter(
+            (p) => p.status === "available"
+          ).length;
 
-          setPaymentStatusData(paymentStatuses);
-          setTableData(paymentStatuses);
+          // Only update if there's a change in available payments
+          if (currentAvailable !== newAvailable) {
+            console.log("Auto-refresh detected changes:", {
+              previousAvailable: currentAvailable,
+              newAvailable: newAvailable,
+            });
 
-          // Also refresh user payment data
-          const userPayments = await fetchPaymentUser(currentUser.id);
-          setUserPaymentData(userPayments);
-        }
+            // Also refresh user payment data
+            fetchPaymentUser(currentUser.id).then(setUserPaymentData);
+            setTableData(paymentStatuses);
+
+            return paymentStatuses;
+          }
+
+          return currentData; // No change, return current data
+        });
       } catch (error) {
         console.error("Auto-refresh error:", error);
       }
     }, 30000); // 30 seconds
 
     return () => clearInterval(interval);
-  }, [currentUser?.id, paymentStatusData]);
+  }, [currentUser?.id]); // ← PERBAIKAN: Hapus paymentStatusData dari dependency
 
   const filtersState = useSetState({
     name: "",

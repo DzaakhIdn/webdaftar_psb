@@ -1,8 +1,9 @@
 "use client";
 
-import { Box, Typography } from "@mui/material";
+import { Box, Typography, Stack } from "@mui/material";
 import { DashboardContent } from "@/layout/dashboard";
 import { RegistrationAnnouncement } from "../anouncement";
+import { PengumumanWidget } from "@/components/pengumuman";
 import { useCurrentUser } from "@/hooks/getCurrentUsers";
 import { api } from "@/routes/paths";
 import { FileUploadReminder } from "../file-upload-reminder";
@@ -27,10 +28,33 @@ export function OverviewRegistantView() {
           sx={{ color: "text.secondary" }}
         >{`Selamat datang di dashboard pendaftaran siswa baru!`}</Typography>
       </Box>
-      <Box sx={{  display: "flex", flexDirection: "column", gap: 3 }}>
+      <Stack spacing={3}>
         <RegistrationAnnouncement />
-        <FileUploadReminder />
-      </Box>
+
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: { xs: "column", lg: "row" },
+            gap: 3,
+          }}
+        >
+          <Box sx={{ flex: { lg: 2 } }}>
+            <FileUploadReminder />
+          </Box>
+
+          <Box sx={{ flex: { lg: 1 } }}>
+            <PengumumanWidget
+              targetAudience="calon_siswa"
+              maxItems={4}
+              showViewAll={true}
+              onViewAll={() => {
+                // Navigate to pengumuman page - you can implement this
+                console.log("Navigate to pengumuman page");
+              }}
+            />
+          </Box>
+        </Box>
+      </Stack>
     </DashboardContent>
   );
 }

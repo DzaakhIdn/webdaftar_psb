@@ -68,6 +68,7 @@ export const paths = {
       jenjang: `${ROOTS.DASHBOARD}/master/jenjang`,
       profileSekolah: `${ROOTS.DASHBOARD}/master/profile-sekolah`,
     },
+    template: `${ROOTS.DASHBOARD}/template-pesan`,
 
     registant: {
       root: `${ROOTS.DASHBOARD}/registant`,

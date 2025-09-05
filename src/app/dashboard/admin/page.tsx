@@ -1,6 +1,5 @@
-import { redirect } from 'next/navigation';
+import { AdminDashboardView } from "@/sections/dashboard/admin/views/admin-dashboard-view";
 
 export default function Page() {
-  // Redirect to the list page by default
-  redirect('/admin/users');
+  return <AdminDashboardView />;
 }
