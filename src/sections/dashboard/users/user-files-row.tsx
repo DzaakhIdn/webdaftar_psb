@@ -26,7 +26,7 @@ import { UserQuickEditForm } from "./user-quick-edit-form";
 // ----------------------------------------------------------------------
 
 interface User {
-  id_siswa: number;
+  id_siswa: string;
   register_id: string;
   nama_lengkap: string;
   no_hp: string;

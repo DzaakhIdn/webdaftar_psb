@@ -248,7 +248,7 @@ export function UserFilesView() {
               onSelectAllRows={(checked) =>
                 table.onSelectAllRows(
                   checked,
-                  dataFiltered.map((row: { id: string }) => row.id)
+                  dataFiltered.map((row: User) => row.id_siswa)
                 )
               }
               action={
@@ -275,7 +275,7 @@ export function UserFilesView() {
                   onSelectAllRows={(checked) =>
                     table.onSelectAllRows(
                       checked,
-                      dataFiltered.map((row: { id: string }) => row.id)
+                      dataFiltered.map((row: User) => row.id_siswa)
                     )
                   }
                 />
