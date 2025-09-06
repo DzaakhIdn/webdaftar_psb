@@ -247,17 +247,11 @@ export default function Jalur({ id }: { id: string }) {
                 </div>
               </div>
 
-              {/* Price */}
-              <div className="text-center mb-8">
-                <div className="text-3xl font-bold text-gray-900 mb-2">Rp 15.000.000</div>
-                <div className="text-gray-600">per tahun</div>
-              </div>
-
               {/* Button */}
               <Button
                 size="lg"
                 text="Daftar Reguler"
-                onClick={() => window.location.href = "/page/auth"}
+                onClick={() => window.location.href = "/registant"}
                 className="w-full"
               />
             </div>
@@ -342,16 +336,9 @@ export default function Jalur({ id }: { id: string }) {
                 </div>
               </div>
 
-              {/* Price */}
-              <div className="text-center mb-8">
-                <div className="text-lg text-blue-200 line-through mb-1">Rp 15.000.000</div>
-                <div className="text-3xl font-bold text-yellow-400 mb-2">GRATIS</div>
-                <div className="text-blue-200">dengan beasiswa 100%</div>
-              </div>
-
               {/* Button */}
               <button
-                onClick={() => window.location.href = "/page/auth"}
+                onClick={() => window.location.href = "/registant"}
                 className="w-full bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-500 hover:to-orange-600 text-gray-900 font-bold py-4 px-8 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center justify-center gap-2"
               >
                 <Zap className="w-5 h-5" />

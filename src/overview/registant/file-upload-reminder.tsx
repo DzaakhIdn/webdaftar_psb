@@ -86,6 +86,7 @@ export function FileUploadReminder({ onUploadClick }: FileUploadReminderProps) {
     description:
       "Silakan upload dokumen-dokumen yang diperlukan untuk melengkapi pendaftaran Anda.",
   });
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
 
   const { user: currentUser } = useCurrentUser(api.user.me);
   const { showError } = useToast();
@@ -98,7 +99,16 @@ export function FileUploadReminder({ onUploadClick }: FileUploadReminderProps) {
         setRequiredFiles(data as RequiredFile[]);
       } catch (error) {
         console.error("Error fetching required files:", error);
-        showError("Gagal memuat daftar berkas yang diperlukan");
+        // Only show error if it's not a network/connection issue during initial load
+        if (
+          !isInitialLoad &&
+          error?.message &&
+          !error.message.includes("Failed to fetch")
+        ) {
+          showError("Gagal memuat daftar berkas yang diperlukan");
+        }
+      } finally {
+        setIsInitialLoad(false);
       }
     };
 
@@ -108,6 +118,7 @@ export function FileUploadReminder({ onUploadClick }: FileUploadReminderProps) {
   // Fetch uploaded files for current user
   useEffect(() => {
     const fetchUploadedFiles = async () => {
+      // Don't fetch if user is not available yet
       if (!currentUser?.id) return;
 
       try {
@@ -129,11 +140,24 @@ export function FileUploadReminder({ onUploadClick }: FileUploadReminderProps) {
         setUploadedFiles(data || []);
       } catch (error) {
         console.error("Error fetching uploaded files:", error);
-        showError("Gagal memuat status upload berkas");
+        // Only show error if user is available and it's not a network/connection issue during initial load
+        if (
+          !isInitialLoad &&
+          currentUser?.id &&
+          error?.message &&
+          !error.message.includes("Failed to fetch")
+        ) {
+          showError("Gagal memuat status upload berkas");
+        }
       }
     };
 
-    fetchUploadedFiles();
+    // Add a small delay to ensure user data is fully loaded
+    const timeoutId = setTimeout(() => {
+      fetchUploadedFiles();
+    }, 100);
+
+    return () => clearTimeout(timeoutId);
   }, [currentUser, showError]);
 
   // Update upload status based on required files and uploaded files

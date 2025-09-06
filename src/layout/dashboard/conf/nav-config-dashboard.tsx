@@ -73,7 +73,7 @@ export const navData = [
         ],
       },
       {
-        title: "Information",
+        title: "Pengumuman",
         path: paths.dashboard.information.root,
         icon: ICONS.information,
       },

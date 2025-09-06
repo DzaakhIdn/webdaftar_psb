@@ -83,7 +83,7 @@ export const paths = {
       listPayments: `${ROOTS.DASHBOARD}/finance/list-payments`,
     },
     information: {
-      root: `${ROOTS.DASHBOARD}/information`,
+      root: `${ROOTS.DASHBOARD}/pengumuman`,
     },
     admin: {
       root: `${ROOTS.DASHBOARD}/admin`,

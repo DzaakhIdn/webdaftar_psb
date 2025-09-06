@@ -36,7 +36,10 @@ export function FileUploadPage() {
         setRequiredFiles(data);
       } catch (error) {
         console.error("Error fetching required files:", error);
-        showError("Gagal memuat daftar berkas yang diperlukan");
+        // Only show error if it's not a network/connection issue
+        if (error?.message && !error.message.includes("Failed to fetch")) {
+          showError("Gagal memuat daftar berkas yang diperlukan");
+        }
       }
     };
 

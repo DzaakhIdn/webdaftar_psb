@@ -214,16 +214,6 @@ export function TemplatePesanView() {
           ]}
         />
 
-        <Box sx={{ display: "flex", justifyContent: "flex-end", mb: 2 }}>
-          <Button
-            variant="contained"
-            startIcon={<Iconify icon="solar:add-circle-line-duotone" />}
-            onClick={openDialog.onTrue}
-          >
-            Tambah Template
-          </Button>
-        </Box>
-
         <Card sx={{ width: "100%", overflow: "hidden", marginTop: 3 }}>
           <Box sx={{ position: "relative" }}>
             <TableSelectedAction

@@ -39,6 +39,8 @@ import {
 } from "@/components/table";
 import { useBoolean } from "minimal-shared/hooks";
 import { useToast } from "@/components/providers/toast-provider";
+import { CustomBreadcrumbs } from "@/components/custom-breadcrumbs";
+import { paths } from "@/routes/paths";
 
 import {
   Pengumuman,
@@ -235,23 +237,32 @@ export function PengumumanAdminView() {
   const dataFiltered = tableData;
 
   return (
-    <DashboardContent>
+    <DashboardContent
+      sx={{
+        borderTop: `solid 1px rgba(145, 158, 171, 0.12)`,
+        pt: 3,
+        mb: { xs: 3, md: 5 },
+      }}
+    >
+      <CustomBreadcrumbs
+        heading="Kelola pengumuman"
+        links={[
+          { name: "Dashboard", href: paths.dashboard.root },
+          { name: "Pengumuman" },
+        ]}
+        action={
+          <Button
+            variant="contained"
+            startIcon={<Iconify icon="mingcute:add-line" />}
+            onClick={() => handleOpenDialog()}
+          >
+            Tambah Pengumuman
+          </Button>
+        }
+        sx={{ mb: { xs: 3, md: 5 } }}
+      />
       <Container maxWidth="xl">
-        <Typography variant="h4" sx={{ mb: 5 }}>
-          Kelola Pengumuman
-        </Typography>
-
         <Card>
-          <Box sx={{ p: 3, pb: 0 }}>
-            <Button
-              variant="contained"
-              startIcon={<Iconify icon="mingcute:add-line" />}
-              onClick={() => handleOpenDialog()}
-            >
-              Tambah Pengumuman
-            </Button>
-          </Box>
-
           <TableContainer sx={{ position: "relative", overflow: "unset" }}>
             <Scrollbar>
               <Table size="medium" sx={{ minWidth: 960 }}>

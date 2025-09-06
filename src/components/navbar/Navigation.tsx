@@ -35,8 +35,8 @@ export default function Navigation({
             <Button
               size="md"
               isGradient
-              text="Daftar Sekarang"
-              onClick={() => (window.location.href = "/auth/auth-user")} // Navigate to auth page
+              text="Daftar"
+              onClick={() => (window.location.href = "/registant")} // Navigate to auth page
             />
           </div>
         </NavBody>
@@ -77,7 +77,7 @@ export default function Navigation({
                 text="Daftar Sekarang"
                 onClick={() => {
                   setIsOpen(false);
-                  window.location.href = "/auth/auth-user";
+                  window.location.href = "/registant";
                 }}
               />
             </div>

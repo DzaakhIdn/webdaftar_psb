@@ -151,21 +151,6 @@ export function TemplateTableRow({
           >
             <FormField
               control={form.control}
-              name="text_name"
-              render={({ field }) => (
-                <TextField
-                  {...field}
-                  label="Nama Template"
-                  variant="outlined"
-                  margin="dense"
-                  fullWidth
-                  autoFocus
-                  placeholder="Contoh: Template Penerimaan"
-                />
-              )}
-            />
-            <FormField
-              control={form.control}
               name="template"
               render={({ field }) => (
                 <TextField

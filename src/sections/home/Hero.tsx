@@ -138,7 +138,7 @@ export function Hero({ id }: { id: string }) {
           <div className="text-center lg:text-left">
             <h1
               ref={titleRef}
-              className={`${spaceGrotesk.className} text-5xl lg:text-7xl font-bold text-gray-900 leading-tight mb-6`}
+              className={`${spaceGrotesk.className} text-4xl lg:text-6xl font-bold text-gray-900 leading-tight mb-6`}
             >
               Pendaftaran Santri Baru
               <span className="block text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-blue-500">
@@ -148,7 +148,7 @@ export function Hero({ id }: { id: string }) {
 
             <p
               ref={subtitleRef}
-              className={`${gabarito.className} text-xl lg:text-2xl text-slate-700 mb-8 leading-relaxed max-w-2xl`}
+              className={`${gabarito.className} text-xl lg:text-2xl text-slate-700 mb-8 leading-relaxed max-w-3xl`}
             >
               Ingin anak Anda tumbuh menjadi penghafal Al-Qur’an yang cakap
               bahasa dan paham teknologi? Daftarkan sekarang ke HSI Boarding

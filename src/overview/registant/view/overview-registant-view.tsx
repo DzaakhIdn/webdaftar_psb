@@ -40,18 +40,17 @@ export function OverviewRegistantView() {
         >
           <Box sx={{ flex: { lg: 2 } }}>
             <FileUploadReminder />
-          </Box>
-
-          <Box sx={{ flex: { lg: 1 } }}>
-            <PengumumanWidget
-              targetAudience="calon_siswa"
-              maxItems={4}
-              showViewAll={true}
-              onViewAll={() => {
-                // Navigate to pengumuman page - you can implement this
-                console.log("Navigate to pengumuman page");
-              }}
-            />
+            <Box sx={{ flex: { lg: 1 } }}>
+              <PengumumanWidget
+                targetAudience="calon_siswa"
+                maxItems={4}
+                showViewAll={true}
+                onViewAll={() => {
+                  // Navigate to pengumuman page - you can implement this
+                  console.log("Navigate to pengumuman page");
+                }}
+              />
+            </Box>
           </Box>
         </Box>
       </Stack>
