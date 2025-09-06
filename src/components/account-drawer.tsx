@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { varAlpha } from "minimal-shared/utils";
 import Box from "@mui/material/Box";
 import Link from "@mui/material/Link";
@@ -19,6 +19,17 @@ import { Scrollbar } from "./scrollbar";
 import { AnimateBorder } from "./animate/animate-border";
 import { AccountButton } from "./account-button";
 import { SignOutButton } from "./sign-out-button";
+import { useAuth } from "@/auth/hooks/use-check-auth";
+
+// ----------------------------------------------------------------------
+
+interface AdminUser {
+  id: string;
+  username?: string;
+  nama_lengkap?: string;
+  email?: string;
+  role: string;
+}
 
 // ----------------------------------------------------------------------
 
@@ -37,43 +48,85 @@ interface AccountDrawerProps {
 export function AccountDrawer({
   data = [
     {
-      label: "Home",
-      href: "/",
+      label: "Dashboard",
+      href: "/dashboard",
       icon: <Iconify icon="solar:home-angle-bold-duotone" />,
     },
     {
-      label: "Profile",
-      href: "#",
-      icon: <Iconify icon="custom:profile-duotone" />,
-    },
-    {
-      label: "Projects",
-      href: "#",
-      icon: <Iconify icon="solar:notes-bold-duotone" />,
-      info: "3",
-    },
-    {
-      label: "Subscription",
-      href: "#",
-      icon: <Iconify icon="custom:invoice-duotone" />,
-    },
-    {
-      label: "Security",
-      href: "#",
-      icon: <Iconify icon="solar:shield-keyhole-bold-duotone" />,
-    },
-    {
-      label: "Account settings",
-      href: "#",
+      label: "Admin Settings",
+      href: "/dashboard/admin/settings",
       icon: <Iconify icon="solar:settings-bold-duotone" />,
+    },
+    {
+      label: "User Management",
+      href: "/dashboard/admin/users",
+      icon: <Iconify icon="solar:users-group-rounded-bold" />,
+    },
+    {
+      label: "Pengumuman",
+      href: "/dashboard/admin/pengumuman",
+      icon: <Iconify icon="mingcute:announcement-line" />,
     },
   ],
   sx,
   ...other
 }: AccountDrawerProps) {
   const [open, setOpen] = useState(false);
+  const [adminUser, setAdminUser] = useState<AdminUser | null>(null);
+  const [loading, setLoading] = useState(true);
   const onClose = () => setOpen(false);
   const onOpen = () => setOpen(true);
+  const { user } = useAuth();
+
+  // Fetch complete admin user data
+  useEffect(() => {
+    const fetchAdminData = async () => {
+      if (!user?.id) return;
+
+      try {
+        const response = await fetch("/api/dashboard/user/me", {
+          method: "GET",
+          credentials: "include",
+        });
+
+        if (response.ok) {
+          const userData = await response.json();
+          setAdminUser({
+            id: userData.id,
+            username: userData.username,
+            nama_lengkap: userData.nama_lengkap,
+            email: userData.email,
+            role: userData.role,
+          });
+        } else {
+          // Fallback to basic user data
+          setAdminUser({
+            id: user.id,
+            username: user.email || "admin",
+            nama_lengkap: "Administrator",
+            email: user.email,
+            role: user.role,
+          });
+        }
+      } catch (error) {
+        console.error("Error fetching admin data:", error);
+        // Use basic user data as fallback
+        setAdminUser({
+          id: user.id,
+          username: user.email || "admin",
+          nama_lengkap: "Administrator",
+          email: user.email,
+          role: user.role,
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (user) {
+      fetchAdminData();
+    }
+  }, [user]);
 
   const renderAvatar = () => (
     <AnimateBorder
@@ -91,7 +144,9 @@ export function AccountDrawer({
           bgcolor: "background.paper",
         }}
       >
-        avatar
+        {adminUser?.nama_lengkap?.charAt(0).toUpperCase() ||
+          adminUser?.username?.charAt(0).toUpperCase() ||
+          "A"}
       </Avatar>
     </AnimateBorder>
   );
@@ -149,7 +204,12 @@ export function AccountDrawer({
       <AccountButton
         onClick={onOpen}
         photoURL={undefined}
-        displayName="John Doe"
+        displayName={
+          adminUser?.nama_lengkap ||
+          adminUser?.username ||
+          user?.email ||
+          "Admin"
+        }
         sx={sx}
         {...other}
       />
@@ -187,7 +247,9 @@ export function AccountDrawer({
             {renderAvatar()}
 
             <Typography variant="subtitle1" noWrap sx={{ mt: 2 }}>
-              John Doe
+              {adminUser?.nama_lengkap ||
+                adminUser?.username ||
+                "Administrator"}
             </Typography>
 
             <Typography
@@ -195,52 +257,46 @@ export function AccountDrawer({
               sx={{ color: "text.secondary", mt: 0.5 }}
               noWrap
             >
-              john.doe@example.com
+              {adminUser?.email || adminUser?.username || "admin@system"}
             </Typography>
           </Box>
 
-          <Box
-            sx={{
-              p: 3,
-              gap: 1,
-              flexWrap: "wrap",
-              display: "flex",
-              justifyContent: "center",
-            }}
-          >
-            {[1, 2, 3].map((index) => (
-              <Tooltip key={index} title={`Switch to: User ${index}`}>
-                <Avatar alt={`User ${index}`} onClick={() => {}}>
-                  {`U${index}`}
-                </Avatar>
-              </Tooltip>
-            ))}
-
-            <Tooltip title="Add account">
-              <IconButton
-                sx={[
-                  (theme) => ({
-                    bgcolor: varAlpha(
-                      theme.vars.palette.grey["500Channel"],
-                      0.08
-                    ),
-                    border: `dashed 1px ${varAlpha(
-                      theme.vars.palette.grey["500Channel"],
-                      0.32
-                    )}`,
-                  }),
-                ]}
-              >
-                <Iconify icon="mingcute:add-line" />
-              </IconButton>
-            </Tooltip>
+          <Box sx={{ p: 2.5, display: "flex", justifyContent: "center" }}>
+            <Label
+              variant="filled"
+              color={
+                (adminUser?.role === "admin" && "error") ||
+                (adminUser?.role === "panitia" && "warning") ||
+                "default"
+              }
+            >
+              {adminUser?.role?.toUpperCase() || "ADMIN"}
+            </Label>
           </Box>
 
           {renderList()}
 
           <Box sx={{ px: 2.5, py: 3 }}>
-            {/* Static upgrade block content */}
-            <div>Upgrade Block Placeholder</div>
+            <Box
+              sx={{
+                p: 2,
+                borderRadius: 2,
+                bgcolor: "background.neutral",
+                border: "1px dashed",
+                borderColor: "divider",
+                textAlign: "center",
+              }}
+            >
+              <Typography
+                variant="body2"
+                sx={{ color: "text.secondary", mb: 1 }}
+              >
+                System Status
+              </Typography>
+              <Typography variant="caption" sx={{ color: "success.main" }}>
+                ● All systems operational
+              </Typography>
+            </Box>
           </Box>
         </Scrollbar>
 
