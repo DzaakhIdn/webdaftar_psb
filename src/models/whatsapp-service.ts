@@ -168,7 +168,10 @@ export function replaceTemplatePlaceholders(
       /{jalur}/g,
       registrantData.jalurfinal?.nama_jalur_final || "Belum ditentukan"
     )
-    .replace(/{status}/g, getStatusLabel(registrantData.status_pendaftaran))
+    .replace(
+      /{status}/g,
+      getWhatsAppStatusLabel(registrantData.status_pendaftaran)
+    )
     .replace(
       /{password_hash}/g,
       registrantData.password_hash || "Password belum tersedia"
@@ -176,9 +179,9 @@ export function replaceTemplatePlaceholders(
 }
 
 /**
- * Get status label in Indonesian
+ * Get status label in Indonesian for WhatsApp messages
  */
-export function getStatusLabel(status: string): string {
+export function getWhatsAppStatusLabel(status: string): string {
   const statusLabels: Record<string, string> = {
     pending: "Menunggu Verifikasi",
     diterima: "Diterima",

@@ -1,25 +1,24 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from "react";
 import {
   Container,
   Typography,
-  Grid,
   Card,
   CardContent,
   Box,
   Button,
   Stack,
   Chip,
-  IconButton,
-  Paper
-} from '@mui/material';
-import { useRouter } from 'next/navigation';
+  Paper,
+} from "@mui/material";
+import Grid from "@mui/material/GridLegacy";
+import { useRouter } from "next/navigation";
 
-import { DashboardContent } from '@/layouts/dashboard';
-import { Iconify } from '@/components/iconify';
-import { PengumumanWidget } from '@/components/pengumuman';
-import { showAllData } from '@/models';
+import { DashboardContent } from "@/layout/dashboard";
+import { Iconify } from "@/components/iconify";
+import { PengumumanWidget } from "@/components/pengumuman";
+import { showAllData } from "@/models";
 
 // ----------------------------------------------------------------------
 
@@ -36,7 +35,7 @@ export function AdminDashboardView() {
     totalUsers: 0,
     totalRegistrants: 0,
     totalPengumuman: 0,
-    activePengumuman: 0
+    activePengumuman: 0,
   });
   const [loading, setLoading] = useState(true);
 
@@ -45,26 +44,26 @@ export function AdminDashboardView() {
     const loadStats = async () => {
       try {
         setLoading(true);
-        
+
         // Load various stats
         const [users, registrants, pengumuman] = await Promise.all([
-          showAllData('users').catch(() => []),
-          showAllData('calonsiswa').catch(() => []),
-          showAllData('pengumuman').catch(() => [])
+          showAllData("users").catch(() => []),
+          showAllData("calonsiswa").catch(() => []),
+          showAllData("pengumuman").catch(() => []),
         ]);
 
-        const activePengumuman = Array.isArray(pengumuman) 
-          ? pengumuman.filter((p: any) => p.status === 'aktif').length 
+        const activePengumuman = Array.isArray(pengumuman)
+          ? pengumuman.filter((p: any) => p.status === "aktif").length
           : 0;
 
         setStats({
           totalUsers: Array.isArray(users) ? users.length : 0,
           totalRegistrants: Array.isArray(registrants) ? registrants.length : 0,
           totalPengumuman: Array.isArray(pengumuman) ? pengumuman.length : 0,
-          activePengumuman
+          activePengumuman,
         });
       } catch (error) {
-        console.error('Error loading dashboard stats:', error);
+        console.error("Error loading dashboard stats:", error);
       } finally {
         setLoading(false);
       }
@@ -74,40 +73,46 @@ export function AdminDashboardView() {
   }, []);
 
   const handleNavigateToPengumuman = () => {
-    router.push('/dashboard/admin/pengumuman');
+    router.push("/dashboard/admin/pengumuman");
   };
 
   const handleNavigateToUsers = () => {
-    router.push('/dashboard/admin/users');
+    router.push("/dashboard/admin/users");
   };
 
   const handleNavigateToRegistrants = () => {
-    router.push('/dashboard/users');
+    router.push("/dashboard/users");
   };
 
   const renderStatsCard = (
     title: string,
     value: number,
     icon: string,
-    color: 'primary' | 'secondary' | 'success' | 'warning' | 'error' | 'info',
+    color: "primary" | "secondary" | "success" | "warning" | "error" | "info",
     onClick?: () => void
   ) => (
-    <Card 
-      sx={{ 
-        cursor: onClick ? 'pointer' : 'default',
-        transition: 'all 0.2s ease-in-out',
-        '&:hover': onClick ? {
-          transform: 'translateY(-2px)',
-          boxShadow: (theme) => theme.shadows[8]
-        } : {}
+    <Card
+      sx={{
+        cursor: onClick ? "pointer" : "default",
+        transition: "all 0.2s ease-in-out",
+        "&:hover": onClick
+          ? {
+              transform: "translateY(-2px)",
+              boxShadow: (theme) => theme.shadows[8],
+            }
+          : {},
       }}
       onClick={onClick}
     >
       <CardContent>
-        <Stack direction="row" alignItems="center" justifyContent="space-between">
+        <Stack
+          direction="row"
+          alignItems="center"
+          justifyContent="space-between"
+        >
           <Box>
             <Typography variant="h3" sx={{ mb: 1 }}>
-              {loading ? '...' : value.toLocaleString()}
+              {loading ? "..." : value.toLocaleString()}
             </Typography>
             <Typography variant="body2" color="text.secondary">
               {title}
@@ -119,16 +124,12 @@ export function AdminDashboardView() {
               height: 56,
               borderRadius: 2,
               backgroundColor: (theme) => theme.palette[color].main,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center'
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
             }}
           >
-            <Iconify 
-              icon={icon} 
-              width={24} 
-              sx={{ color: 'white' }} 
-            />
+            <Iconify icon={icon} width={24} sx={{ color: "white" }} />
           </Box>
         </Stack>
       </CardContent>
@@ -140,34 +141,34 @@ export function AdminDashboardView() {
       <Typography variant="h6" sx={{ mb: 3 }}>
         Quick Actions
       </Typography>
-      
+
       <Stack spacing={2}>
         <Button
           variant="outlined"
           startIcon={<Iconify icon="mingcute:announcement-line" />}
           onClick={handleNavigateToPengumuman}
           fullWidth
-          sx={{ justifyContent: 'flex-start' }}
+          sx={{ justifyContent: "flex-start" }}
         >
           Kelola Pengumuman
         </Button>
-        
+
         <Button
           variant="outlined"
           startIcon={<Iconify icon="solar:users-group-rounded-bold" />}
           onClick={handleNavigateToUsers}
           fullWidth
-          sx={{ justifyContent: 'flex-start' }}
+          sx={{ justifyContent: "flex-start" }}
         >
           Kelola Users
         </Button>
-        
+
         <Button
           variant="outlined"
           startIcon={<Iconify icon="solar:user-plus-bold" />}
           onClick={handleNavigateToRegistrants}
           fullWidth
-          sx={{ justifyContent: 'flex-start' }}
+          sx={{ justifyContent: "flex-start" }}
         >
           Kelola Pendaftar
         </Button>
@@ -186,40 +187,40 @@ export function AdminDashboardView() {
           {/* Stats Cards */}
           <Grid item xs={12} sm={6} md={3}>
             {renderStatsCard(
-              'Total Users',
+              "Total Users",
               stats.totalUsers,
-              'solar:users-group-rounded-bold',
-              'primary',
+              "solar:users-group-rounded-bold",
+              "primary",
               handleNavigateToUsers
             )}
           </Grid>
 
           <Grid item xs={12} sm={6} md={3}>
             {renderStatsCard(
-              'Total Pendaftar',
+              "Total Pendaftar",
               stats.totalRegistrants,
-              'solar:user-plus-bold',
-              'success',
+              "solar:user-plus-bold",
+              "success",
               handleNavigateToRegistrants
             )}
           </Grid>
 
           <Grid item xs={12} sm={6} md={3}>
             {renderStatsCard(
-              'Total Pengumuman',
+              "Total Pengumuman",
               stats.totalPengumuman,
-              'mingcute:announcement-line',
-              'info',
+              "mingcute:announcement-line",
+              "info",
               handleNavigateToPengumuman
             )}
           </Grid>
 
           <Grid item xs={12} sm={6} md={3}>
             {renderStatsCard(
-              'Pengumuman Aktif',
+              "Pengumuman Aktif",
               stats.activePengumuman,
-              'solar:bell-bing-bold',
-              'warning'
+              "solar:bell-bing-bold",
+              "warning"
             )}
           </Grid>
 
@@ -228,12 +229,14 @@ export function AdminDashboardView() {
             <Stack spacing={3}>
               {/* Pengumuman Management Section */}
               <Paper sx={{ p: 3 }}>
-                <Box sx={{ 
-                  display: 'flex', 
-                  alignItems: 'center', 
-                  justifyContent: 'space-between',
-                  mb: 3 
-                }}>
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    mb: 3,
+                  }}
+                >
                   <Box>
                     <Typography variant="h6" sx={{ mb: 1 }}>
                       Kelola Pengumuman
@@ -265,9 +268,9 @@ export function AdminDashboardView() {
                 </Stack>
 
                 <Typography variant="body2" color="text.secondary">
-                  Pengumuman membantu menyampaikan informasi penting kepada calon siswa, 
-                  admin, dan panitia. Anda dapat membuat pengumuman dengan berbagai tipe 
-                  dan tingkat prioritas.
+                  Pengumuman membantu menyampaikan informasi penting kepada
+                  calon siswa, admin, dan panitia. Anda dapat membuat pengumuman
+                  dengan berbagai tipe dan tingkat prioritas.
                 </Typography>
               </Paper>
 
