@@ -30,7 +30,7 @@ interface User {
   register_id: string;
   nama_lengkap: string;
   no_hp: string;
-  files: string[];
+  files: { nama_berkas: string; path_berkas: string }[];
   status_upload: string;
 }
 
@@ -101,28 +101,18 @@ export function UserFilesRow({
         </TableCell>
         <TableCell>
           {row.files && row.files.length > 0 ? (
-            row.files.map((file: string, idx: number) => {
-              // kalau path di DB cuma nama file, bikin URL full ke bucket
-              // Replace spaces with underscores for URL compatibility
-              const fileUrlSafe = file.replace(/\s+/g, "_");
-              // Add .pdf extension if not already present
-              const fileWithExtension = fileUrlSafe.endsWith(".jpg")
-                ? fileUrlSafe
-                : `${fileUrlSafe}.jpg`;
-              const fileUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/requiredfile/${row.id_siswa}/${fileWithExtension}`;
-              return (
-                <div key={idx}>
-                  <Link
-                    href={fileUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    style={{ color: "#1976d2", textDecoration: "underline" }}
-                  >
-                    {file}
-                  </Link>
-                </div>
-              );
-            })
+            row.files.map((file, idx: number) => (
+              <div key={idx}>
+                <Link
+                  href={file.path_berkas}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{ color: "#1976d2", textDecoration: "underline" }}
+                >
+                  {file.nama_berkas}
+                </Link>
+              </div>
+            ))
           ) : (
             <span style={{ color: "gray" }}>Belum upload</span>
           )}

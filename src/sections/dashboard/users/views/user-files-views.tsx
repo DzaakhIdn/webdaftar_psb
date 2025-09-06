@@ -44,7 +44,7 @@ interface User {
   register_id: string;
   nama_lengkap: string;
   no_hp: string;
-  files: string[];
+  files: { nama_berkas: string; path_berkas: string }[];
   status_upload: string;
 }
 
