@@ -26,12 +26,13 @@ export async function POST(req: Request) {
     console.log("API Register: Request body received:", {
       email: body.email,
       nama_lengkap: body.nama_lengkap,
+      no_hp: body.no_hp,
       hasPassword: !!body.password,
     });
 
-    const { email, password, nama_lengkap } = body;
+    const { email, password, nama_lengkap, no_hp } = body;
 
-    if (!email || !password || !nama_lengkap) {
+    if (!email || !password || !nama_lengkap || !no_hp) {
       console.log("API Register: Missing required fields");
       return NextResponse.json(
         { error: "Semua field wajib diisi" },
@@ -91,6 +92,7 @@ export async function POST(req: Request) {
           password_hash,
           email,
           nama_lengkap,
+          no_hp,
           status_pendaftaran: "pending",
         },
       ])
@@ -112,6 +114,7 @@ export async function POST(req: Request) {
         register_id: data.register_id,
         email: data.email,
         nama_lengkap: data.nama_lengkap,
+        no_hp: data.no_hp,
         status_pendaftaran: data.status_pendaftaran,
       },
     });

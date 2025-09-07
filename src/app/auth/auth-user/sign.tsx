@@ -65,6 +65,10 @@ const formSchema = z
     email: z.string().email("Email tidak valid"),
     password_hash: z.string().min(8, "Password minimal 8 karakter"),
     nama_lengkap: z.string().min(3, "Nama minimal 3 karakter"),
+    no_hp: z
+      .string()
+      .min(10, "Nomor HP minimal 10 digit")
+      .regex(/^[0-9+\-\s()]+$/, "Format nomor HP tidak valid"),
     confirmPassword: z
       .string()
       .min(8, "Konfirmasi password minimal 8 karakter"),
@@ -308,6 +312,7 @@ const SignUpPage = () => {
     defaultValues: {
       email: "",
       nama_lengkap: "",
+      no_hp: "",
       password_hash: "",
       confirmPassword: "",
     },
@@ -327,6 +332,7 @@ const SignUpPage = () => {
         email: data.email,
         password: data.password_hash, // API expects 'password', form uses 'password_hash'
         nama_lengkap: data.nama_lengkap,
+        no_hp: data.no_hp,
       };
 
       console.log("Sending API data:", apiData);
@@ -517,6 +523,27 @@ const SignUpPage = () => {
                         <Input
                           type="text"
                           placeholder="Masukkan nama lengkap"
+                          className="h-12 border-gray-200 focus:border-blue-400 focus:ring-blue-400/20 rounded-xl"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="no_hp"
+                  render={({ field }) => (
+                    <FormItem className="form-field">
+                      <FormLabel className="text-gray-700 font-medium">
+                        Nomor HP
+                      </FormLabel>
+                      <FormControl>
+                        <Input
+                          type="tel"
+                          placeholder="08xxxxxxxxxx"
                           className="h-12 border-gray-200 focus:border-blue-400 focus:ring-blue-400/20 rounded-xl"
                           {...field}
                         />
