@@ -34,7 +34,7 @@ export function OverviewBookingView() {
       <Grid container spacing={3}>
         <Grid size={{ xs: 12, md: 4 }}>
           <BookingWidgetSummary
-            title="Total booking"
+            title="Total Pendaftar"
             percent={2.6}
             total={714000}
             icon={<BookingIllustration />}
@@ -43,7 +43,7 @@ export function OverviewBookingView() {
 
         <Grid size={{ xs: 12, md: 4 }}>
           <BookingWidgetSummary
-            title="Sold"
+            title="Diterima"
             percent={0.2}
             total={311000}
             icon={<CheckInIllustration />}
@@ -52,7 +52,7 @@ export function OverviewBookingView() {
 
         <Grid size={{ xs: 12, md: 4 }}>
           <BookingWidgetSummary
-            title="Canceled"
+            title="Pending"
             percent={-0.1}
             total={124000}
             icon={<CheckoutIllustration />}
