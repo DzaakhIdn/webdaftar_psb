@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server";
-import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { createClient } from "@supabase/supabase-js";
 
@@ -28,8 +27,19 @@ export async function POST(req: Request) {
       );
     }
 
-    // cek password
-    const isPasswordValid = await bcrypt.compare(password, data.password_hash);
+    // cek password - decode base64 dan compare
+    let isPasswordValid = false;
+    try {
+      const decodedPassword = Buffer.from(
+        data.password_hash,
+        "base64"
+      ).toString("utf-8");
+      isPasswordValid = password === decodedPassword;
+    } catch (error) {
+      console.error("Error decoding password:", error);
+      isPasswordValid = false;
+    }
+
     if (!isPasswordValid) {
       return NextResponse.json(
         { error: "Invalid username or password" },
