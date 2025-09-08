@@ -1,4 +1,4 @@
-"use client";
+  "use client";
 
 import { useEffect, useRef } from "react";
 import { gsap } from "gsap";
@@ -150,9 +150,7 @@ export function Hero({ id }: { id: string }) {
               ref={subtitleRef}
               className={`${gabarito.className} text-xl lg:text-2xl text-slate-700 mb-8 leading-relaxed max-w-3xl`}
             >
-              Ingin anak Anda tumbuh menjadi penghafal Al-Qur’an yang cakap
-              bahasa dan paham teknologi? Daftarkan sekarang ke HSI Boarding
-              School.
+              Ingin anak Anda tumbuh menjadi pembelajar seumur hidup, memahami bagaimana belajar cara belajar, menguasai dasar-dasar diniyah, cakap berbahasa, dan melek teknologi? Daftarkan sekarang ke HSI Boarding School.
             </p>
 
             <div
@@ -177,15 +175,15 @@ export function Hero({ id }: { id: string }) {
             {/* Stats */}
             <div className="mt-12 grid grid-cols-3 gap-8 text-center lg:text-left">
               <div>
-                <CountUp to={150} className={`${spaceGrotesk.className} text-3xl font-bold text-blue-400`} />
+                <CountUp to={170} className={`${spaceGrotesk.className} text-3xl font-bold text-blue-400`} />
                 <div className={`${montserrat.className} text-slate-700 text-base lg:text-lg`}>+ Siswa Aktif</div>
               </div>
               <div>
-                <CountUp to={20} className={`${spaceGrotesk.className} text-3xl font-bold text-blue-500`} />
+                <CountUp to={34 } className={`${spaceGrotesk.className} text-3xl font-bold text-blue-500`} />
                 <div className={`${montserrat.className} text-slate-700 text-base lg:text-lg`}>Guru Berpengalaman</div>
               </div>
               <div>
-                <CountUp to={95} className={`${spaceGrotesk.className} text-3xl font-bold text-blue-600`} />
+                <CountUp to={100} className={`${spaceGrotesk.className} text-3xl font-bold text-blue-600`} />
                 <div className={`${montserrat.className} text-slate-700 text-base lg:text-lg`}>Tingkat Kelulusan</div>
               </div>
             </div>

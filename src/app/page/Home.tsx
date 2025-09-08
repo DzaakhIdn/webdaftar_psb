@@ -64,9 +64,6 @@ const data = [
           <li className="text-base text-neutral-700 md:text-lg dark:text-neutral-300">
             Surat keterangan sehat
           </li>
-          <li className="text-base text-neutral-700 md:text-lg dark:text-neutral-300">
-            Dll ...
-          </li>
         </ul>
         <div className="grid grid-cols-2 gap-4">
           <img
@@ -98,7 +95,7 @@ const data = [
         </p>
         <ul className="mb-8 list-disc">
           <li className="text-base text-neutral-700 md:text-lg dark:text-neutral-300">
-            Pembayaran biaya pendaftaran sebesar Rp 500.000
+            Pembayaran biaya pendaftaran sebesar Rp 700.000
           </li>
           <li className="text-base text-neutral-700 md:text-lg dark:text-neutral-300">
             Tes baca Al-Quran
@@ -110,7 +107,7 @@ const data = [
             Wawancara dengan orang tua
           </li>
           <li className="text-base text-neutral-700 md:text-lg dark:text-neutral-300">
-            Dll ...
+            Tes lainnya (jika dibutuhkan)
           </li>
         </ul>
         <div className="grid grid-cols-2 gap-4">
@@ -146,19 +143,16 @@ const data = [
             Pengumuman hasil seleksi dalam 7-14 hari kerja
           </li>
           <li className="text-base text-neutral-700 md:text-lg dark:text-neutral-300">
-            Notifikasi melalui email dan WhatsApp
+            Notifikasi melalui WhatsApp
           </li>
           <li className="text-base text-neutral-700 md:text-lg dark:text-neutral-300">
-            Daftar ulang jika diterima
+            Melakukan daftar ulang jika diterima
           </li>
           <li className="text-base text-neutral-700 md:text-lg dark:text-neutral-300">
             Persiapan masuk asrama
           </li>
           <li className="text-base text-neutral-700 md:text-lg dark:text-neutral-300">
-            Orientasi santri baru
-          </li>
-          <li className="text-base text-neutral-700 md:text-lg dark:text-neutral-300">
-            Dll ...
+            Masa pengenalan lingkungan sekolah kepada santri baru
           </li>
         </ul>
         <div className="grid grid-cols-2 gap-4">

@@ -28,37 +28,37 @@ const faq = [
   {
     question: "Berapa biaya pendaftaran dan SPP per bulan di HSI Boarding School?",
     answer:
-      "Biaya pendaftaran sebesar Rp 500.000. Untuk SPP, jalur reguler Rp 1.250.000/bulan sudah termasuk makan, asrama, dan fasilitas lengkap. Tersedia juga jalur beasiswa dengan potongan hingga 100% untuk siswa berprestasi.",
+      "Biaya pendaftaran sebesar Rp 700.000. Untuk SPP, jalur reguler Rp 2.000.000/bulan sudah termasuk makan, asrama, dan fasilitas yang memadai.",
   },
   {
     question: "Apa saja persyaratan untuk mendaftar sebagai santri baru?",
     answer:
-      "Persyaratan meliputi: usia 12-17 tahun, hafalan Al-Qur'an minimal 1 juz, ijazah/rapor terakhir, akta kelahiran, kartu keluarga, pas foto 3x4, surat keterangan sehat, dan surat keterangan berkelakuan baik.",
+      "Semua persyaratan sudah tercantum diatas",
   },
   {
     question: "Bagaimana sistem pembelajaran dan kurikulum di HSI Boarding School?",
     answer:
-      "Kami menggabungkan kurikulum nasional dengan kurikulum pesantren. Pembelajaran meliputi tahfidz Al-Qur'an, bahasa Arab & Inggris, sains modern, teknologi, dan keterampilan hidup. Sistem full boarding dengan jadwal terstruktur 24 jam.",
+      "Kami menggabungkan kurikulum nasional dengan kurikulum pesantren. Pembelajaran meliputi tahfidz Al-Qur'an, bahasa Arab & Inggris,diniyyah, teknologi, dan keterampilan hidup. Beberapa program diniyyah dilaksanakan dalam sistem mulazamah",
   },
   {
     question: "Apakah orang tua bisa mengunjungi anak selama di pesantren?",
     answer:
-      "Ya, orang tua dapat mengunjungi setiap hari Minggu dari pukul 08.00-16.00 WIB. Selain itu, ada program family day setiap bulan dan liburan semester. Komunikasi via telepon dijadwalkan 2x seminggu.",
+      "Wali santri boleh mengunjungi santri maksimal 1 bulan sekali namun tidak ada batasan khusus terkait waktu",
   },
   {
-    question: "Fasilitas apa saja yang tersedia di HSI Boarding School?",
+    question: "Di mana lokasi HSI Boarding School?",
     answer:
-      "Fasilitas lengkap meliputi: asrama nyaman ber-AC, masjid, perpustakaan digital, laboratorium sains & komputer, lapangan olahraga, kantin sehat, klinik kesehatan, laundry, dan area rekreasi. Semua dalam lingkungan yang aman dan terpantau 24 jam.",
+      "Kampus 1 (Sukabumi) : Kelas 11 & 12 Ikhwan, Kampus 2 (Purworejo) :  Kelas 10 Ikhwan, Kampus 3 (Bekasi) : Kelas 10 -12 Akhwat",
   },
   {
     question: "Bagaimana proses seleksi dan kapan pengumuman hasil diterima?",
     answer:
-      "Proses seleksi meliputi: tes baca Al-Qur'an, tes tulis akademik, wawancara dengan calon santri dan orang tua, serta tes kesehatan. Pengumuman hasil seleksi diumumkan 7-14 hari kerja setelah tes melalui email dan WhatsApp.",
+      "Proses seleksi meliputi: tes baca Al-Qur'an, tes tulis akademik, wawancara dengan calon santri dan orang tua, serta tes kesehatan. Pengumuman hasil seleksi diumumkan 7-14 hari kerja setelah tes melalui WhatsApp.",
   },
   {
     question: "Apakah ada program beasiswa dan bagaimana cara mendapatkannya?",
     answer:
-      "Ya, tersedia beasiswa prestasi akademik, tahfidz, dan kurang mampu dengan potongan 25%-100%. Syarat: nilai rapor minimal 8.0, hafalan minimal 3 juz, surat keterangan tidak mampu (jika diperlukan), dan lulus tes seleksi khusus beasiswa.",
+      "Ya, tersedia beasiswa prestasi akademik, tahfidz, dan kurang mampu dengan potongan 25%-100%. Syarat: sesuai ketentuan di atas serta melampurkan surat keterangan tidak mampu, dan lulus tes seleksi khusus beasiswa.",
   },
 ];
 
@@ -197,15 +197,15 @@ const FAQ = ({ id }: { id: string }) => {
             ref={titleRef}
             className={`text-4xl md:text-6xl lg:text-7xl text-center !leading-[1.15] bg-clip-text text-transparent bg-gradient-to-r from-blue-500 to-blue-600 font-bold tracking-tight mb-6 ${spaceGrotesk.className}`}
           >
-            Masih Ragu? <br />
-            Mungkin Ini Jawabannya
+            Punya pertanyaan? <br />
+            Temukan jawabannya!
           </h2>
           
           <p
             ref={subtitleRef}
             className="text-xl text-gray-600 max-w-3xl mx-auto"
           >
-            Temukan jawaban atas pertanyaan yang sering ditanyakan seputar pendaftaran dan kehidupan di HSI Boarding School
+            Pertanyaan yang sering ditanyakan seputar pendaftaran dan lingkungan di HSI Boarding School
           </p>
         </div>
 
@@ -254,7 +254,7 @@ const FAQ = ({ id }: { id: string }) => {
 
           <div className="relative z-10">
             <h3 className={`${spaceGrotesk.className} text-3xl lg:text-4xl font-bold mb-4`}>
-              Masih Ada Pertanyaan Lain?
+              Punya pertanyaan lain?
             </h3>
             <p className="text-blue-100 text-lg mb-8 max-w-2xl mx-auto">
               Tim customer service kami siap membantu Anda 24/7. Jangan ragu untuk menghubungi kami!
@@ -264,19 +264,19 @@ const FAQ = ({ id }: { id: string }) => {
               <div className="floating-icon bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20 hover:bg-white/20 transition-all duration-300 cursor-pointer group">
                 <Phone className="w-8 h-8 text-yellow-400 mx-auto mb-3 group-hover:scale-110 transition-transform duration-300" />
                 <h4 className="font-bold mb-2">Telepon</h4>
-                <p className="text-blue-100">+62 812-3456-7890</p>
+                <p className="text-blue-100">+62 895-2451-3151</p>
               </div>
 
               <div className="floating-icon bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20 hover:bg-white/20 transition-all duration-300 cursor-pointer group">
                 <Mail className="w-8 h-8 text-yellow-400 mx-auto mb-3 group-hover:scale-110 transition-transform duration-300" />
                 <h4 className="font-bold mb-2">Email</h4>
-                <p className="text-blue-100">info@hsiboarding.sch.id</p>
+                <p className="text-blue-100">smait@hsi.id</p>
               </div>
             </div>
 
             <div className="mt-8">
               <button className="bg-gradient-to-r from-yellow-400 to-yellow-500 hover:from-yellow-500 hover:to-yellow-400 text-gray-900 font-bold py-4 px-8 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl hover:cursor-pointer">
-                Hubungi Kami Sekarang
+                <a href="https://wa.me/6289524513151">Hubungi Kami Sekarang</a>
               </button>
             </div>
           </div>

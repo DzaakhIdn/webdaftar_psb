@@ -32,21 +32,19 @@ const tab_content: Record<tab, tab_content> = {
     title: "Persyaratan Pendaftaran Santri Baru",
     img: "/assets/icon/reqruitment.png",
     content: [
-      "Usia minimal 12 tahun",
-      "Tahfidz minimal 1 juz",
-      "Tidak ada riwayat hukum",
+      "Lulus Sekolah Menengah Pertama",
+      "Memiliki hafalan Al-Quran minimal 5 juz",
+      "Tidak memiliki riwayat dikeluarkan dari sekolah",
+      "Memiliki kemauan sendiri bukan karena paksaan",
       "Upload dokumen yang diperlukan",
-      "Dll ...",
     ],
   },
   jadwal: {
     title: "Jadwal Pendaftaran Santri Baru",
     img: "/assets/icon/time.png",
     content: [
-      "Pendaftaran dibuka mulai tanggal 1 Agustus 2024",
-      "Pendaftaran ditutup pada tanggal 30 September 2024",
-      "Tes seleksi dilaksanakan pada tanggal 1 Oktober 2024",
-      "Dll ...",
+      "Pendaftaran dibuka : 9 September 2025",
+      "Pendaftaran ditutup : 1 Maret 2026 atau kuota telah terpenuhi",
     ],
   },
 };
@@ -168,8 +166,7 @@ export default function Administration({ id }: { id: string }) {
               </span>
             </h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Temukan keunggulan yang membuat kami berbeda dan menjadi pilihan
-              terbaik untuk masa depan pendidikan anak Anda
+              Lengkapi syarat, catat jadwal, dan mulai perjalanan sekolah seru bersama kami!
             </p>
           </div>
           <div className="w-full grid grid-cols-1 lg:grid-cols-2 gap-8 mt-10">
@@ -199,7 +196,7 @@ export default function Administration({ id }: { id: string }) {
               <Button
                 size="lg"
                 isGradient={false}
-                text="Download Formulir Pendaftaran"
+                text="Download brosur pendaftaran"
                 onClick={() => console.log("Daftar Sekarang")}
                 className="mt-10 w-full"
               />

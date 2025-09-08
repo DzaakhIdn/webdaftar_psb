@@ -3,7 +3,7 @@ import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { Montserrat } from "next/font/google";
 import Image from "next/image";
-import { YoutubeIcon, FacebookIcon, InstagramIcon } from "lucide-react";
+import { YoutubeIcon, InstagramIcon } from "lucide-react";
 import Link from "next/link";
 
 const montserrat = Montserrat({
@@ -83,14 +83,11 @@ const Footer = ({ id }: { id: string[] }) => {
             </span>
 
             <div className="flex items-center gap-5 text-muted-foreground">
-              <Link href="#" target="_blank">
+              <Link href="youtube.com" target="_blank">
                 <YoutubeIcon className="h-5 w-5" />
               </Link>
-              <Link href="#" target="_blank">
+              <Link href="instagram.com/hsi.boardingschool" target="_blank">
                 <InstagramIcon className="h-5 w-5" />
-              </Link>
-              <Link href="#" target="_blank">
-                <FacebookIcon className="h-5 w-5" />
               </Link>
             </div>
           </div>

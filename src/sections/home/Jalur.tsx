@@ -221,7 +221,7 @@ export default function Jalur({ id }: { id: string }) {
                 </div>
                 <div className="flex items-center gap-3">
                   <CheckCircle className="w-5 h-5 text-green-500" />
-                  <span className="text-gray-700">Fasilitas lengkap</span>
+                  <span className="text-gray-700">Sarana dan Prasana KBM</span>
                 </div>
                 <div className="flex items-center gap-3">
                   <CheckCircle className="w-5 h-5 text-green-500" />
@@ -234,16 +234,16 @@ export default function Jalur({ id }: { id: string }) {
                 <div className="text-center p-4 bg-gray-50 rounded-xl">
                   <div className="flex items-center justify-center gap-2 mb-2">
                     <Users className="w-5 h-5 text-blue-600" />
-                    <span className="text-2xl font-bold text-gray-900">200</span>
+                    <span className="text-2xl font-bold text-gray-900">48</span>
                   </div>
                   <div className="text-sm text-gray-600">Kuota Tersedia</div>
                 </div>
                 <div className="text-center p-4 bg-gray-50 rounded-xl">
                   <div className="flex items-center justify-center gap-2 mb-2">
                     <Clock className="w-5 h-5 text-blue-600" />
-                    <span className="text-2xl font-bold text-gray-900">30</span>
+                    <span className="text-2xl font-bold text-gray-900">48</span>
                   </div>
-                  <div className="text-sm text-gray-600">Hari Tersisa</div>
+                  <div className="text-sm text-gray-600">Kuota Tersisa</div>
                 </div>
               </div>
 
@@ -302,20 +302,20 @@ export default function Jalur({ id }: { id: string }) {
               <div className="space-y-3 mb-8">
                 <div className="flex items-center gap-3">
                   <Star className="w-5 h-5 text-yellow-400" />
-                  <span className="text-white">Beasiswa hingga 100%</span>
+                  <span className="text-white">Potongan biaya pendidikan 100%</span>
                 </div>
                 <div className="flex items-center gap-3">
                   <Star className="w-5 h-5 text-yellow-400" />
-                  <span className="text-white">Program mentoring khusus</span>
+                  <span className="text-white">Termasuk semua program reguler</span>
                 </div>
                 <div className="flex items-center gap-3">
                   <Star className="w-5 h-5 text-yellow-400" />
-                  <span className="text-white">Fasilitas premium</span>
+                  <span className="text-white">Masa intership 1 tahun</span>
                 </div>
-                <div className="flex items-center gap-3">
+                {/* <div className="flex items-center gap-3">
                   <Star className="w-5 h-5 text-yellow-400" />
                   <span className="text-white">Peluang karir internasional</span>
-                </div>
+                </div> */}
               </div>
 
               {/* Stats */}
@@ -323,16 +323,16 @@ export default function Jalur({ id }: { id: string }) {
                 <div className="text-center p-4 bg-white/10 backdrop-blur-sm rounded-xl border border-white/20">
                   <div className="flex items-center justify-center gap-2 mb-2">
                     <Target className="w-5 h-5 text-yellow-400" />
-                    <span className="text-2xl font-bold text-white">25</span>
+                    <span className="text-2xl font-bold text-white">48</span>
                   </div>
-                  <div className="text-sm text-blue-200">Kuota Terbatas</div>
+                  <div className="text-sm text-blue-200">Kuota Tersedia</div>
                 </div>
                 <div className="text-center p-4 bg-white/10 backdrop-blur-sm rounded-xl border border-white/20">
                   <div className="flex items-center justify-center gap-2 mb-2">
                     <TrendingUp className="w-5 h-5 text-yellow-400" />
-                    <span className="text-2xl font-bold text-white">15</span>
+                    <span className="text-2xl font-bold text-white">48</span>
                   </div>
-                  <div className="text-sm text-blue-200">Hari Tersisa</div>
+                  <div className="text-sm text-blue-200">Kuota Tersisa</div>
                 </div>
               </div>
 
@@ -348,7 +348,7 @@ export default function Jalur({ id }: { id: string }) {
               {/* Urgency Text */}
               <div className="text-center mt-4">
                 <div className="text-yellow-400 text-sm font-medium animate-pulse">
-                  ⚡ Kuota Terbatas - Daftar Sekarang!
+                  ⚡ Jangan sampai kehabisan!
                 </div>
               </div>
             </div>
@@ -365,7 +365,7 @@ export default function Jalur({ id }: { id: string }) {
             Masih bingung memilih jalur yang tepat?
           </p>
           <button className="text-blue-600 hover:text-blue-700 font-medium underline transition-colors duration-300">
-            Konsultasi dengan Tim Kami
+            <a href="https://wa.me/6289524513151">Konsultasi dengan Tim Kami</a>
           </button>
         </div>
       </div>
