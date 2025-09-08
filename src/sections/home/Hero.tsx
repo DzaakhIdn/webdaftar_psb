@@ -162,14 +162,14 @@ export function Hero({ id }: { id: string }) {
               <Button
                 size="lg"
                 isGradient
-                text="Daftar Beasiswa"
+                text="Daftar"
                 onClick={() => window.location.href = "/registant"}
               />
 
               <Button
                 size="lg"
-                text="Daftar Reguler"
-                onClick={() => window.location.href = "/registant"}
+                text="Masuk"
+                onClick={() => window.location.href = "/auth/auth-dashboard/sign-in"}
                 className={`hover:cursor-pointer`}
               />
             </div>

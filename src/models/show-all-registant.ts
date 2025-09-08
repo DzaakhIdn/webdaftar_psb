@@ -9,7 +9,8 @@ export async function showAllRegistant() {
       sekolah_asal,
       no_hp,
       status_pendaftaran,
-      jalur_final_id
+      jalur_final_id,
+      password_hash
     `);
 
   if (error) {

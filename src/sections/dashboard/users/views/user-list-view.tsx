@@ -54,8 +54,16 @@ interface RegistantListItem {
   email: string;
   sekolah_asal: string;
   no_hp: string;
-  status_pendaftaran: "pending" | "diterima" | "ditolak" | "sedang tes";
+  status_pendaftaran:
+    | "pending"
+    | "verifikasi berkas"
+    | "verifikasi pembayaran"
+    | "tes wawancara"
+    | "sedang tes"
+    | "diterima"
+    | "ditolak";
   jalur_final_id: string | null;
+  password_hash?: string;
   jalurfinal: {
     kode_final: string;
     nama_jalur_final: string;
@@ -70,9 +78,12 @@ interface RegistantListItem {
 const STATUS_OPTIONS = [
   { value: "all", label: "All" },
   { value: "pending", label: "Pending" },
+  { value: "verifikasi berkas", label: "Verifikasi Berkas" },
+  { value: "verifikasi pembayaran", label: "Verifikasi Pembayaran" },
+  { value: "tes wawancara", label: "Tes Wawancara" },
+  { value: "sedang tes", label: "Sedang Tes" },
   { value: "diterima", label: "Diterima" },
   { value: "ditolak", label: "Ditolak" },
-  { value: "sedang tes", label: "Sedang Tes" },
 ];
 
 const TABLE_HEAD = [
@@ -353,18 +364,19 @@ export function UserListView() {
                     }
                     color={
                       (tab.value === "diterima" && "success") ||
-                      (tab.value === "sedang tes" && "warning") ||
                       (tab.value === "ditolak" && "error") ||
+                      (tab.value === "verifikasi berkas" && "info") ||
+                      (tab.value === "verifikasi pembayaran" && "info") ||
+                      (tab.value === "tes wawancara" && "primary") ||
+                      (tab.value === "sedang tes" && "warning") ||
                       "default"
                     }
                   >
-                    {["pending", "diterima", "ditolak", "sedang tes"].includes(
-                      tab.value
-                    )
-                      ? tableData.filter(
+                    {tab.value === "all"
+                      ? tableData.length
+                      : tableData.filter(
                           (user) => user.status_pendaftaran === tab.value
-                        ).length
-                      : tableData.length}
+                        ).length}
                   </Label>
                 }
               />

@@ -34,19 +34,7 @@ interface AccountDrawerProps {
   sx?: SxProps<Theme>;
 }
 
-export function AccountDrawer({
-  data = [
-    {
-      label: "Home",
-      href: "/registant",
-      icon: <Iconify icon="solar:home-angle-bold-duotone" />,
-    },
-    {
-      label: "Biodata",
-      href: "/registant/biodata",
-      icon: <Iconify icon="custom:profile-duotone" />,
-    }
-  ],
+export function UserAccountDrawer({
   sx,
   ...other
 }: AccountDrawerProps) {
@@ -78,54 +66,6 @@ export function AccountDrawer({
         )}
       </Avatar>
     </AnimateBorder>
-  );
-
-  const renderList = () => (
-    <MenuList
-      disablePadding
-      sx={[
-        (theme) => ({
-          py: 3,
-          px: 2.5,
-          borderTop: `dashed 1px ${theme.vars.palette.divider}`,
-          borderBottom: `dashed 1px ${theme.vars.palette.divider}`,
-          "& li": { p: 0 },
-        }),
-      ]}
-    >
-      {data.map((option) => (
-        <MenuItem key={option.label}>
-          <Link
-            href={option.href}
-            color="inherit"
-            underline="none"
-            onClick={onClose}
-            sx={{
-              p: 1,
-              width: 1,
-              display: "flex",
-              typography: "body2",
-              alignItems: "center",
-              color: "text.secondary",
-              "& svg": { width: 24, height: 24 },
-              "&:hover": { color: "text.primary" },
-            }}
-          >
-            {option.icon}
-
-            <Box component="span" sx={{ ml: 2 }}>
-              {option.label}
-            </Box>
-
-            {option.info && (
-              <Label color="error" sx={{ ml: 1 }}>
-                {option.info}
-              </Label>
-            )}
-          </Link>
-        </MenuItem>
-      ))}
-    </MenuList>
   );
 
   return (
@@ -196,8 +136,6 @@ export function AccountDrawer({
               {user?.status_pendaftaran}
             </Label>
           </Box>
-
-          {renderList()}
         </Scrollbar>
 
         <Box sx={{ p: 2.5 }}>

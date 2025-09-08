@@ -11,7 +11,14 @@ export interface RegistrantData {
   nama_lengkap: string;
   register_id: string;
   no_hp: string;
-  status_pendaftaran: "pending" | "diterima" | "ditolak" | "sedang tes";
+  status_pendaftaran:
+    | "pending"
+    | "verifikasi berkas"
+    | "verifikasi pembayaran"
+    | "tes wawancara"
+    | "sedang tes"
+    | "diterima"
+    | "ditolak";
   password_hash?: string;
   jalurfinal?: {
     nama_jalur_final: string;
@@ -75,6 +82,49 @@ Detail pendaftaran:
 Mohon persiapkan diri Anda dengan baik untuk tahap selanjutnya. Informasi lebih lanjut akan kami sampaikan segera.
 
 Semoga sukses!
+
+Terima kasih.`,
+
+  "verifikasi berkas": `Halo {nama_siswa},
+
+Terima kasih telah mendaftar di sekolah kami dengan nomor pendaftaran {no_daftar}.
+
+Status pendaftaran Anda saat ini: {status}
+Jalur pendaftaran: {jalur}
+
+Saat ini berkas pendaftaran Anda sedang dalam proses verifikasi oleh tim kami. Mohon tunggu informasi selanjutnya.
+
+Jika ada berkas yang perlu dilengkapi, kami akan menghubungi Anda segera.
+
+Terima kasih.`,
+
+  "verifikasi pembayaran": `Halo {nama_siswa},
+
+Status pendaftaran Anda telah diperbarui.
+
+Detail pendaftaran:
+- Nomor Pendaftaran: {no_daftar}
+- Jalur: {jalur}
+- Status: {status}
+
+Saat ini pembayaran pendaftaran Anda sedang dalam proses verifikasi oleh tim kami. Mohon tunggu konfirmasi lebih lanjut.
+
+Jika ada pertanyaan mengenai pembayaran, silakan hubungi kami.
+
+Terima kasih.`,
+
+  "tes wawancara": `Halo {nama_siswa},
+
+Selamat! Anda telah lolos tahap verifikasi dan akan mengikuti tahap tes wawancara.
+
+Detail pendaftaran:
+- Nomor Pendaftaran: {no_daftar}
+- Jalur: {jalur}
+- Status: {status}
+
+Informasi jadwal dan tempat tes wawancara akan kami sampaikan segera melalui kontak yang telah Anda daftarkan.
+
+Mohon persiapkan diri Anda dengan baik. Semoga sukses!
 
 Terima kasih.`,
 };
@@ -174,7 +224,9 @@ export function replaceTemplatePlaceholders(
     )
     .replace(
       /{password_hash}/g,
-      registrantData.password_hash || "Password belum tersedia"
+      registrantData.password_hash
+        ? Buffer.from(registrantData.password_hash, "base64").toString("utf-8")
+        : "Password belum tersedia"
     );
 }
 
@@ -184,9 +236,12 @@ export function replaceTemplatePlaceholders(
 export function getWhatsAppStatusLabel(status: string): string {
   const statusLabels: Record<string, string> = {
     pending: "Menunggu Verifikasi",
+    "verifikasi berkas": "Verifikasi Berkas",
+    "verifikasi pembayaran": "Verifikasi Pembayaran",
+    "tes wawancara": "Tes Wawancara",
+    "sedang tes": "Sedang Tes",
     diterima: "Diterima",
     ditolak: "Ditolak",
-    "sedang tes": "Sedang Tes",
   };
 
   return statusLabels[status] || status;

@@ -31,14 +31,6 @@ export default function Navigation({
         <NavBody>
           <NavbarLogo />
           <NavItems items={navItems} />
-          <div className="flex items-center gap-4">
-            <Button
-              size="md"
-              isGradient
-              text="Daftar"
-              onClick={() => (window.location.href = "/registant")} // Navigate to auth page
-            />
-          </div>
         </NavBody>
         {/* Mobile */}
         <MobileNav>

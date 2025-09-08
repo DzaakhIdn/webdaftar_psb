@@ -4,6 +4,9 @@ export interface Registant {
   nama_lengkap: string;
   nik: string;
   kk: string;
+  nisn: string;
+  npsn_sekolah_asal: string;
+  nis: string;
   tempat_lahir: string;
   tanggal_lahir: string;
   jenis_kelamin: string;

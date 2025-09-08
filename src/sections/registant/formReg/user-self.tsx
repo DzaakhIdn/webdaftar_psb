@@ -31,6 +31,9 @@ type JalurFinal = {
 const userSelfSchema = z.object({
   nama_lengkap: z.string().min(3, "Nama lengkap minimal 3 karakter"),
   nik: z.string().min(1, "NIK harus diisi"),
+  nisn: z.string().min(1, "NISN harus diisi"),
+  npsn_sekolah_asal: z.string().min(1, "NPSN Sekolah Asal harus diisi"),
+  nis: z.string().min(1, "NIS harus diisi"),
   kk: z.string().min(1, "No. KK harus diisi"),
   tempat_lahir: z.string().min(2, "Tempat lahir harus diisi"),
   tanggal_lahir: z.string().min(1, "Tanggal lahir harus diisi"),
@@ -79,7 +82,6 @@ export function UserSelf() {
         const data = await showAllData("calonsiswa");
         setRegistant(data as Registant[]);
       } catch (error) {
-        console.error("Error loading calonsiswa data:", error);
         showError("Failed to load user data");
       }
     };
@@ -95,10 +97,14 @@ export function UserSelf() {
       tempat_lahir: "",
       tanggal_lahir: "",
       jenis_kelamin: "",
-      jalur_final_id: null,
+      jalur_final_id: undefined,
+      nisn: "",
+      npsn_sekolah_asal: "",
+      nis: "",
       no_hp: "",
       sekolah_asal: "",
     },
+    mode: "onChange", // Enable real-time validation
   });
 
   // Watch gender untuk trigger jalur
@@ -120,8 +126,7 @@ export function UserSelf() {
       .then((data: JalurFinal[]) => {
         setJalurFinalOptions(data);
       })
-      .catch((err) => {
-        console.error("Error fetching jalurFinal:", err);
+      .catch(() => {
         showError("Gagal memuat data jalur pendaftaran");
       })
       .finally(() => setLoading(false));
@@ -141,13 +146,15 @@ export function UserSelf() {
           tanggal_lahir: userData.tanggal_lahir || "",
           jenis_kelamin: userData.jenis_kelamin || "",
           jalur_final_id: userData.jalur_final_id
-            ? userData.jalur_final_id
-            : null,
+            ? Number(userData.jalur_final_id)
+            : undefined,
+          nisn: userData.nisn || "",
+          npsn_sekolah_asal: userData.npsn_sekolah_asal || "",
+          nis: userData.nis || "",
           no_hp: userData.no_hp || "",
           sekolah_asal: userData.sekolah_asal || "",
         });
 
-        // Clear any existing errors
         form.clearErrors();
         setIsDefaultsSet(true);
       }
@@ -171,17 +178,25 @@ export function UserSelf() {
             : null,
         jenis_kelamin: data.jenis_kelamin.toLowerCase(),
       };
-      const updated = await updateCalonSiswa(currentUser.id, payload);
+
+      // Convert userId to number if it's a string
+      const userId =
+        typeof currentUser.id === "string"
+          ? parseInt(currentUser.id)
+          : currentUser.id;
+
+      const updated = await updateCalonSiswa(userId, payload);
+
       setRegistant((prev) =>
         prev.map((r) =>
           r.id_siswa === currentUser.id ? { ...r, ...updated } : r
         )
       );
+
       form.reset(updated);
       showSuccess("Data berhasil disimpan!");
       setIsDefaultsSet(false);
     } catch (error) {
-      console.error("Error saving data:", error);
       const errorMessage =
         error instanceof Error ? error.message : "Gagal menyimpan data";
       showError(errorMessage);
@@ -192,9 +207,7 @@ export function UserSelf() {
 
   return (
     <Form {...form}>
-      <form
-        onSubmit={form.handleSubmit(onSubmit)}
-      >
+      <form onSubmit={form.handleSubmit(onSubmit)}>
         <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
           {/* Nama */}
           <FormField
@@ -219,6 +232,48 @@ export function UserSelf() {
                 {...field}
                 label="NIK"
                 placeholder="Masukkan NIK"
+                variant="outlined"
+              />
+            )}
+          />
+
+          {/* NISN */}
+          <FormField
+            control={form.control}
+            name="nisn"
+            render={({ field }) => (
+              <TextField
+                {...field}
+                label="NISN"
+                placeholder="Masukkan NISN"
+                variant="outlined"
+              />
+            )}
+          />
+
+          {/* NPSN Sekolah Asal */}
+          <FormField
+            control={form.control}
+            name="npsn_sekolah_asal"
+            render={({ field }) => (
+              <TextField
+                {...field}
+                label="NPSN Sekolah Asal"
+                placeholder="Masukkan NPSN Sekolah Asal"
+                variant="outlined"
+              />
+            )}
+          />
+
+          {/* NIS */}
+          <FormField
+            control={form.control}
+            name="nis"
+            render={({ field }) => (
+              <TextField
+                {...field}
+                label="NIS"
+                placeholder="Masukkan NIS"
                 variant="outlined"
               />
             )}

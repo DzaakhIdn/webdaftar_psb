@@ -43,13 +43,39 @@ import {
 
 // ----------------------------------------------------------------------
 
+interface UserRowData {
+  id_siswa: string;
+  nama_lengkap: string;
+  register_id: string;
+  email: string;
+  sekolah_asal: string;
+  no_hp: string;
+  status_pendaftaran:
+    | "pending"
+    | "verifikasi berkas"
+    | "verifikasi pembayaran"
+    | "tes wawancara"
+    | "sedang tes"
+    | "diterima"
+    | "ditolak";
+  jalur_final_id: string | null;
+  password_hash?: string;
+  jalurfinal: {
+    kode_final: string;
+    nama_jalur_final: string;
+    jalur: {
+      nama_jalur: string;
+    }[];
+  } | null;
+}
+
 interface UserTableRowProps {
-  row: any;
+  row: UserRowData;
   selected: boolean;
   editHref: string;
   onSelectRow: () => void;
   onDeleteRow: () => void;
-  onUpdateRow?: (updatedData: any) => void;
+  onUpdateRow?: (updatedData: UserRowData) => void;
 }
 
 export function UserTableRow({
@@ -310,8 +336,11 @@ export function UserTableRow({
             variant="soft"
             color={
               (row.status_pendaftaran === "diterima" && "success") ||
-              (row.status_pendaftaran === "sedang tes" && "warning") ||
               (row.status_pendaftaran === "ditolak" && "error") ||
+              (row.status_pendaftaran === "verifikasi berkas" && "info") ||
+              (row.status_pendaftaran === "verifikasi pembayaran" && "info") ||
+              (row.status_pendaftaran === "tes wawancara" && "primary") ||
+              (row.status_pendaftaran === "sedang tes" && "warning") ||
               "default"
             }
           >

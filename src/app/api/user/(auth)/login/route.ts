@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server";
-import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { createClient } from "@supabase/supabase-js";
 
@@ -30,8 +29,11 @@ export async function POST(req: Request) {
       );
     }
 
-    // cek password
-    const isPasswordValid = await bcrypt.compare(password, data.password_hash);
+    // cek password - decode base64 first
+    const decodedPassword = Buffer.from(data.password_hash, "base64").toString(
+      "utf-8"
+    );
+    const isPasswordValid = password === decodedPassword;
     if (!isPasswordValid) {
       return NextResponse.json(
         { error: "Invalid register_id or password" },

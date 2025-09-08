@@ -1,8 +1,7 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
-
-// contoh: validasi token pakai JWT
 import jwt from "jsonwebtoken";
+import { supabase } from "@/utils/supabase/client";
 
 export async function GET() {
   const cookieStore = await cookies();
@@ -21,15 +20,39 @@ export async function GET() {
       role: string;
     };
 
-    // di sini bisa query database kalau mau data lengkap
+    // Query database untuk data terbaru
+    const { data: userData, error } = await supabase
+      .from("calonsiswa")
+      .select(
+        "id_siswa, register_id, email, nama_lengkap, status_pendaftaran, no_hp, created_at"
+      )
+      .eq("id_siswa", decoded.id)
+      .single();
+
+    if (error || !userData) {
+      // Fallback ke data dari JWT jika query database gagal
+      return NextResponse.json({
+        id: decoded.id,
+        email: decoded.email,
+        nama_lengkap: decoded.nama_lengkap,
+        status_pendaftaran: decoded.status_pendaftaran,
+        role: decoded.role,
+      });
+    }
+
+    // Return data terbaru dari database
     return NextResponse.json({
-      id: decoded.id,
-      email: decoded.email,
-      nama_lengkap: decoded.nama_lengkap,
-      status_pendaftaran: decoded.status_pendaftaran,
+      id: userData.id_siswa,
+      register_id: userData.register_id,
+      email: userData.email,
+      nama_lengkap: userData.nama_lengkap,
+      status_pendaftaran: userData.status_pendaftaran,
+      no_hp: userData.no_hp,
       role: decoded.role,
+      created_at: userData.created_at,
     });
   } catch (error) {
+    console.error("Error fetching user data:", error);
     return NextResponse.json({ error: "Invalid token" }, { status: 401 });
   }
 }

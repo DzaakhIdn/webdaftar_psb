@@ -2,9 +2,12 @@ import { supabase } from "@/utils/supabase/client";
 
 export type RegistrantStatus =
   | "pending"
+  | "verifikasi berkas"
+  | "verifikasi pembayaran"
+  | "tes wawancara"
+  | "sedang tes"
   | "diterima"
-  | "ditolak"
-  | "sedang tes";
+  | "ditolak";
 
 export interface UpdateStatusData {
   status_pendaftaran: RegistrantStatus;
@@ -35,6 +38,7 @@ export async function updateRegistrantStatus(
         no_hp,
         status_pendaftaran,
         jalur_final_id,
+        password_hash,
         jalurfinal (
           nama_jalur_final,
           jalur (nama_jalur)
@@ -69,9 +73,16 @@ export async function updateRegistrantStatus(
  */
 export const STATUS_OPTIONS = [
   { value: "pending", label: "Menunggu Verifikasi", color: "warning" },
+  { value: "verifikasi berkas", label: "Verifikasi Berkas", color: "info" },
+  {
+    value: "verifikasi pembayaran",
+    label: "Verifikasi Pembayaran",
+    color: "info",
+  },
+  { value: "tes wawancara", label: "Tes Wawancara", color: "primary" },
+  { value: "sedang tes", label: "Sedang Tes", color: "info" },
   { value: "diterima", label: "Diterima", color: "success" },
   { value: "ditolak", label: "Ditolak", color: "error" },
-  { value: "sedang tes", label: "Sedang Tes", color: "info" },
 ] as const;
 
 /**
