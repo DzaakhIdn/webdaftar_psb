@@ -43,7 +43,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Montserrat, Space_Grotesk } from "next/font/google";
 import { useToast } from "@/components/providers/toast-provider";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 //////////////////////////////////////////////////////////////////////////////////////////
 
@@ -85,7 +85,9 @@ const signInSchema = z.object({
 });
 
 const AuthPage = () => {
-  const [isSignUp, setIsSignUp] = useState(false);
+  const searchParams = useSearchParams();
+  const mode = searchParams.get("mode");
+  const [isSignUp, setIsSignUp] = useState(mode === "signin" ? true : false);
   const containerRef = useRef<HTMLDivElement>(null);
   const formRef = useRef<HTMLDivElement>(null);
   const rightPanelRef = useRef<HTMLDivElement>(null);
@@ -256,7 +258,7 @@ const AuthPage = () => {
             </div>
 
             <h2 className={`text-4xl font-bold mb-6 ${spaceGrotesk.className}`}>
-              Bergabung dengan 1000+ Santri
+              Bergabung dengan 150+ Santri
             </h2>
 
             <p className="text-blue-100 text-lg mb-8 leading-relaxed">
