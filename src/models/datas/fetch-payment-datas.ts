@@ -35,9 +35,12 @@ export async function getPembayaranGroupedByUser() {
         status_verifikasi,
         bukti_bayar_path,
         tanggal_bayar,
+        tanggal_verifikasi,
+        diverifikasi_oleh,
         jumlah_bayar,
         biaya (nama_biaya),
-        calonsiswa (id_siswa, nama_lengkap, register_id, no_hp)
+        calonsiswa (id_siswa, nama_lengkap, register_id, no_hp),
+        users!diverifikasi_oleh (nama_lengkap, username)
       `
       )
       .order("tanggal_bayar", { ascending: false });
@@ -102,6 +105,10 @@ export async function getPembayaranGroupedByUser() {
 
       // Group by kode_bayar (same invoice)
       if (!grouped[userId].pembayaran[kodeBayar]) {
+        const adminInfo = Array.isArray(row.users) ? row.users[0] : row.users;
+        const adminName =
+          adminInfo?.nama_lengkap || adminInfo?.username || null;
+
         grouped[userId].pembayaran[kodeBayar] = {
           kode_bayar: kodeBayar,
           tanggal_bayar: row.tanggal_bayar,
@@ -109,6 +116,9 @@ export async function getPembayaranGroupedByUser() {
           bukti_bayar_path: row.bukti_bayar_path,
           jumlah_bayar: 0,
           status_verifikasi: row.status_verifikasi,
+          diverifikasi_oleh: row.diverifikasi_oleh,
+          diverifikasi_oleh_nama: adminName,
+          tanggal_verifikasi: row.tanggal_verifikasi,
         };
       }
 

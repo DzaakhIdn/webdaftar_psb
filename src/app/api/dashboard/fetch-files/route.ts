@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
-import { fetchSiswaWithFiles } from "@/models/datas/fetch-files";
+import { fetchSiswaWithBerkas } from "@/models/datas/fetch-files";
 
 export async function GET() {
   try {
-    const data = await fetchSiswaWithFiles();
+    const data = await fetchSiswaWithBerkas();
     return NextResponse.json(data);
   } catch (error) {
     console.error("API error:", error);

@@ -160,14 +160,16 @@ export function Hero({ id }: { id: string }) {
               <Button
                 size="lg"
                 isGradient
-                text="Daftar Beasiswa"
-                onClick={() => window.location.href = "/registant"}
+                text="Daftar"
+                onClick={() => (window.location.href = "/registant")}
               />
 
               <Button
                 size="lg"
-                text="Daftar Reguler"
-                onClick={() => window.location.href = "/registant"}
+                text="Masuk"
+                onClick={() =>
+                  (window.location.href = "/auth/auth-user?mode=signin")
+                }
                 className={`hover:cursor-pointer`}
               />
             </div>
@@ -175,6 +177,7 @@ export function Hero({ id }: { id: string }) {
             {/* Stats */}
             <div className="mt-12 grid grid-cols-3 gap-8 text-center lg:text-left">
               <div>
+<<<<<<< HEAD
                 <CountUp to={170} className={`${spaceGrotesk.className} text-3xl font-bold text-blue-400`} />
                 <div className={`${montserrat.className} text-slate-700 text-base lg:text-lg`}>+ Siswa Aktif</div>
               </div>
@@ -185,6 +188,39 @@ export function Hero({ id }: { id: string }) {
               <div>
                 <CountUp to={100} className={`${spaceGrotesk.className} text-3xl font-bold text-blue-600`} />
                 <div className={`${montserrat.className} text-slate-700 text-base lg:text-lg`}>Tingkat Kelulusan</div>
+=======
+                <CountUp
+                  to={150}
+                  className={`${spaceGrotesk.className} text-3xl font-bold text-blue-400`}
+                />
+                <div
+                  className={`${montserrat.className} text-slate-700 text-base lg:text-lg`}
+                >
+                  + Siswa Aktif
+                </div>
+              </div>
+              <div>
+                <CountUp
+                  to={20}
+                  className={`${spaceGrotesk.className} text-3xl font-bold text-blue-500`}
+                />
+                <div
+                  className={`${montserrat.className} text-slate-700 text-base lg:text-lg`}
+                >
+                  Guru Berpengalaman
+                </div>
+              </div>
+              <div>
+                <CountUp
+                  to={95}
+                  className={`${spaceGrotesk.className} text-3xl font-bold text-blue-600`}
+                />
+                <div
+                  className={`${montserrat.className} text-slate-700 text-base lg:text-lg`}
+                >
+                  Tingkat Kelulusan
+                </div>
+>>>>>>> 95d7d53bf66e9e2cde8c6451bf8d25da80ff07f8
               </div>
             </div>
           </div>
@@ -213,7 +249,11 @@ export function Hero({ id }: { id: string }) {
             </div>
 
             <div className="floating-element absolute md:block hidden -bottom-6 lg:-left-6 md:-left-2 bg-white p-6 rounded-2xl shadow-xl border border-gray-100">
-              <p className={`${spaceGrotesk.className} text-xl font-bold text-blue-600`}>Ikhwan & Akhwat</p>
+              <p
+                className={`${spaceGrotesk.className} text-xl font-bold text-blue-600`}
+              >
+                Ikhwan & Akhwat
+              </p>
             </div>
           </div>
         </div>

@@ -61,8 +61,8 @@ const createTemplate = z.object({
 });
 
 const TABLE_HEAD = [
-  { id: "text_name", label: "Text Name", width: 250 },
-  { id: "template", label: "Template", width: 200 },
+  { id: "text_name", label: "Text Name", width: 200 },
+  { id: "template", label: "Template", width: 400, sx: { maxWidth: 400 } },
   { id: "actions", label: "", width: 100 },
 ];
 

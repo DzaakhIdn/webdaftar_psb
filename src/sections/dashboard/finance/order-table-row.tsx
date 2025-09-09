@@ -34,6 +34,9 @@ interface Payment {
   bukti_bayar_path: string | null;
   jumlah_bayar: number;
   status_verifikasi: string;
+  diverifikasi_oleh?: string | number;
+  diverifikasi_oleh_nama?: string;
+  tanggal_verifikasi?: string;
 }
 
 interface OrderTableRowProps {
@@ -127,6 +130,18 @@ export function OrderTableRow({
         </Label>
       </TableCell>
 
+      <TableCell align="center">
+        {row.pembayaran &&
+        row.pembayaran.length > 0 &&
+        row.pembayaran[0].diverifikasi_oleh_nama ? (
+          <Box sx={{ color: "text.secondary", fontSize: "0.875rem" }}>
+            {row.pembayaran[0].diverifikasi_oleh_nama}
+          </Box>
+        ) : (
+          <Box sx={{ color: "text.disabled", fontSize: "0.875rem" }}>-</Box>
+        )}
+      </TableCell>
+
       <TableCell align="right" sx={{ px: 1, whiteSpace: "nowrap" }}>
         <IconButton
           color={collapseRow.value ? "inherit" : "default"}
@@ -217,13 +232,10 @@ export function OrderTableRow({
                           document.body.removeChild(link);
                         }}
                         variant="soft"
-                        color="primary"
+                        color="info"
                         size="small"
                       >
-                        <Iconify
-                          icon="solar:cloud-download-bold-duotone"
-                          width={20}
-                        />
+                        <Iconify icon="solar:eye-bold-duotone" width={20} />
                       </Button>
                     )}
 

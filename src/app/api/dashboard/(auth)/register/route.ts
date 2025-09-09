@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server";
-import bcrypt from "bcryptjs";
 import { createClient } from "@supabase/supabase-js";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -64,8 +63,8 @@ export async function POST(req: Request) {
       );
     }
 
-    console.log("API Register: Hashing password");
-    const password_hash = await bcrypt.hash(password, 10);
+    console.log("API Register: Encoding password to base64");
+    const password_hash = Buffer.from(password, "utf-8").toString("base64");
 
     console.log("API Register: Inserting user to database");
     const { data, error } = await supabase

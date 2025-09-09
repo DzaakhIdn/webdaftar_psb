@@ -5,6 +5,9 @@ export interface UpdateCalonSiswa {
   nama_lengkap?: string;
   nik?: string;
   kk?: string;
+  nisn?: string;
+  npsn_sekolah_asal?: string;
+  nis?: string;
   tempat_lahir?: string;
   tanggal_lahir?: string;
   jenis_kelamin?: string;
@@ -35,7 +38,9 @@ export const updateCalonSiswa = async (
   userData: UpdateCalonSiswa
 ) => {
   try {
-    if (!userId) throw new Error("User ID tidak ditemukan");
+    if (!userId || isNaN(userId)) {
+      throw new Error("User ID tidak valid");
+    }
 
     // Siapkan field yang akan diupdate
     const updateFields: Record<string, any> = {};
@@ -81,13 +86,11 @@ export const updateCalonSiswa = async (
       .single();
 
     if (error) {
-      console.error("Supabase update error:", error);
       throw new Error(`Gagal mengupdate data: ${error.message}`);
     }
 
     return data;
   } catch (err) {
-    console.error("Update calon siswa error:", err);
     throw err;
   }
 };

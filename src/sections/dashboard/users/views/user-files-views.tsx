@@ -44,7 +44,7 @@ interface User {
   register_id: string;
   nama_lengkap: string;
   no_hp: string;
-  files: string[];
+  files: { nama_berkas: string; path_berkas: string }[];
   status_upload: string;
 }
 
@@ -248,7 +248,7 @@ export function UserFilesView() {
               onSelectAllRows={(checked) =>
                 table.onSelectAllRows(
                   checked,
-                  dataFiltered.map((row: { id: string }) => row.id)
+                  dataFiltered.map((row: User) => row.id_siswa)
                 )
               }
               action={
@@ -275,7 +275,7 @@ export function UserFilesView() {
                   onSelectAllRows={(checked) =>
                     table.onSelectAllRows(
                       checked,
-                      dataFiltered.map((row: { id: string }) => row.id)
+                      dataFiltered.map((row: User) => row.id_siswa)
                     )
                   }
                 />

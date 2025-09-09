@@ -53,6 +53,7 @@ import {
   getSimplePembayaran,
 } from "@/models/datas/fetch-payment-datas";
 import { approvePayment, rejectPayment } from "@/models/update-payment-status";
+import { useCurrentUser } from "@/hooks/getCurrentUsers";
 
 // ----------------------------------------------------------------------
 
@@ -83,6 +84,7 @@ const TABLE_HEAD = [
   { id: "tanggal_bayar", label: "Tanggal Bayar" },
   { id: "total_bayar", label: "Total Bayar" },
   { id: "status", label: "Status", align: "center" },
+  { id: "diverifikasi_oleh", label: "Diverifikasi Oleh", align: "center" },
   { id: "actions", label: "" },
 ];
 
@@ -94,6 +96,9 @@ export function InvoiceListView() {
   const confirmDialog = useBoolean();
   const [tableData, setTableData] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
+
+  // Get current admin user
+  const { user: currentAdmin } = useCurrentUser("/api/dashboard/user/me");
 
   useEffect(() => {
     async function fetchData() {
@@ -277,75 +282,91 @@ export function InvoiceListView() {
     [dataInPage.length, table, tableData]
   );
 
-  const handleApprovePayment = useCallback(async (kode_bayar: string) => {
-    try {
-      await approvePayment(kode_bayar);
-      toast.success("Pembayaran berhasil dikonfirmasi!");
+  const handleApprovePayment = useCallback(
+    async (kode_bayar: string) => {
+      try {
+        const adminId = currentAdmin?.id;
+        if (!adminId) {
+          toast.error("Admin tidak teridentifikasi");
+          return;
+        }
+        await approvePayment(kode_bayar, adminId);
+        toast.success("Pembayaran berhasil dikonfirmasi!");
 
-      // Refresh data
-      const data = await getPembayaranGroupedByUser();
-      const transformedData = data.map((userGroup, userIndex) => {
-        const totalAmount = userGroup.pembayaran.reduce(
-          (sum, payment) => sum + payment.jumlah_bayar,
-          0
-        );
-        const latestPayment = userGroup.pembayaran[0];
+        // Refresh data
+        const data = await getPembayaranGroupedByUser();
+        const transformedData = data.map((userGroup, userIndex) => {
+          const totalAmount = userGroup.pembayaran.reduce(
+            (sum, payment) => sum + payment.jumlah_bayar,
+            0
+          );
+          const latestPayment = userGroup.pembayaran[0];
 
-        return {
-          id_biaya: `user-${userIndex}`,
-          kode_bayar: latestPayment?.kode_bayar || "",
-          status_verifikasi: latestPayment?.status_verifikasi || "",
-          bukti_bayar_path: latestPayment?.bukti_bayar_path || null,
-          tanggal_bayar: latestPayment?.tanggal_bayar || "",
-          jenis_bayar: latestPayment?.jenis_bayar || null,
-          jumlah_bayar: totalAmount,
-          nama_siswa: userGroup.nama_siswa,
-          register_id: userGroup.register_id,
-          no_hp: userGroup.no_hp,
-          pembayaran: userGroup.pembayaran,
-        };
-      });
-      setTableData(transformedData);
-    } catch (error) {
-      console.error("Error approving payment:", error);
-      toast.error("Gagal mengkonfirmasi pembayaran");
-    }
-  }, []);
+          return {
+            id_biaya: `user-${userIndex}`,
+            kode_bayar: latestPayment?.kode_bayar || "",
+            status_verifikasi: latestPayment?.status_verifikasi || "",
+            bukti_bayar_path: latestPayment?.bukti_bayar_path || null,
+            tanggal_bayar: latestPayment?.tanggal_bayar || "",
+            jenis_bayar: latestPayment?.jenis_bayar || null,
+            jumlah_bayar: totalAmount,
+            nama_siswa: userGroup.nama_siswa,
+            register_id: userGroup.register_id,
+            no_hp: userGroup.no_hp,
+            pembayaran: userGroup.pembayaran,
+          };
+        });
+        setTableData(transformedData);
+      } catch (error) {
+        console.error("Error approving payment:", error);
+        toast.error("Gagal mengkonfirmasi pembayaran");
+      }
+    },
+    [currentAdmin]
+  );
 
-  const handleRejectPayment = useCallback(async (kode_bayar: string) => {
-    try {
-      await rejectPayment(kode_bayar);
-      toast.success("Pembayaran berhasil ditolak!");
+  const handleRejectPayment = useCallback(
+    async (kode_bayar: string) => {
+      try {
+        const adminId = currentAdmin?.id;
+        if (!adminId) {
+          toast.error("Admin tidak teridentifikasi");
+          return;
+        }
+        await rejectPayment(kode_bayar, adminId);
+        toast.success("Pembayaran berhasil ditolak!");
 
-      // Refresh data
-      const data = await getPembayaranGroupedByUser();
-      const transformedData = data.map((userGroup, userIndex) => {
-        const totalAmount = userGroup.pembayaran.reduce(
-          (sum, payment) => sum + payment.jumlah_bayar,
-          0
-        );
-        const latestPayment = userGroup.pembayaran[0];
+        // Refresh data
+        const data = await getPembayaranGroupedByUser();
+        const transformedData = data.map((userGroup, userIndex) => {
+          const totalAmount = userGroup.pembayaran.reduce(
+            (sum, payment) => sum + payment.jumlah_bayar,
+            0
+          );
+          const latestPayment = userGroup.pembayaran[0];
 
-        return {
-          id_biaya: `user-${userIndex}`,
-          kode_bayar: latestPayment?.kode_bayar || "",
-          status_verifikasi: latestPayment?.status_verifikasi || "",
-          bukti_bayar_path: latestPayment?.bukti_bayar_path || null,
-          tanggal_bayar: latestPayment?.tanggal_bayar || "",
-          jenis_bayar: latestPayment?.jenis_bayar || null,
-          jumlah_bayar: totalAmount,
-          nama_siswa: userGroup.nama_siswa,
-          register_id: userGroup.register_id,
-          no_hp: userGroup.no_hp,
-          pembayaran: userGroup.pembayaran,
-        };
-      });
-      setTableData(transformedData);
-    } catch (error) {
-      console.error("Error rejecting payment:", error);
-      toast.error("Gagal menolak pembayaran");
-    }
-  }, []);
+          return {
+            id_biaya: `user-${userIndex}`,
+            kode_bayar: latestPayment?.kode_bayar || "",
+            status_verifikasi: latestPayment?.status_verifikasi || "",
+            bukti_bayar_path: latestPayment?.bukti_bayar_path || null,
+            tanggal_bayar: latestPayment?.tanggal_bayar || "",
+            jenis_bayar: latestPayment?.jenis_bayar || null,
+            jumlah_bayar: totalAmount,
+            nama_siswa: userGroup.nama_siswa,
+            register_id: userGroup.register_id,
+            no_hp: userGroup.no_hp,
+            pembayaran: userGroup.pembayaran,
+          };
+        });
+        setTableData(transformedData);
+      } catch (error) {
+        console.error("Error rejecting payment:", error);
+        toast.error("Gagal menolak pembayaran");
+      }
+    },
+    [currentAdmin]
+  );
 
   const handleDeleteRows = useCallback(() => {
     const deleteRows = tableData.filter(

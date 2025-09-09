@@ -12,7 +12,7 @@ import { iconButtonClasses } from "@mui/material/IconButton";
 import type { ReactNode } from "react";
 
 import { useSettingsContext } from "@/components/settings";
-import { useMockedUser } from "@/auth/use-mocked-user";
+import { useAuth } from "@/auth/hooks/use-check-auth";
 
 import { NavMobile } from "./nav-mobile";
 // import { VerticalDivider } from "./content";
@@ -88,7 +88,7 @@ export function DashboardLayout({
   layoutQuery = "lg",
 }: DashboardLayoutProps) {
   const theme = useTheme();
-  const { user } = useMockedUser();
+  const { user } = useAuth();
   const settings = useSettingsContext();
 
   const navVars = dashboardNavColorVars(
@@ -142,14 +142,6 @@ export function DashboardLayout({
           This is an info Alert.
         </Alert>
       ),
-      // bottomArea: isNavHorizontal ? (
-      //   <NavHorizontal
-      //     data={navItems}
-      //     layoutQuery={layoutQuery}
-      //     cssVars={navVars.section}
-      //     checkPermissions={canDisplayItemByRole}
-      //   />
-      // ) : null,
       leftArea: (
         <>
           <MenuButton
@@ -167,31 +159,6 @@ export function DashboardLayout({
             cssVars={navVars.section}
             checkPermissions={canDisplayItemByRole}
           />
-          {/* Logo + Divider disembunyikan saat horizontal */}
-          {/* {isNavHorizontal && (
-            <>
-              <Box
-                sx={{
-                  display: 'none',
-                  width: 40,
-                  height: 40,
-                  bgcolor: 'primary.main',
-                  borderRadius: 1,
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  color: 'white',
-                  fontWeight: 'bold',
-                  fontSize: '1.2rem',
-                  [theme.breakpoints.up(layoutQuery)]: { display: 'flex' },
-                }}
-              >
-                LOGO
-              </Box>
-              <VerticalDivider
-                sx={{ [theme.breakpoints.up(layoutQuery)]: { display: 'flex' } }}
-              />
-            </>
-          )} */}
         </>
       ),
       rightArea: (

@@ -5,7 +5,7 @@ import { supabase } from "@/utils/supabase/client";
 
 export async function GET() {
   const cookieStore = await cookies();
-  const token = cookieStore.get("auth_token")?.value;
+  const token = cookieStore.get("token_dashboard")?.value;
 
   if (!token) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -14,45 +14,38 @@ export async function GET() {
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET!) as {
       id: string;
-      email: string;
-      nama_lengkap: string;
-      status_pendaftaran: string;
+      username: string;
       role: string;
     };
 
-    // Query database untuk data terbaru
+    // Fetch complete user data from database
     const { data: userData, error } = await supabase
-      .from("calonsiswa")
-      .select(
-        "id_siswa, register_id, email, nama_lengkap, status_pendaftaran, no_hp, created_at"
-      )
-      .eq("id_siswa", decoded.id)
+      .from("users")
+      .select("id_user, username, nama_lengkap, role, created_at")
+      .eq("id_user", decoded.id)
       .single();
 
     if (error || !userData) {
-      // Fallback ke data dari JWT jika query database gagal
+      // Return basic data from JWT if database query fails
       return NextResponse.json({
         id: decoded.id,
-        email: decoded.email,
-        nama_lengkap: decoded.nama_lengkap,
-        status_pendaftaran: decoded.status_pendaftaran,
+        username: decoded.username,
+        nama_lengkap: decoded.username,
         role: decoded.role,
+        email: `${decoded.username}@admin.system`,
       });
     }
 
-    // Return data terbaru dari database
     return NextResponse.json({
-      id: userData.id_siswa,
-      register_id: userData.register_id,
-      email: userData.email,
+      id: userData.id_user,
+      username: userData.username,
       nama_lengkap: userData.nama_lengkap,
-      status_pendaftaran: userData.status_pendaftaran,
-      no_hp: userData.no_hp,
-      role: decoded.role,
+      role: userData.role,
+      email: `${userData.username}@admin.system`,
       created_at: userData.created_at,
     });
   } catch (error) {
-    console.error("Error fetching user data:", error);
+    console.error("Error fetching admin user data:", error);
     return NextResponse.json({ error: "Invalid token" }, { status: 401 });
   }
 }

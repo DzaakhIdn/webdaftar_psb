@@ -11,8 +11,6 @@ const montserrat = Montserrat({
   weight: ["100", "200", "300", "400", "500", "600", "700"],
 });
 
-
-
 const Footer = ({ id }: { id: string[] }) => {
   const footerLinks = [
     { title: "Home", href: `#${id[0]}` },
@@ -21,7 +19,7 @@ const Footer = ({ id }: { id: string[] }) => {
     { title: "Jalur Pendaftaran", href: `#${id[3]}` },
     { title: "Gallery", href: `#${id[4]}` },
     { title: "Contact", href: `#${id[5]}` },
-];
+  ];
   return (
     <div
       className={`mt-20 border-t-2 border-slate-200 flex flex-col ${montserrat.className}`}

@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server";
-import bcrypt from "bcryptjs";
 import { createClient } from "@supabase/supabase-js";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -26,12 +25,13 @@ export async function POST(req: Request) {
     console.log("API Register: Request body received:", {
       email: body.email,
       nama_lengkap: body.nama_lengkap,
+      no_hp: body.no_hp,
       hasPassword: !!body.password,
     });
 
-    const { email, password, nama_lengkap } = body;
+    const { email, password, nama_lengkap, no_hp } = body;
 
-    if (!email || !password || !nama_lengkap) {
+    if (!email || !password || !nama_lengkap || !no_hp) {
       console.log("API Register: Missing required fields");
       return NextResponse.json(
         { error: "Semua field wajib diisi" },
@@ -79,8 +79,8 @@ export async function POST(req: Request) {
       newId = `PSBHSI${(last_num + 1).toString().padStart(4, "0")}`;
     }
 
-    console.log("API Register: Hashing password");
-    const password_hash = await bcrypt.hash(password, 10);
+    console.log("API Register: Encoding password to base64");
+    const password_hash = Buffer.from(password, "utf-8").toString("base64");
 
     console.log("API Register: Inserting user to database");
     const { data, error } = await supabase
@@ -91,6 +91,7 @@ export async function POST(req: Request) {
           password_hash,
           email,
           nama_lengkap,
+          no_hp,
           status_pendaftaran: "pending",
         },
       ])
@@ -112,6 +113,7 @@ export async function POST(req: Request) {
         register_id: data.register_id,
         email: data.email,
         nama_lengkap: data.nama_lengkap,
+        no_hp: data.no_hp,
         status_pendaftaran: data.status_pendaftaran,
       },
     });

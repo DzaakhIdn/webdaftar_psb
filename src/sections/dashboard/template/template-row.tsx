@@ -204,14 +204,27 @@ export function TemplateTableRow({
 
         <TableCell>{row.text_name}</TableCell>
 
-        <TableCell>
-          <ListItemText
-            primary={row.template}
-            slotProps={{
-              primary: { noWrap: true, sx: { typography: "body2" } },
-              secondary: { sx: { mt: 0.5, typography: "caption" } },
-            }}
-          />
+        <TableCell sx={{ maxWidth: 400 }}>
+          <Tooltip title={row.template} placement="top" arrow>
+            <Box>
+              <ListItemText
+                primary={row.template}
+                slotProps={{
+                  primary: {
+                    noWrap: true,
+                    sx: {
+                      typography: "body2",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      maxWidth: "380px",
+                      cursor: "help",
+                    },
+                  },
+                  secondary: { sx: { mt: 0.5, typography: "caption" } },
+                }}
+              />
+            </Box>
+          </Tooltip>
         </TableCell>
         <TableCell>
           <Box sx={{ display: "flex", alignItems: "center" }}>

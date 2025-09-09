@@ -114,7 +114,7 @@ export function ListUserAdminTableRow({
 
         <TableCell>
           <ListItemText
-            primary={row.name}
+            primary={row.nama_lengkap || row.name}
             slotProps={{
               primary: { noWrap: true, sx: { typography: "body2" } },
               secondary: { sx: { mt: 0.5, typography: "caption" } },
@@ -124,10 +124,24 @@ export function ListUserAdminTableRow({
 
         <TableCell>
           <ListItemText
-            primary={row.level}
+            primary={row.role || row.level}
+            secondary={
+              row.password_hash
+                ? (() => {
+                    try {
+                      return `${atob(row.password_hash)}`;
+                    } catch (error) {
+                      console.error("Error decoding password:", error);
+                      return "Password: [Error decoding]";
+                    }
+                  })()
+                : "No password"
+            }
             slotProps={{
               primary: { noWrap: true, sx: { typography: "body2" } },
-              secondary: { sx: { mt: 0.5, typography: "caption" } },
+              secondary: {
+                sx: { mt: 0.5, typography: "caption", color: "text.secondary" },
+              },
             }}
           />
         </TableCell>

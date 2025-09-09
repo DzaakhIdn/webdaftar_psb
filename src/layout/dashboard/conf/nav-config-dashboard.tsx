@@ -72,11 +72,6 @@ export const navData = [
           },
         ],
       },
-      {
-        title: "Pengumuman",
-        path: paths.dashboard.information.root,
-        icon: ICONS.information,
-      },
     ],
   },
   {
@@ -92,6 +87,11 @@ export const navData = [
         ],
         allowedRoles: ["admin"],
         caption: "Only admin can see this item.",
+      },
+      {
+        title: "Pengumuman",
+        path: paths.dashboard.information.root,
+        icon: ICONS.information,
       },
     ],
   },

@@ -24,7 +24,7 @@ import { MainSection } from "../core/main-section";
 import { MenuButton } from "@/components/menu-button";
 import { HeaderSection } from "../core/header-section";
 import { LayoutSection } from "../core/layout-section";
-import { AccountDrawer } from "./account-drawer";
+import { UserAccountDrawer } from "./account-drawer";
 import { navData as dashboardNavData } from "./conf/nav-config-registant";
 import { dashboardLayoutVars, dashboardNavColorVars } from "./css-vars";
 
@@ -177,7 +177,7 @@ export function RegistantLayout({
             gap: { xs: 0, sm: 0.75 },
           }}
         >
-          <AccountDrawer data={_account} />
+          <UserAccountDrawer data={_account} />
         </Box>
       ),
     };
