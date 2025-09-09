@@ -56,13 +56,32 @@ const data = [
             Akta kelahiran
           </li>
           <li className="text-base text-neutral-700 md:text-lg dark:text-neutral-300">
+            KTP Orang Tua
+          </li>
+          <li className="text-base text-neutral-700 md:text-lg dark:text-neutral-300">
             Kartu Keluarga
           </li>
           <li className="text-base text-neutral-700 md:text-lg dark:text-neutral-300">
-            Pas foto terbaru 3x4
+            Pas photo 80% wajah, background biru
           </li>
           <li className="text-base text-neutral-700 md:text-lg dark:text-neutral-300">
-            Surat keterangan sehat
+            SKTM (Khusus Beasiswa)
+          </li>
+          <li className="text-base text-neutral-700 md:text-lg dark:text-neutral-300">
+            Sertifikat prestasi (jika ada)
+          </li>
+        </ul>
+        <p
+          className={`mb-8 text-base font-normal text-neutral-800 md:text-lg dark:text-neutral-200`}
+        >
+          Berkas Tambahan (⁠Diupload hanya ketika daftar ulang) : 
+        </p>
+        <ul className="mb-8 list-disc">
+          <li className="text-base text-neutral-700 md:text-lg dark:text-neutral-300">
+            ⁠  ⁠Surat pernyataan orang tua (format disediakan)
+          </li>
+          <li className="text-base text-neutral-700 md:text-lg dark:text-neutral-300">
+            ⁠  ⁠Surat pernyataan santri (format disediakan)
           </li>
         </ul>
         <div className="grid grid-cols-2 gap-4">

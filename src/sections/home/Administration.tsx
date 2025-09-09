@@ -34,7 +34,6 @@ const tab_content: Record<tab, tab_content> = {
     content: [
       "Lulus Sekolah Menengah Pertama",
       "Memiliki hafalan Al-Quran minimal 5 juz",
-      "Tidak memiliki riwayat dikeluarkan dari sekolah",
       "Memiliki kemauan sendiri bukan karena paksaan",
       "Upload dokumen yang diperlukan",
     ],

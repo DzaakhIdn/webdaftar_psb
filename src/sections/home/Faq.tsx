@@ -36,11 +36,6 @@ const faq = [
       "Semua persyaratan sudah tercantum diatas",
   },
   {
-    question: "Bagaimana sistem pembelajaran dan kurikulum di HSI Boarding School?",
-    answer:
-      "Kami menggabungkan kurikulum nasional dengan kurikulum pesantren. Pembelajaran meliputi tahfidz Al-Qur'an, bahasa Arab & Inggris,diniyyah, teknologi, dan keterampilan hidup. Beberapa program diniyyah dilaksanakan dalam sistem mulazamah",
-  },
-  {
     question: "Apakah orang tua bisa mengunjungi anak selama di pesantren?",
     answer:
       "Wali santri boleh mengunjungi santri maksimal 1 bulan sekali namun tidak ada batasan khusus terkait waktu",
@@ -53,12 +48,12 @@ const faq = [
   {
     question: "Bagaimana proses seleksi dan kapan pengumuman hasil diterima?",
     answer:
-      "Proses seleksi meliputi: tes baca Al-Qur'an, tes tulis akademik, wawancara dengan calon santri dan orang tua, serta tes kesehatan. Pengumuman hasil seleksi diumumkan 7-14 hari kerja setelah tes melalui WhatsApp.",
+      "System yang di gunakan adalah one day one services, sehingga bisa langsung pengumuman kelulusan jika serangkaian seleksi berjalan lancar",
   },
   {
     question: "Apakah ada program beasiswa dan bagaimana cara mendapatkannya?",
     answer:
-      "Ya, tersedia beasiswa prestasi akademik, tahfidz, dan kurang mampu dengan potongan 25%-100%. Syarat: sesuai ketentuan di atas serta melampurkan surat keterangan tidak mampu, dan lulus tes seleksi khusus beasiswa.",
+      "ada, cara mendapatkannya adalah dengan melampirkan SKTM dari pemerintah.",
   },
 ];
 
