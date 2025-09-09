@@ -177,7 +177,6 @@ export function Hero({ id }: { id: string }) {
             {/* Stats */}
             <div className="mt-12 grid grid-cols-3 gap-8 text-center lg:text-left">
               <div>
-<<<<<<< HEAD
                 <CountUp to={170} className={`${spaceGrotesk.className} text-3xl font-bold text-blue-400`} />
                 <div className={`${montserrat.className} text-slate-700 text-base lg:text-lg`}>+ Siswa Aktif</div>
               </div>
@@ -188,39 +187,6 @@ export function Hero({ id }: { id: string }) {
               <div>
                 <CountUp to={100} className={`${spaceGrotesk.className} text-3xl font-bold text-blue-600`} />
                 <div className={`${montserrat.className} text-slate-700 text-base lg:text-lg`}>Tingkat Kelulusan</div>
-=======
-                <CountUp
-                  to={150}
-                  className={`${spaceGrotesk.className} text-3xl font-bold text-blue-400`}
-                />
-                <div
-                  className={`${montserrat.className} text-slate-700 text-base lg:text-lg`}
-                >
-                  + Siswa Aktif
-                </div>
-              </div>
-              <div>
-                <CountUp
-                  to={20}
-                  className={`${spaceGrotesk.className} text-3xl font-bold text-blue-500`}
-                />
-                <div
-                  className={`${montserrat.className} text-slate-700 text-base lg:text-lg`}
-                >
-                  Guru Berpengalaman
-                </div>
-              </div>
-              <div>
-                <CountUp
-                  to={95}
-                  className={`${spaceGrotesk.className} text-3xl font-bold text-blue-600`}
-                />
-                <div
-                  className={`${montserrat.className} text-slate-700 text-base lg:text-lg`}
-                >
-                  Tingkat Kelulusan
-                </div>
->>>>>>> 95d7d53bf66e9e2cde8c6451bf8d25da80ff07f8
               </div>
             </div>
           </div>

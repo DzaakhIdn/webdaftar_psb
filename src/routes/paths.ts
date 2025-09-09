@@ -16,7 +16,9 @@ export const api = {
   dashboard: {
     login: `${ROOTS_API.DASHBOARD}/login`,
     register: `${ROOTS_API.DASHBOARD}/register`,
+    logout: `${ROOTS_API.DASHBOARD}/logout`,
     jalur: `${ROOTS_API.DASHBOARD}/jalur`,
+    jalurFinal: `${ROOTS_API.DASHBOARD}/jalur-final`,
     deleteJalur: (id: string) => `${ROOTS_API.DASHBOARD}/del-jalur/${id}`,
     deleteRegistrant: (id: string) => `${ROOTS_API.DASHBOARD}/registrant/${id}`,
   },

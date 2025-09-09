@@ -35,6 +35,7 @@ export const navData = [
       {
         title: "Master Data",
         path: paths.dashboard.master.root,
+        allowedRoles: ["admin", "admin_ikhwan", "admin_akhwat"],
         icon: ICONS.notebook,
         children: [
           { title: "List Jalur", path: paths.dashboard.master.listJalur },
@@ -50,24 +51,26 @@ export const navData = [
         title: "Template Pesan",
         path: paths.dashboard.template,
         icon: ICONS.template,
+        allowedRoles: ["admin", "admin_ikhwan", "admin_akhwat"],
       },
       {
-        title: "Registrant",
+        title: "Data Pendaftar",
         path: paths.dashboard.registant.root,
         icon: ICONS.registant,
         children: [
-          { title: "List", path: paths.dashboard.registant.list },
-          { title: "Files", path: paths.dashboard.registant.registanFile }, // List File Pendaftar
+          { title: "List Pendaftar", path: paths.dashboard.registant.list },
+          { title: "Files Pendaftar", path: paths.dashboard.registant.registanFile }, // List File Pendaftar
         ],
       },
       {
-        title: "Finance",
+        title: "Pembayaran",
         path: paths.dashboard.finance.root,
+        allowedRoles: ["admin", "bendahara", "bendahara_ikhwan", "bendahara_akhwat", "admin_ikhwan", "admin_akhwat"],
         icon: ICONS.finance,
         children: [
-          { title: "Overview", path: paths.dashboard.finance.overview },
+          { title: "Pembayaran Pendaftar", path: paths.dashboard.finance.overview },
           {
-            title: "List Payments",
+            title: "List Pembayaran",
             path: paths.dashboard.finance.listPayments,
           },
         ],
@@ -82,10 +85,10 @@ export const navData = [
         path: paths.dashboard.admin.root,
         icon: ICONS.admin,
         children: [
-          { title: "Users", path: paths.dashboard.admin.users },
+          { title: "Pengguna", path: paths.dashboard.admin.users },
           { title: "Setting", path: paths.dashboard.admin.setting },
         ],
-        allowedRoles: ["admin"],
+        allowedRoles: ["admin", "admin_ikhwan", "admin_akhwat"],
         caption: "Only admin can see this item.",
       },
       {

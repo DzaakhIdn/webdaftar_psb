@@ -5,12 +5,25 @@ import { Providers } from "./providers";
 import AuthGuard from "@/auth/guard/auth-guard";
 import "./globals.css";
 import { paths } from "@/routes/paths";
-// import { ProgressBar } from "@/components/progress-bar/progress-bar";
 
 export const metadata: Metadata = {
   title: "Dashboard App",
   description: "Dashboard application with Next.js",
 };
+
+const allowedRoles = [
+  "admin",
+  "panitia",
+  "bendahara",
+  "kepala",
+  "operator",
+  "admin_ikhwan",
+  "admin_akhwat",
+  "panitia_ikhwan",
+  "panitia_akhwat",
+  "bendahara_ikhwan",
+  "bendahara_akhwat",
+];
 
 export default function DashboardRootLayout({
   children,
@@ -21,10 +34,9 @@ export default function DashboardRootLayout({
     <Providers>
       <Suspense>
         <AuthGuard
-          allowedRoles={["admin", "panitia", "bendahara", "kepala", "operator"]}
+          allowedRoles={allowedRoles}
           loginPath={paths.authDashboard.signIn}
         >
-          {/* <ProgressBar /> */}
           <DashboardLayout>{children}</DashboardLayout>
         </AuthGuard>
       </Suspense>

@@ -36,7 +36,7 @@ import {
 import { UserFilesRow } from "../user-files-row";
 import { UserTableToolbar } from "../user-table-toolbar";
 import { UserTableFiltersResult } from "../user-table-filters-result";
-import { paths } from "@/routes/paths";
+import { paths, api } from "@/routes/paths";
 import { fetchSiswaWithBerkas } from "@/models/datas/fetch-files";
 
 interface User {
@@ -46,6 +46,7 @@ interface User {
   no_hp: string;
   files: { nama_berkas: string; path_berkas: string }[];
   status_upload: string;
+  jalur_final_id: string | null;
 }
 
 const STATUS_OPTIONS = [
@@ -69,6 +70,13 @@ export function UserFilesView() {
 
   const confirmDialog = useBoolean();
   const [tableData, setTableData] = useState<User[]>([]);
+  const [jalurFinalData, setJalurFinalData] = useState<
+    {
+      id_jalur_final: number;
+      nama_jalur_final: string;
+      jenis_kelamin: string;
+    }[]
+  >([]);
   const { showSuccess, showError } = useToast();
 
   useEffect(() => {
@@ -95,11 +103,25 @@ export function UserFilesView() {
     };
 
     fetchData();
+    loadJalurFinalData();
+  }, []); // ✅ Empty dependency array to prevent infinite loop
+
+  // Load jalur final data
+  const loadJalurFinalData = useCallback(async () => {
+    try {
+      const response = await fetch(api.dashboard.jalurFinal);
+      if (!response.ok) throw new Error("Failed to fetch jalur final data");
+      const data = await response.json();
+      setJalurFinalData(data);
+    } catch (error) {
+      console.error("Error loading jalur final data:", error);
+      showError("Gagal memuat data jalur final");
+    }
   }, [showError]);
 
   const filtersState = useSetState({
     name: "",
-    role: [] as string[],
+    jalur: [] as number[],
     status: "all",
   });
   const {
@@ -118,13 +140,14 @@ export function UserFilesView() {
     inputData: tableData,
     comparator: getComparator(table.order, table.orderBy),
     filters: currentFilters,
+    jalurFinalData,
   });
 
   const dataInPage = rowInPage(dataFiltered, table.page, table.rowsPerPage);
 
   const canReset =
     !!currentFilters.name ||
-    currentFilters.role.length > 0 ||
+    currentFilters.jalur.length > 0 ||
     currentFilters.status !== "all";
 
   const notFound = (!dataFiltered.length && canReset) || !dataFiltered.length;
@@ -227,14 +250,17 @@ export function UserFilesView() {
 
           <UserTableToolbar
             filters={filters}
+            options={{
+              jalur: jalurFinalData,
+            }}
             onResetPage={table.onResetPage}
-            options={{ roles: [] }}
           />
 
           {canReset && (
             <UserTableFiltersResult
               filters={filters}
               totalResults={dataFiltered.length}
+              jalurOptions={jalurFinalData}
               onResetPage={table.onResetPage}
               sx={{ p: 2.5, pt: 0 }}
             />
@@ -332,12 +358,18 @@ function applyFilter({
   inputData,
   comparator,
   filters,
+  jalurFinalData,
 }: {
   inputData: User[];
   comparator: (a: User, b: User) => number;
-  filters: { name: string; role: string[]; status: string };
+  filters: { name: string; jalur: number[]; status: string };
+  jalurFinalData: {
+    id_jalur_final: number;
+    nama_jalur_final: string;
+    jenis_kelamin: string;
+  }[];
 }): User[] {
-  const { name, status } = filters;
+  const { name, status, jalur } = filters;
 
   const stabilizedThis: [User, number][] = inputData.map((el, index) => [
     el,
@@ -364,6 +396,16 @@ function applyFilter({
       if (status === "some") return user.status_upload === "Sebagian";
       if (status === "complete") return user.status_upload === "Lengkap";
       return user.status_upload === status;
+    });
+  }
+
+  if (jalur.length > 0) {
+    filteredData = filteredData.filter((user) => {
+      if (!user.jalur_final_id) {
+        return false;
+      }
+      // Check if user's jalur final ID matches the selected jalur final filter
+      return jalur.includes(Number(user.jalur_final_id));
     });
   }
 

@@ -13,7 +13,7 @@ import {
 
 interface UserFiltersState {
   name: string;
-  role: string[];
+  jalur: number[];
   status: string;
 }
 
@@ -27,6 +27,11 @@ interface UserTableFiltersResultProps {
   filters: UserFilters;
   onResetPage: () => void;
   totalResults: number;
+  jalurOptions?: {
+    id_jalur_final: number;
+    nama_jalur_final: string;
+    jenis_kelamin: string;
+  }[];
   sx?: SxProps<Theme>;
 }
 
@@ -34,6 +39,7 @@ export function UserTableFiltersResult({
   filters,
   onResetPage,
   totalResults,
+  jalurOptions = [],
   sx,
 }: UserTableFiltersResultProps) {
   const {
@@ -52,16 +58,16 @@ export function UserTableFiltersResult({
     updateFilters({ status: "all" });
   }, [onResetPage, updateFilters]);
 
-  const handleRemoveRole = useCallback(
-    (inputValue: string) => {
-      const newValue = currentFilters.role.filter(
+  const handleRemoveJalur = useCallback(
+    (inputValue: number) => {
+      const newValue = currentFilters.jalur.filter(
         (item) => item !== inputValue
       );
 
       onResetPage();
-      updateFilters({ role: newValue });
+      updateFilters({ jalur: newValue });
     },
-    [onResetPage, updateFilters, currentFilters.role]
+    [onResetPage, updateFilters, currentFilters.jalur]
   );
 
   const handleReset = useCallback(() => {
@@ -80,15 +86,19 @@ export function UserTableFiltersResult({
         />
       </FiltersBlock>
 
-      <FiltersBlock label="Role:" isShow={!!currentFilters.role.length}>
-        {currentFilters.role.map((item) => (
-          <Chip
-            {...chipProps}
-            key={item}
-            label={item}
-            onDelete={() => handleRemoveRole(item)}
-          />
-        ))}
+      <FiltersBlock label="Jalur Final:" isShow={!!currentFilters.jalur.length}>
+        {currentFilters.jalur.map((item) => {
+          const jalur = jalurOptions.find((j) => j.id_jalur_final === item);
+          const displayName = jalur ? jalur.nama_jalur_final : item;
+          return (
+            <Chip
+              {...chipProps}
+              key={item}
+              label={displayName}
+              onDelete={() => handleRemoveJalur(item)}
+            />
+          );
+        })}
       </FiltersBlock>
 
       <FiltersBlock label="Keyword:" isShow={!!currentFilters.name}>

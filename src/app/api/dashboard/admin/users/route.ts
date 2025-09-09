@@ -38,7 +38,7 @@ export async function GET() {
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { username, password_hash, nama_lengkap, role } = body;
+    const { username, password_hash, nama_lengkap, role, gender } = body;
 
     // Validasi input
     if (!username || !password_hash || !nama_lengkap || !role) {
@@ -75,6 +75,16 @@ export async function POST(req: NextRequest) {
       "base64"
     );
 
+    // Auto-set gender based on role if not provided
+    let finalGender = gender;
+    if (!finalGender) {
+      if (role.includes("_ikhwan")) {
+        finalGender = "ikhwan";
+      } else if (role.includes("_akhwat")) {
+        finalGender = "akhwat";
+      }
+    }
+
     // Insert user ke database
     const { data, error } = await supabase
       .from("users")
@@ -84,10 +94,11 @@ export async function POST(req: NextRequest) {
           password_hash: encodedPassword,
           nama_lengkap,
           role,
+          gender: finalGender,
         },
       ])
       .select(
-        "id_user, username, nama_lengkap, role, password_hash, created_at"
+        "id_user, username, nama_lengkap, role, gender, password_hash, created_at"
       )
       .single();
 

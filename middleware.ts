@@ -5,11 +5,11 @@ import jwt from "jsonwebtoken";
 import { paths } from "@/routes/paths";
 
 export function middleware(req: NextRequest) {
-  const token = req.cookies.get("token")?.value;
+  const token = req.cookies.get("token_dashboard")?.value;
 
   const clearTokenAndRedirect = (redirectUrl: string) => {
     const response = NextResponse.redirect(new URL(redirectUrl, req.url));
-    response.cookies.set("token", "", {
+    response.cookies.set("token_dashboard", "", {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
@@ -51,8 +51,20 @@ export function middleware(req: NextRequest) {
 
     // middleware khusus admin
     if (req.nextUrl.pathname.startsWith("/dashboard")) {
-      // validasi role admin
-      if (decoded.role !== "admin") {
+      // validasi role admin (termasuk gender-based roles)
+      const adminRoles = [
+        "admin",
+        "admin_ikhwan",
+        "admin_akhwat",
+        "panitia",
+        "panitia_ikhwan",
+        "panitia_akhwat",
+        "bendahara",
+        "bendahara_ikhwan",
+        "bendahara_akhwat",
+      ];
+
+      if (!adminRoles.includes(decoded.role || "")) {
         return NextResponse.redirect(new URL(paths.unauthorized, req.url));
       }
     }

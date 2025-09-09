@@ -16,7 +16,7 @@ export async function POST(req: Request) {
     // cari user di DB
     const { data, error } = await supabase
       .from("users")
-      .select("id_user, username, password_hash, nama_lengkap, role")
+      .select("id_user, username, password_hash, nama_lengkap, role, gender")
       .eq("username", username)
       .single();
 
@@ -52,7 +52,9 @@ export async function POST(req: Request) {
       {
         id: data.id_user,
         username: data.username,
+        nama_lengkap: data.nama_lengkap,
         role: data.role,
+        gender: data.gender,
       },
       jwtSecret,
       { expiresIn: "1h" }
@@ -66,6 +68,7 @@ export async function POST(req: Request) {
         username: data.username,
         nama_lengkap: data.nama_lengkap,
         role: data.role,
+        gender: data.gender,
       },
     });
 

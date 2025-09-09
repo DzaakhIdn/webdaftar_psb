@@ -24,6 +24,7 @@ import { DashboardContent } from "@/layout/dashboard";
 import { Label } from "@/components/label";
 import { toast } from "@/components/snackbar";
 import { Iconify } from "@/components/iconify";
+import { useToast } from "@/components/providers/toast-provider";
 import { Scrollbar } from "@/components/scrollbar";
 import { ConfirmDialog } from "@/components/custom-dialog";
 import { CustomBreadcrumbs } from "@/components/custom-breadcrumbs";
@@ -102,7 +103,15 @@ export function UserListView() {
   const table = useTable();
   const confirmDialog = useBoolean();
   const [tableData, setTableData] = useState<RegistantListItem[]>([]);
+  const [jalurFinalData, setJalurFinalData] = useState<
+    {
+      id_jalur_final: number;
+      nama_jalur_final: string;
+      jenis_kelamin: string;
+    }[]
+  >([]);
   const [loading, setLoading] = useState(false);
+  const { showSuccess, showError } = useToast();
 
   const loadData = useCallback(async () => {
     try {
@@ -117,8 +126,22 @@ export function UserListView() {
     }
   }, []);
 
+  // Load jalur final data
+  const loadJalurFinalData = useCallback(async () => {
+    try {
+      const response = await fetch(api.dashboard.jalurFinal);
+      if (!response.ok) throw new Error("Failed to fetch jalur final data");
+      const data = await response.json();
+      setJalurFinalData(data);
+    } catch (error) {
+      console.error("Error loading jalur final data:", error);
+      showError("Gagal memuat data jalur final");
+    }
+  }, [showError]);
+
   useEffect(() => {
     loadData();
+    loadJalurFinalData();
 
     // Set up real-time subscription
     const subscription = supabase
@@ -155,11 +178,11 @@ export function UserListView() {
     return () => {
       subscription.unsubscribe();
     };
-  }, []); // ← PERBAIKAN: Hapus loadData dan loading dari dependency
+  }, []); // ← PERBAIKAN: Empty dependency array to prevent infinite loop
 
   const filtersState = useSetState({
     name: "",
-    role: [] as string[],
+    jalur: [] as number[],
     status: "all",
   });
   const {
@@ -178,13 +201,14 @@ export function UserListView() {
     inputData: tableData,
     comparator: getComparator(table.order, table.orderBy),
     filters: currentFilters,
+    jalurFinalData,
   });
 
   const dataInPage = rowInPage(dataFiltered, table.page, table.rowsPerPage);
 
   const canReset =
     !!currentFilters.name ||
-    currentFilters.role.length > 0 ||
+    currentFilters.jalur.length > 0 ||
     currentFilters.status !== "all";
 
   const notFound = (!dataFiltered.length && canReset) || !dataFiltered.length;
@@ -383,16 +407,19 @@ export function UserListView() {
             ))}
           </Tabs>
 
-          {/* <UserTableToolbar
+          <UserTableToolbar
             filters={filters}
+            options={{
+              jalur: jalurFinalData,
+            }}
             onResetPage={table.onResetPage}
-            options={{ roles: _roles }}
-          /> */}
+          />
 
           {canReset && (
             <UserTableFiltersResult
               filters={filters}
               totalResults={dataFiltered.length}
+              jalurOptions={jalurFinalData}
               onResetPage={table.onResetPage}
               sx={{ p: 2.5, pt: 0 }}
             />
@@ -509,12 +536,18 @@ function applyFilter({
   inputData,
   comparator,
   filters,
+  jalurFinalData,
 }: {
   inputData: RegistantListItem[];
   comparator: (a: RegistantListItem, b: RegistantListItem) => number;
-  filters: { name: string; role: string[]; status: string };
+  filters: { name: string; jalur: number[]; status: string };
+  jalurFinalData: {
+    id_jalur_final: number;
+    nama_jalur_final: string;
+    jenis_kelamin: string;
+  }[];
 }): RegistantListItem[] {
-  const { name, status, role } = filters;
+  const { name, status, jalur } = filters;
 
   const stabilizedThis: [RegistantListItem, number][] = inputData.map(
     (el, index) => [el, index]
@@ -540,9 +573,15 @@ function applyFilter({
     );
   }
 
-  // if (role.length) {
-  //   filteredData = filteredData.filter((user) => role.includes(user.role));
-  // }
+  if (jalur.length > 0) {
+    filteredData = filteredData.filter((user) => {
+      if (!user.jalur_final_id) {
+        return false;
+      }
+      // Check if user's jalur final ID matches the selected jalur final filter
+      return jalur.includes(Number(user.jalur_final_id));
+    });
+  }
 
   return filteredData;
 }

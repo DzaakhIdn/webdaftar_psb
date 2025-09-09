@@ -9,7 +9,8 @@ export async function fetchSiswaWithBerkas() {
         id_siswa,
         register_id,
         nama_lengkap,
-        no_hp
+        no_hp,
+        jalur_final_id
       `);
 
     if (siswaError) {
@@ -71,6 +72,7 @@ export async function fetchSiswaWithBerkas() {
         no_hp: siswa.no_hp,
         files,
         status_upload,
+        jalur_final_id: siswa.jalur_final_id,
       };
     });
 

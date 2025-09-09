@@ -20,7 +20,7 @@ import { CustomPopover } from "@/components/custom-popover";
 
 interface UserFiltersState {
   name: string;
-  role: string[];
+  jalur: number[];
   status: string;
 }
 
@@ -33,7 +33,11 @@ interface UserFilters {
 interface UserTableToolbarProps {
   filters: UserFilters;
   options: {
-    roles: string[];
+    jalur: {
+      id_jalur_final: number;
+      nama_jalur_final: string;
+      jenis_kelamin: string;
+    }[];
   };
   onResetPage: () => void;
 }
@@ -55,15 +59,15 @@ export function UserTableToolbar({
     [onResetPage, updateFilters]
   );
 
-  const handleFilterRole = useCallback(
-    (event: SelectChangeEvent<string[]>) => {
+  const handleFilterJalur = useCallback(
+    (event: SelectChangeEvent<number[]>) => {
       const newValue =
         typeof event.target.value === "string"
-          ? event.target.value.split(",")
+          ? event.target.value.split(",").map(Number)
           : event.target.value;
 
       onResetPage();
-      updateFilters({ role: newValue });
+      updateFilters({ jalur: newValue });
     },
     [onResetPage, updateFilters]
   );
@@ -107,28 +111,46 @@ export function UserTableToolbar({
         }}
       >
         <FormControl sx={{ flexShrink: 0, width: { xs: 1, md: 200 } }}>
-          <InputLabel htmlFor="filter-role-select">Jalur</InputLabel>
+          <InputLabel htmlFor="filter-jalur-select">Jalur</InputLabel>
           <Select
             multiple
-            value={currentFilters.role}
-            onChange={handleFilterRole}
+            value={currentFilters.jalur}
+            onChange={handleFilterJalur}
             input={<OutlinedInput label="Jalur" />}
             renderValue={(selected) =>
-              selected.map((value) => value).join(", ")
+              selected
+                .map((value) => {
+                  const jalur = options.jalur.find(
+                    (j) => j.id_jalur_final === value
+                  );
+                  return jalur ? jalur.nama_jalur_final : value;
+                })
+                .join(", ")
             }
-            inputProps={{ id: "filter-role-select" }}
+            inputProps={{ id: "filter-jalur-select" }}
             MenuProps={{ PaperProps: { sx: { maxHeight: 240 } } }}
           >
-            {options.roles.map((option) => (
-              <MenuItem key={option} value={option}>
-                <Checkbox
-                  disableRipple
-                  size="small"
-                  checked={currentFilters.role.includes(option)}
-                />
-                {option}
+            {options.jalur && options.jalur.length > 0 ? (
+              options.jalur.map((option) => (
+                <MenuItem
+                  key={option.id_jalur_final}
+                  value={option.id_jalur_final}
+                >
+                  <Checkbox
+                    disableRipple
+                    size="small"
+                    checked={currentFilters.jalur.includes(
+                      option.id_jalur_final
+                    )}
+                  />
+                  {option.nama_jalur_final}
+                </MenuItem>
+              ))
+            ) : (
+              <MenuItem disabled>
+                <em>Loading jalur final...</em>
               </MenuItem>
-            ))}
+            )}
           </Select>
         </FormControl>
 

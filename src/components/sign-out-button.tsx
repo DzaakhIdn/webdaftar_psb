@@ -5,6 +5,7 @@ import Button from "@mui/material/Button";
 import type { ButtonProps } from "@mui/material/Button";
 import type { SxProps, Theme } from "@mui/material/styles";
 import { useToast } from "@/components/providers/toast-provider";
+import { api } from "@/routes/paths";
 
 // ----------------------------------------------------------------------
 
@@ -18,7 +19,9 @@ export function SignOutButton({
   sx,
   ...other
 }: SignOutButtonProps & Omit<ButtonProps, "onClick">) {
-  const { logout, loading } = useAuth();
+  const { logout, loading } = useAuth({
+    logoutEndpoint: api.dashboard.logout, // Use dashboard-specific logout endpoint
+  });
   const { showSuccess, showError } = useToast();
   const handleLogout = async () => {
     try {
