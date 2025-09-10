@@ -3,7 +3,7 @@ import SignPage from "./sign";
 
 export default function AuthPage() {
   return (
-    <Suspense fallback={<div>Loading...</div>}>
+    <Suspense>
       <SignPage />
     </Suspense>
   );
