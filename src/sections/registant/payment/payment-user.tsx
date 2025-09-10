@@ -292,6 +292,10 @@ export function PaymentUser() {
       setPaymentStatusData(paymentStatuses);
       setTableData(paymentStatuses);
 
+      // Notify other components about payment update
+      window.dispatchEvent(new CustomEvent("paymentUpdated"));
+      localStorage.setItem("payment_updated", Date.now().toString());
+
       showSuccess("Data pembayaran berhasil diperbarui!");
     } catch (error) {
       console.error("Error refreshing payment data:", error);
@@ -407,6 +411,10 @@ export function PaymentUser() {
       setPaymentStatusData(paymentStatuses);
       setTableData(paymentStatuses);
 
+      // Notify other components about payment update
+      window.dispatchEvent(new CustomEvent("paymentUpdated"));
+      localStorage.setItem("payment_updated", Date.now().toString());
+
       // Additional validation: Check if data was properly updated
       const stillAvailable = paymentStatuses.filter(
         (p) => p.status === "available"
@@ -479,12 +487,6 @@ export function PaymentUser() {
                   : "solar:refresh-line-duotone"
               }
             />
-            <Typography variant="body2" sx={{ ml: 1 }}>
-              {isRefreshing ? "Memperbarui..." : "Refresh"}
-            </Typography>
-          </Button>
-          <Button variant="soft" color="success" onClick={openDialog.onTrue}>
-            <Iconify icon="solar:info-square-bold" />
           </Button>
           <Button variant="soft" color="primary" onClick={openDialog.onTrue}>
             <Iconify icon="solar:add-circle-line-duotone" width={24} />
@@ -571,176 +573,6 @@ export function PaymentUser() {
             </TableBody>
           </Table>
         </Scrollbar>
-      </Box>
-      {/* Payment Statistics */}
-      <Box
-        sx={{
-          p: 3,
-          borderTop: (theme) => `solid 1px ${theme.palette.divider}`,
-          bgcolor: "grey.50",
-        }}
-      >
-        <Box
-          sx={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            gap: 1,
-            mb: 2,
-          }}
-        >
-          <Typography
-            variant="h4"
-            sx={{
-              fontWeight: 600,
-              color: "primary.main",
-            }}
-          >
-            Ringkasan Pembayaran
-          </Typography>
-        </Box>
-
-        {/* Statistics Cards Grid */}
-        <Box
-          sx={{
-            display: "grid",
-            gridTemplateColumns: { xs: "1fr", md: "repeat(3, 1fr)" },
-            gap: 2,
-            mb: 3,
-          }}
-        >
-          {/* Total Paid Card */}
-          <Card
-            sx={{
-              p: 2.5,
-              bgcolor: "success.lighter",
-              border: "1px solid",
-              borderColor: "success.light",
-              transition: "all 0.3s ease",
-              "&:hover": {
-                transform: "translateY(-4px)",
-                boxShadow: 3,
-                borderColor: "success.main",
-              },
-            }}
-          >
-            <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
-              <Box
-                sx={{
-                  width: 48,
-                  height: 48,
-                  borderRadius: "50%",
-                  bgcolor: "success.main",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-              >
-                <Iconify
-                  icon="solar:check-circle-bold-duotone"
-                  width={24}
-                  color="white"
-                />
-              </Box>
-              <Box sx={{ flex: 1 }}>
-                <Typography variant="body2" color="text.secondary">
-                  Sudah Dibayar
-                </Typography>
-                <Typography variant="h6" color="success.dark" fontWeight={600}>
-                  Rp {totalPaid.toLocaleString("id-ID")}
-                </Typography>
-              </Box>
-            </Box>
-          </Card>
-
-          {/* Total Pending Card */}
-          <Card
-            sx={{
-              p: 2.5,
-              bgcolor: "warning.lighter",
-              border: "1px solid",
-              borderColor: "warning.light",
-              transition: "all 0.3s ease",
-              "&:hover": {
-                transform: "translateY(-4px)",
-                boxShadow: 3,
-                borderColor: "warning.main",
-              },
-            }}
-          >
-            <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
-              <Box
-                sx={{
-                  width: 48,
-                  height: 48,
-                  borderRadius: "50%",
-                  bgcolor: "warning.main",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-              >
-                <Iconify
-                  icon="solar:clock-circle-bold-duotone"
-                  width={24}
-                  color="white"
-                />
-              </Box>
-              <Box sx={{ flex: 1 }}>
-                <Typography variant="body2" color="text.secondary">
-                  Menunggu Verifikasi
-                </Typography>
-                <Typography variant="h6" color="warning.dark" fontWeight={600}>
-                  Rp {totalPending.toLocaleString("id-ID")}
-                </Typography>
-              </Box>
-            </Box>
-          </Card>
-
-          {/* Remaining Payments Card */}
-          <Card
-            sx={{
-              p: 2.5,
-              bgcolor: "error.lighter",
-              border: "1px solid",
-              borderColor: "error.light",
-              transition: "all 0.3s ease",
-              "&:hover": {
-                transform: "translateY(-4px)",
-                boxShadow: 3,
-                borderColor: "error.main",
-              },
-            }}
-          >
-            <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
-              <Box
-                sx={{
-                  width: 48,
-                  height: 48,
-                  borderRadius: "50%",
-                  bgcolor: "error.main",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-              >
-                <Iconify
-                  icon="solar:card-bold-duotone"
-                  width={24}
-                  color="white"
-                />
-              </Box>
-              <Box sx={{ flex: 1 }}>
-                <Typography variant="body2" color="text.secondary">
-                  Belum Dibayar
-                </Typography>
-                <Typography variant="h6" color="error.dark" fontWeight={600}>
-                  Rp {remainingPayments.toLocaleString("id-ID")}
-                </Typography>
-              </Box>
-            </Box>
-          </Card>
-        </Box>
       </Box>
       {renderFormDialog()}
     </Card>

@@ -7,8 +7,8 @@ import "./globals.css";
 import { paths } from "@/routes/paths";
 
 export const metadata: Metadata = {
-  title: "Dashboard App",
-  description: "Dashboard application with Next.js",
+  title: "Dashboard Admin",
+  description: "Dashboard Admin HSI Boarding School",
 };
 
 const allowedRoles = [

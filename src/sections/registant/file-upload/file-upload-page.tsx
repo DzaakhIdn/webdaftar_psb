@@ -14,6 +14,7 @@ interface RequiredFile {
   nama_berkas: string;
   deskripsi: string;
   wajib: boolean;
+  contoh_file?: string;
 }
 
 export function FileUploadPage() {
@@ -231,14 +232,6 @@ export function FileUploadPage() {
       {requiredFiles.map((file) => {
         const existingUrl = existingFiles[file.id_required];
         const uploadedFile = uploadedFiles[file.id_required];
-
-        // console.log(`File ${file.id_required}:`, {
-        //   existingUrl,
-        //   uploadedFile,
-        //   hasExisting: !!existingUrl,
-        //   hasUploaded: !!uploadedFile,
-        // });
-
         return (
           <FileUpload
             key={file.id_required}
@@ -248,6 +241,7 @@ export function FileUploadPage() {
             value={uploadedFile}
             existingFileUrl={existingUrl}
             loading={uploadingFiles[file.id_required] || false}
+            exampleImageUrl={file.contoh_file}
             onDrop={handleFileDrop(file.id_required)}
             onDelete={handleFileDelete(file.id_required)}
           />

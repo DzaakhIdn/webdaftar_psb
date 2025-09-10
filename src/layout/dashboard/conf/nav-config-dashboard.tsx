@@ -27,7 +27,7 @@ const ICONS = {
 export const navData = [
   {
     subheader: "Overview",
-    items: [{ title: "App", path: "/dashboard", icon: ICONS.dashboard }],
+    items: [{ title: "Home", path: "/dashboard", icon: ICONS.dashboard }],
   },
   {
     subheader: "Management",

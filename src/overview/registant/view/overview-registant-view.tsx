@@ -164,12 +164,6 @@ export function OverviewRegistantView() {
                 <Box
                   sx={{ display: "flex", alignItems: "center", gap: 2, mb: 1 }}
                 >
-                  <Typography
-                    variant="h6"
-                    sx={{ fontWeight: 700, color: statusInfo.iconColor }}
-                  >
-                    {statusInfo.title}
-                  </Typography>
                   <Chip
                     label={userStatus.toUpperCase()}
                     color={statusInfo.color}
