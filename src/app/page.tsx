@@ -1,6 +1,8 @@
 import Navigation from "@/components/navbar/Navigation";
 import Footer from "@/components/footer";
 import Home from "@/app/page/Home";
+import { FabContact } from "@/components/fab/fab-contact";
+import { BackToTopButton } from "@/components/animate/back-to-top-button";
 
 export default function Page() {
   const navItems = [
@@ -35,6 +37,16 @@ export default function Page() {
           "gallery",
           "faq",
         ]}
+      />
+      <FabContact />
+      <BackToTopButton
+        sx={{
+          left: { xs: 24, md: 32 },
+          right: "auto",
+        }}
+        scrollThreshold="80%"
+        isDebounce={false}
+        renderButton={null}
       />
     </div>
   );

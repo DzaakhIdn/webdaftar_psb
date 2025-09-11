@@ -45,8 +45,7 @@ import FormControlLabel from "@mui/material/FormControlLabel";
 import Checkbox from "@mui/material/Checkbox";
 import FormGroup from "@mui/material/FormGroup";
 import Typography from "@mui/material/Typography";
-import { ListNoHpTableRow } from "../no-hp-row";
-import { showAllData } from "@/models";
+// Removed unused imports
 import {
   sendGenderBasedMessage,
   MESSAGE_TEMPLATES,
@@ -63,16 +62,16 @@ interface User {
   role: string;
   gender?: string;
   created_at?: string;
+  phone_numbers?: Array<{
+    id: string;
+    nama_nomor: string;
+    nomor_hp: string;
+    description?: string;
+  }>;
+  total_phones?: number;
 }
 
-interface NoHp {
-  id: string;
-  nama_nomor: string;
-  nomor_hp: string;
-  gender?: string;
-  role?: string;
-  created_at?: string;
-}
+// Removed NoHp interface - phone data now included in User interface
 
 // Interface untuk form
 interface UserFormData {
@@ -93,17 +92,14 @@ const userSchema = z.object({
 });
 
 const TABLE_HEAD = [
-  { id: "username", label: "Username", width: 250 },
+  { id: "username", label: "Username", width: 180 },
   { id: "nama_lengkap", label: "Nama Lengkap", width: 200 },
-  { id: "role", label: "Role & Password", width: 300 },
+  { id: "role", label: "Role & Password", width: 250 },
+  { id: "phone_numbers", label: "Nomor HP", width: 200 },
   { id: "actions", label: "", width: 100 },
 ];
 
-const TABLE_HEAD_HP = [
-  { id: "nama_penting", label: "Nama Nmor", width: 200 },
-  { id: "no_hp", label: "Nomor HP", width: 250 },
-  { id: "actions", label: "", width: 100 },
-];
+// Removed unused TABLE_HEAD_HP
 
 // =======================================================================
 
@@ -112,7 +108,7 @@ export function ListUsersView() {
 
   const confirmDialog = useBoolean();
   const [tableData, setTableData] = useState<User[]>([]);
-  const [noHpData, setNoHpData] = useState<NoHp[]>([]);
+  // Removed unused noHpData state - now included in User interface
   const [loading, setLoading] = useState(false);
 
   // States for messaging feature
@@ -159,6 +155,8 @@ export function ListUsersView() {
     },
     [dataInPage.length, table, tableData]
   );
+
+  // Removed unused handleEditNoHp function
   const openDialog = useBoolean();
   const form = useForm<UserFormData>({
     mode: "onChange",
@@ -166,126 +164,67 @@ export function ListUsersView() {
   });
 
   // Load users data
-  useEffect(() => {
-    const loadUsers = async () => {
-      try {
-        setLoading(true);
-        const response = await fetch("/api/dashboard/admin/users");
-        if (response.ok) {
-          const users = await response.json();
-          // Transform data to match our interface
-          const transformedUsers = users.map((user: any) => ({
-            id: user.id_user,
+  const loadUsers = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch("/api/dashboard/admin/users");
+
+      if (response.ok) {
+        const result = await response.json();
+
+        // Handle the response - should be array of enhanced users
+        if (Array.isArray(result)) {
+          // Transform data to match our User interface
+          const transformedUsers = result.map((user: any) => ({
+            id: user.id || user.id_user,
             id_user: user.id_user,
             username: user.username,
             nama_lengkap: user.nama_lengkap,
             role: user.role,
+            gender: user.gender,
             password_hash: user.password_hash,
             created_at: user.created_at,
+            phone_numbers: user.phone_numbers || [],
+            total_phones: user.total_phones || 0,
           }));
+
           setTableData(transformedUsers);
-          toast.success(`Berhasil memuat ${users.length} data users`);
-        } else {
-          const errorData = await response.json();
-          toast.error(errorData.error || "Gagal memuat data users");
-        }
-      } catch (error) {
-        // Handle different types of errors
-        if (error instanceof TypeError && error.message.includes("fetch")) {
-          toast.error(
-            "Tidak dapat terhubung ke server. Periksa koneksi internet Anda."
+
+          // Calculate total phone numbers
+          const totalPhones = transformedUsers.reduce(
+            (sum, user) => sum + (user.total_phones || 0),
+            0
+          );
+
+          toast.success(
+            `Berhasil memuat ${transformedUsers.length} users dengan ${totalPhones} nomor HP`
           );
         } else {
-          toast.error("Gagal memuat data users. Silakan refresh halaman.");
+          // Fallback for unexpected format
+          console.error("Unexpected API response format:", result);
+          setTableData([]);
+          toast.error("Format data tidak sesuai yang diharapkan");
         }
-      } finally {
-        setLoading(false);
+      } else {
+        const errorData = await response.json();
+        toast.error(errorData.error || "Gagal memuat data users");
       }
-    };
-
-    loadUsers();
-  }, []);
+    } catch (error) {
+      // Handle different types of errors
+      if (error instanceof TypeError && error.message.includes("fetch")) {
+        toast.error(
+          "Tidak dapat terhubung ke server. Periksa koneksi internet Anda."
+        );
+      } else {
+        toast.error("Gagal memuat data users. Silakan refresh halaman.");
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const loadNoHp = async () => {
-      try {
-        // Test direct Supabase connection first
-        const { createClient } = await import("@supabase/supabase-js");
-        const supabase = createClient(
-          process.env.NEXT_PUBLIC_SUPABASE_URL!,
-          process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-        );
-
-        console.log("� Testing direct Supabase query...");
-        const { data: directData, error: directError } = await supabase
-          .from("no_penting")
-          .select("*");
-
-        if (directError) {
-          // Try with showAllData as fallback
-          console.log("� Trying showAllData as fallback...");
-          const red = await showAllData("no_penting");
-
-          if (red && Array.isArray(red)) {
-            setNoHpData(red as NoHp[]);
-            toast.success(`Berhasil memuat ${red.length} data nomor penting`);
-            return;
-          }
-
-          throw directError;
-        }
-
-        if (directData && Array.isArray(directData)) {
-          setNoHpData(directData as NoHp[]);
-
-          if (directData.length > 0) {
-            toast.success(
-              `Berhasil memuat ${directData.length} data nomor penting`
-            );
-          } else {
-            toast.info("Tabel no_penting kosong. Silakan tambahkan data.");
-          }
-        } else {
-          setNoHpData([]);
-          toast.error("Format data tidak valid dari tabel no_penting");
-        }
-      } catch (error: any) {
-        // Handle specific Supabase errors
-        if (
-          error?.message?.includes("relation") &&
-          error?.message?.includes("does not exist")
-        ) {
-          toast.error(
-            "Tabel no_penting belum dibuat. Silakan buat tabel terlebih dahulu."
-          );
-        } else if (
-          error?.message?.includes("permission") ||
-          error?.code === "42501"
-        ) {
-          toast.error("Tidak memiliki izin untuk mengakses data nomor penting");
-        } else {
-          toast.error(
-            `Gagal memuat data nomor penting: ${
-              error?.message || "Unknown error"
-            }`
-          );
-        }
-
-        // Set fallback data for development
-
-        const fallbackData: NoHp[] = [
-          {
-            id: "fallback-1",
-            nama_nomor: "Admin Sekolah (Fallback)",
-            nomor_hp: "08123456789",
-            created_at: new Date().toISOString(),
-          },
-        ];
-        setNoHpData(fallbackData);
-        toast.info("Menggunakan data fallback untuk development");
-      }
-    };
-    loadNoHp();
+    loadUsers();
   }, []);
 
   // Handle template selection
@@ -633,27 +572,6 @@ export function ListUsersView() {
             <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
               <Button
                 onClick={() => {
-                  setTargetRoles([
-                    "panitia",
-                    "bendahara",
-                    "admin",
-                    "bendahara_ikhwan",
-                    "bendahara_akhwat",
-                    "panitia_ikhwan",
-                    "panitia_akhwat",
-                    "admin_ikhwan",
-                    "admin_akhwat",
-                  ]);
-                  setMessageDialog(true);
-                }}
-                variant="outlined"
-                startIcon={<Iconify icon="ic:baseline-message" />}
-                color="success"
-              >
-                Kirim ke Semua
-              </Button>
-              <Button
-                onClick={() => {
                   setTargetRoles(["panitia"]);
                   setMessageDialog(true);
                 }}
@@ -729,6 +647,7 @@ export function ListUsersView() {
                         selected={table.selected.includes(row.id)}
                         onSelectRow={() => table.onSelectRow(row.id)}
                         onDeleteRow={() => handleDeleteRow(row.id)}
+                        onRefresh={loadUsers}
                         editHref={paths.dashboard.user.edit(row.id)}
                       />
                     ))}
@@ -757,89 +676,6 @@ export function ListUsersView() {
             onRowsPerPageChange={table.onChangeRowsPerPage}
           />
         </Card>
-
-        <Card sx={{ width: "100%", overflow: "hidden", mt: 5 }}>
-          <Box sx={{ position: "relative" }}>
-            <TableSelectedAction
-              dense={table.dense}
-              numSelected={table.selected.length}
-              rowCount={dataFiltered.length}
-              onSelectAllRows={(checked) =>
-                table.onSelectAllRows(
-                  checked,
-                  dataFiltered.map((row: { id: string }) => row.id)
-                )
-              }
-              action={
-                <Tooltip title="Delete">
-                  <IconButton color="primary" onClick={confirmDialog.onTrue}>
-                    <Iconify icon="solar:trash-bin-trash-bold" />
-                  </IconButton>
-                </Tooltip>
-              }
-            />
-
-            <Scrollbar>
-              <Table
-                size={table.dense ? "small" : "medium"}
-                sx={{ minWidth: 800 }}
-              >
-                <TableHeadCustom
-                  order={table.order}
-                  orderBy={table.orderBy}
-                  headCells={TABLE_HEAD_HP}
-                  rowCount={dataFiltered.length}
-                  numSelected={table.selected.length}
-                  onSort={table.onSort}
-                  onSelectAllRows={(checked) =>
-                    table.onSelectAllRows(
-                      checked,
-                      dataFiltered.map((row: { id: string }) => row.id)
-                    )
-                  }
-                />
-
-                <TableBody>
-                  {noHpData
-                    .slice(
-                      table.page * table.rowsPerPage,
-                      table.page * table.rowsPerPage + table.rowsPerPage
-                    )
-                    .map((row: NoHp) => (
-                      <ListNoHpTableRow
-                        key={row.id}
-                        row={row}
-                        selected={table.selected.includes(row.id)}
-                        onSelectRow={() => table.onSelectRow(row.id)}
-                        onDeleteRow={() => handleDeleteRow(row.id)}
-                        editHref={paths.dashboard.user.edit(row.id)}
-                      />
-                    ))}
-
-                  <TableEmptyRows
-                    height={table.dense ? 56 : 56 + 20}
-                    emptyRows={emptyRows(
-                      table.page,
-                      table.rowsPerPage,
-                      noHpData.length
-                    )}
-                  />
-
-                  <TableNoData notFound={noHpData.length === 0} />
-                </TableBody>
-              </Table>
-            </Scrollbar>
-          </Box>
-          <TablePaginationCustom
-            page={table.page}
-            dense={table.dense}
-            count={noHpData.length}
-            rowsPerPage={table.rowsPerPage}
-            onPageChange={table.onChangePage}
-            onChangeDense={table.onChangeDense}
-            onRowsPerPageChange={table.onChangeRowsPerPage}
-          />
-        </Card>
       </DashboardContent>
       {renderFormDialog()}
       {renderMessageDialog()}
@@ -854,6 +690,11 @@ function applyFilter({
   inputData: User[];
   comparator: (a: User, b: User) => number;
 }): User[] {
+  // Guard clause to handle undefined inputData
+  if (!inputData || !Array.isArray(inputData)) {
+    return [];
+  }
+
   const stabilizedThis: [User, number][] = inputData.map((el, index) => [
     el,
     index,

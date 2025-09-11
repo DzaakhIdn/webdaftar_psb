@@ -1,30 +1,59 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+import { supabaseServer as supabase } from "@/utils/supabase/server";
 
 // Get all users
 export async function GET() {
   try {
-    const { data, error } = await supabase
-      .from("users")
-      .select(
-        "id_user, username, nama_lengkap, role, password_hash, created_at"
-      )
-      .order("created_at", { ascending: false });
+    // Fetch both users and no_penting data in parallel
+    const [usersResult, noHpResult] = await Promise.all([
+      supabase
+        .from("users")
+        .select(
+          "id_user, username, nama_lengkap, role, gender, password_hash, created_at"
+        )
+        .order("created_at", { ascending: false }),
+      supabase
+        .from("no_penting")
+        .select(
+          "id_nomor, nama_nomor, nomor_hp, user_id, created_at, gender, role"
+        )
+        .order("created_at", { ascending: false }),
+    ]);
 
-    if (error) {
-      console.error("Error fetching users:", error);
+    const usersData = usersResult.data || [];
+    const noHpData = noHpResult.data || [];
+
+    // Check for errors
+    if (usersResult.error) {
+      console.error("Error fetching users:", usersResult.error);
       return NextResponse.json(
         { error: "Gagal mengambil data users" },
         { status: 500 }
       );
     }
 
-    return NextResponse.json(data);
+    if (noHpResult.error) {
+      console.error("Error fetching no_penting:", noHpResult.error);
+      // Don't fail completely, just log the error
+      console.log("Continuing without no_penting data");
+    }
+
+    // Enhance users data with their associated phone numbers
+    const enhancedUsers = usersData.map((user: any) => {
+      // Find phone numbers associated with this user
+      const userPhones = noHpData.filter(
+        (phone: any) => phone.user_id === user.id_user
+      );
+
+      return {
+        ...user,
+        id: user.id_user, // Add id field for frontend compatibility
+        phone_numbers: userPhones,
+        total_phones: userPhones.length,
+      };
+    });
+
+    return NextResponse.json(enhancedUsers);
   } catch (err) {
     console.error("Unexpected error:", err);
     return NextResponse.json(

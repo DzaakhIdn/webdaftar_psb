@@ -12,6 +12,7 @@ import ListItemText from "@mui/material/ListItemText";
 import { Label } from "@/components/label";
 import { Iconify } from "@/components/iconify";
 import { ConfirmDialog } from "@/components/custom-dialog";
+import { EditUserDialog } from "./edit-user-dialog";
 
 import Dialog from "@mui/material/Dialog";
 import TextField from "@mui/material/TextField";
@@ -28,6 +29,7 @@ interface InvoiceTableRowProps {
   editHref: string;
   onSelectRow: () => void;
   onDeleteRow: () => void;
+  onRefresh?: () => void;
 }
 
 export function ListUserAdminTableRow({
@@ -36,6 +38,7 @@ export function ListUserAdminTableRow({
   editHref,
   onSelectRow,
   onDeleteRow,
+  onRefresh,
 }: InvoiceTableRowProps) {
   const confirmDialog = useBoolean();
   const openDialog = useBoolean();
@@ -55,35 +58,18 @@ export function ListUserAdminTableRow({
   );
 
   const renderFormDialog = () => (
-    <Dialog open={openDialog.value} onClose={openDialog.onFalse}>
-      <DialogTitle>Edit Pembayaran</DialogTitle>
-
-      <DialogContent>
-        <Typography sx={{ mb: 3 }}>
-          Lorem ipsum, dolor sit amet consectetur adipisicing elit. Error
-          corporis reprehenderit nobis tempore distinctio maiores neque quos
-          eius rerum dolore.
-        </Typography>
-
-        <TextField
-          autoFocus
-          fullWidth
-          type="email"
-          margin="dense"
-          variant="outlined"
-          label="Pembayaran"
-        />
-      </DialogContent>
-
-      <DialogActions>
-        <Button onClick={openDialog.onFalse} variant="outlined" color="inherit">
-          Cancel
-        </Button>
-        <Button onClick={openDialog.onFalse} variant="contained">
-          Save
-        </Button>
-      </DialogActions>
-    </Dialog>
+    <EditUserDialog
+      open={openDialog.value}
+      onClose={openDialog.onFalse}
+      user={row}
+      onSuccess={() => {
+        openDialog.onFalse();
+        // Trigger parent refresh
+        if (onRefresh) {
+          onRefresh();
+        }
+      }}
+    />
   );
 
   return (
@@ -144,6 +130,36 @@ export function ListUserAdminTableRow({
               },
             }}
           />
+        </TableCell>
+
+        <TableCell>
+          <Box sx={{ display: "flex", flexDirection: "column", gap: 0.5 }}>
+            {row.phone_numbers && row.phone_numbers.length > 0 ? (
+              row.phone_numbers.map((phone: any, index: number) => (
+                <Box
+                  key={phone.id_nomor || index}
+                  sx={{ display: "flex", alignItems: "center", gap: 1 }}
+                >
+                  <Label variant="soft" color="info" size="small">
+                    {phone.nama_nomor}
+                  </Label>
+                  <Typography
+                    variant="caption"
+                    sx={{ color: "text.secondary" }}
+                  >
+                    {phone.nomor_hp}
+                  </Typography>
+                </Box>
+              ))
+            ) : (
+              <Typography
+                variant="caption"
+                sx={{ color: "text.disabled", fontStyle: "italic" }}
+              >
+                Tidak ada nomor HP
+              </Typography>
+            )}
+          </Box>
         </TableCell>
 
         <TableCell>
