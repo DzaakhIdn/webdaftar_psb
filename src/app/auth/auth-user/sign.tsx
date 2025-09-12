@@ -13,15 +13,6 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Label } from "@/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import {
   GraduationCap,
   Star,
   Shield,
@@ -309,6 +300,7 @@ const SignUpPage = () => {
   const { showSuccess, showError, showInfo } = useToast();
   const buttonRef = useRef<HTMLButtonElement>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
 
   const form = useForm<z.infer<typeof formSchema>>({
     defaultValues: {
@@ -350,7 +342,6 @@ const SignUpPage = () => {
       console.log("API Response status:", res.status);
 
       const json = await res.json();
-      console.log("API Response data:", json);
 
       if (!res.ok) {
         console.error("API Error:", json);
@@ -361,9 +352,15 @@ const SignUpPage = () => {
         console.error("API returned error:", json.error);
         showError(json.error);
       } else {
-        console.log("Registration successful:", json);
-        showSuccess(json.message || "Akun berhasil dibuat! Silakan login.");
-        form.reset(); // Reset form on success
+        showSuccess(
+          json.message ||
+            "Akun berhasil dibuat! username dan password anda akan dikirimkan lewat whatsapp. Mengarahkan ke halaman login..."
+        );
+        form.reset();
+
+        setTimeout(() => {
+          router.push("/auth/auth-user?mode=signin");
+        }, 3000);
       }
     } catch (error) {
       console.error("Registration error:", error);
