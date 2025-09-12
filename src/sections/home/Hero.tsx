@@ -1,6 +1,6 @@
-  "use client";
+"use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { gsap } from "gsap";
 import Image from "next/image";
 import { Star } from "lucide-react";
@@ -30,6 +30,54 @@ export function Hero({ id }: { id: string }) {
   const ctaRef = useRef<HTMLDivElement>(null);
   const imageRef = useRef<HTMLDivElement>(null);
   const floatingRef = useRef<HTMLDivElement>(null);
+  const [heroStyles, setHeroStyles] = useState({
+    minHeight: "calc(100vh - 80px)",
+    paddingTop: "80px",
+  });
+
+  // Handle responsive padding based on viewport height
+  useEffect(() => {
+    const updateHeroStyles = () => {
+      const viewportHeight = window.innerHeight;
+      const isLargeScreen = window.innerWidth >= 1024;
+
+      if (isLargeScreen) {
+        // Desktop: no top padding, full viewport height
+        setHeroStyles({
+          minHeight: "100vh",
+          paddingTop: "0px",
+        });
+      } else if (viewportHeight <= 600) {
+        // Very small screens: minimal padding
+        setHeroStyles({
+          minHeight: "calc(100vh - 40px)",
+          paddingTop: "40px",
+        });
+      } else if (viewportHeight <= 700) {
+        // Small screens: reduced padding
+        setHeroStyles({
+          minHeight: "calc(100vh - 60px)",
+          paddingTop: "60px",
+        });
+      } else {
+        // Default mobile/tablet: standard padding
+        setHeroStyles({
+          minHeight: "calc(100vh - 80px)",
+          paddingTop: "80px",
+        });
+      }
+    };
+
+    // Initial call
+    updateHeroStyles();
+
+    // Listen for resize events
+    window.addEventListener("resize", updateHeroStyles);
+
+    return () => {
+      window.removeEventListener("resize", updateHeroStyles);
+    };
+  }, []);
 
   useEffect(() => {
     const ctx = gsap.context(() => {
@@ -122,7 +170,8 @@ export function Hero({ id }: { id: string }) {
     <section
       id={id}
       ref={heroRef}
-      className={`relative min-h-screen mt-32 lg:mt-0 flex items-center justify-center overflow-hidden ${montserrat.className}`}
+      className={`relative flex items-center justify-center overflow-hidden ${montserrat.className}`}
+      style={heroStyles}
     >
       {/* Floating background elements */}
       <div ref={floatingRef} className="absolute inset-0 pointer-events-none">
@@ -150,7 +199,10 @@ export function Hero({ id }: { id: string }) {
               ref={subtitleRef}
               className={`${gabarito.className} text-xl lg:text-2xl text-slate-700 mb-8 leading-relaxed max-w-3xl`}
             >
-              Ingin anak Anda tumbuh menjadi pembelajar seumur hidup, memahami bagaimana belajar cara belajar, menguasai dasar-dasar diniyah, cakap berbahasa, dan melek teknologi? Daftarkan sekarang ke HSI Boarding School.
+              Ingin anak Anda tumbuh menjadi pembelajar seumur hidup, memahami
+              bagaimana belajar cara belajar, menguasai dasar-dasar diniyah,
+              cakap berbahasa, dan melek teknologi? Daftarkan sekarang ke HSI
+              Boarding School.
             </p>
 
             <div
@@ -177,16 +229,37 @@ export function Hero({ id }: { id: string }) {
             {/* Stats */}
             <div className="mt-12 grid grid-cols-3 gap-8 text-center lg:text-left">
               <div>
-                <CountUp to={170} className={`${spaceGrotesk.className} text-3xl font-bold text-blue-400`} />
-                <div className={`${montserrat.className} text-slate-700 text-base lg:text-lg`}>+ Siswa Aktif</div>
+                <CountUp
+                  to={170}
+                  className={`${spaceGrotesk.className} text-3xl font-bold text-blue-400`}
+                />
+                <div
+                  className={`${montserrat.className} text-slate-700 text-base lg:text-lg`}
+                >
+                  + Siswa Aktif
+                </div>
               </div>
               <div>
-                <CountUp to={34 } className={`${spaceGrotesk.className} text-3xl font-bold text-blue-500`} />
-                <div className={`${montserrat.className} text-slate-700 text-base lg:text-lg`}>Guru Berpengalaman</div>
+                <CountUp
+                  to={34}
+                  className={`${spaceGrotesk.className} text-3xl font-bold text-blue-500`}
+                />
+                <div
+                  className={`${montserrat.className} text-slate-700 text-base lg:text-lg`}
+                >
+                  Guru Berpengalaman
+                </div>
               </div>
               <div>
-                <CountUp to={100} className={`${spaceGrotesk.className} text-3xl font-bold text-blue-600`} />
-                <div className={`${montserrat.className} text-slate-700 text-base lg:text-lg`}>Tingkat Kelulusan</div>
+                <CountUp
+                  to={100}
+                  className={`${spaceGrotesk.className} text-3xl font-bold text-blue-600`}
+                />
+                <div
+                  className={`${montserrat.className} text-slate-700 text-base lg:text-lg`}
+                >
+                  Tingkat Kelulusan
+                </div>
               </div>
             </div>
           </div>
@@ -194,9 +267,9 @@ export function Hero({ id }: { id: string }) {
           {/* Image/Visual */}
           <div ref={imageRef} className="relative">
             <div className="relative w-full h-96 lg:h-[500px] rounded-3xl overflow-hidden shadow-2xl">
-              <div className="absolute inset-0 bg-gradient-to-br from-blue-400/20 to-indigo-600/20 z-10"></div>
+              {/* <div className="absolute inset-0 bg-gradient-to-br from-blue-400/20 to-indigo-600/20 z-10"></div> */}
               <Image
-                src="/assets/header.jpg"
+                src="/assets/important/header.jpg"
                 alt="Students learning"
                 fill
                 className="object-cover"

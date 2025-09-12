@@ -91,7 +91,7 @@ export const NavBody = ({ children, className, visible }: NavBodyProps) => {
         backdropFilter: visible ? "blur(10px)" : "none",
         boxShadow: "3px 3px #2b7fff",
         width: visible ? "75%" : "100%",
-        y: visible ? 20 : 0,
+        y: visible ? 10 : 0,
       }}
       transition={{
         type: "spring",
@@ -102,7 +102,7 @@ export const NavBody = ({ children, className, visible }: NavBodyProps) => {
         minWidth: "800px",
       }}
       className={cn(
-        "relative z-[60] mx-auto hidden max-w-[calc(100vw-5rem)] flex-row items-center justify-between self-start rounded-md border-2 border-blue-500 bg-transparent px-4 py-5 lg:flex",
+        "relative z-[60] mx-auto hidden max-w-[calc(100vw-5rem)] flex-row items-center justify-between self-start rounded-md border-2 border-blue-500 bg-transparent px-4 py-5 lg:flex mb-8",
         visible && "bg-white/80",
         className
       )}
