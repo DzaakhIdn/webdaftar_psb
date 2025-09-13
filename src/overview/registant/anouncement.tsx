@@ -34,11 +34,11 @@ export function RegistrationAnnouncement({
   const [registrationStatus, setRegistrationStatus] =
     useState<RegistrationStatus>({
       isOpen: true, // Default untuk demo, nanti bisa diambil dari API
-      startDate: "1 Januari 2024",
-      endDate: "31 Maret 2024",
-      title: "Pendaftaran Siswa Baru Tahun Ajaran 2024/2025",
+      startDate: "12 Spetember 2025",
+      endDate: "25 Desember 2025",
+      title: "Pendaftaran Siswa Baru Tahun Ajaran 2025/2026",
       description:
-        "Pendaftaran siswa baru untuk tahun ajaran 2024/2025 telah dibuka. Silakan lengkapi formulir pendaftaran dengan data yang valid dan upload dokumen yang diperlukan.",
+        "Pendaftaran siswa baru untuk tahun ajaran 2025/2026 telah dibuka. Silakan lengkapi formulir pendaftaran dengan data yang valid dan upload dokumen yang diperlukan.",
     });
 
   // Simulasi fetch status pendaftaran dari API

@@ -162,7 +162,7 @@ function RequiredFileCard({ file, onDelete, onUpdate }: RequiredFileCardProps) {
         }
       }
 
-      await deleteData("requiredfile", file.id_required, "id_required");
+      await deleteData("requiredfile", "id_required", file.id_required);
       showSuccess("Data berhasil dihapus!");
       confirmDialog.onFalse();
       onDelete();

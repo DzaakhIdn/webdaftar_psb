@@ -223,8 +223,6 @@ export function OverviewRegistantView() {
         >{`Selamat datang di dashboard pendaftaran siswa baru!`}</Typography>
       </Box>
       <Stack spacing={3}>
-        <RegistrationAnnouncement />
-
         <Box
           sx={{
             display: "flex",
@@ -233,7 +231,7 @@ export function OverviewRegistantView() {
           }}
         >
           <Box sx={{ flex: { lg: 2 } }}>
-            <FileUploadReminder />
+            <RegistrationAnnouncement />
           </Box>
           <Box sx={{ flex: { lg: 1 } }}>
             <PengumumanWidget
@@ -247,6 +245,7 @@ export function OverviewRegistantView() {
             />
           </Box>
         </Box>
+        <FileUploadReminder />
       </Stack>
     </DashboardContent>
   );

@@ -43,6 +43,7 @@ export default function Page() {
         sx={{
           left: { xs: 24, md: 32 },
           right: "auto",
+          color: "primary",
         }}
         scrollThreshold="80%"
         isDebounce={false}

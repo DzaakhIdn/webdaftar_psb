@@ -130,7 +130,7 @@ export function ListRequiredFilesTableRow({
   const handleDeleteData = async () => {
     try {
       console.log("Deleting requiredfile with ID:", row.id_required);
-      await deleteData("requiredfile", row.id_required, "id_required");
+      await deleteData("requiredfile", "id_required", row.id_required);
 
       showSuccess("Data berhasil dihapus!");
       confirmDialog.onFalse();
@@ -213,9 +213,7 @@ export function ListRequiredFilesTableRow({
                   control={
                     <Switch
                       checked={field.value === true}
-                      onChange={(e) =>
-                        field.onChange(e.target.checked)
-                      }
+                      onChange={(e) => field.onChange(e.target.checked)}
                     />
                   }
                   label="Wajib"

@@ -49,8 +49,10 @@ const WebSettingsSchema = zod.object({
   // Pengaturan Pendaftaran
   registrationStartDate: zod.string().nullable(),
   registrationEndDate: zod.string().nullable(),
-  maxStudents: zod.number().min(1, "Jumlah maksimal siswa minimal 1"),
-  registrationFee: zod.number().min(0, "Biaya pendaftaran tidak boleh negatif"),
+  description_registration: zod
+    .string()
+    .min(1, "Deskripsi pendaftaran wajib diisi"),
+  tahun_ajaran: zod.string().min(1, "Tahun ajaran wajib diisi"),
 
   // Pengaturan Sistem
   maintenanceMode: zod.boolean(),
@@ -107,8 +109,8 @@ const defaultValues = {
   favicon: null as string | File | null,
   registrationStartDate: null as string | null,
   registrationEndDate: null as string | null,
-  maxStudents: 500,
-  registrationFee: 250000,
+  description_registration: "Deskripsi pendaftaran",
+  tahun_ajaran: "2024/2025",
   maintenanceMode: false,
   allowRegistration: true,
   emailNotifications: true,
@@ -272,18 +274,21 @@ export function WebSettingsView() {
             flexDirection: { xs: "column", md: "row" },
           }}
         >
-          <Field.NumberInput
-            name="maxStudents"
-            captionText="Maksimal Siswa"
-            helperText="Jumlah maksimal siswa yang dapat mendaftar"
-          />
-          <Field.NumberInput
-            name="registrationFee"
-            captionText="Biaya Pendaftaran (Rp)"
-            helperText="Biaya pendaftaran dalam rupiah"
+          <Field.Text
+            name="description_registration"
+            label="Deskripsi Pendaftaran"
+            helperText="Deskripsi singkat tentang pendaftaran yang akan ditampilkan di website"
+            slotProps={{
+              textField: { multiline: true, rows: 4 },
+            }}
           />
         </Box>
         <Stack spacing={2}>
+          <Field.Text
+            name="tahun_ajaran"
+            label="Tahun Ajaran"
+            helperText="Tahun ajaran yang akan ditampilkan di website"
+          />
           <Field.Switch
             name="allowRegistration"
             label="Buka Pendaftaran"

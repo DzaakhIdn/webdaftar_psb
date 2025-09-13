@@ -59,12 +59,6 @@ export default function Navigation({
             <div className="flex w-full flex-col gap-4">
               <Button
                 size="md"
-                isGradient
-                text="Daftar Beasiswa"
-                onClick={() => setIsOpen(false)}
-              />
-              <Button
-                size="md"
                 isGradient={false}
                 text="Daftar Sekarang"
                 onClick={() => {

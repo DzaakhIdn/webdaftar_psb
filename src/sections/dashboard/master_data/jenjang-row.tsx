@@ -137,7 +137,7 @@ export function ListJenjangTableRow({
   const handleDeleteData = async () => {
     try {
       console.log("Deleting jenjang with ID:", row.id_jenjang);
-      await deleteData("jenjang", row.id_jenjang, "id_jenjang");
+      await deleteData("jenjang", "id_jenjang", row.id_jenjang);
 
       showSuccess("Data berhasil dihapus!");
       confirmDialog.onFalse();
