@@ -128,15 +128,6 @@ export function PengumumanWidget({
               <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
                 {pengumuman.judul}
               </Typography>
-              {/* {pengumuman.prioritas >= 3 && (
-                <Chip
-                  label={`P${pengumuman.prioritas}`}
-                  size="small"
-                  color={pengumuman.prioritas >= 4 ? 'error' : 'warning'}
-                  variant="filled"
-                  sx={{ height: 20, fontSize: '0.7rem' }}
-                />
-              )} */}
             </Box>
 
             <Typography

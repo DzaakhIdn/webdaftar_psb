@@ -247,6 +247,9 @@ export function FileUploadPage() {
           />
         );
       })}
+      <Typography variant="caption" color="text.secondary">
+        Allowed *.jpeg, *.jpg, *.png, *.pdf (max 5MB)
+      </Typography>
     </Box>
   );
 }
