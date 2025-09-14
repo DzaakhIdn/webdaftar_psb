@@ -36,9 +36,9 @@ export function RegistrationAnnouncement({
       isOpen: true, // Default untuk demo, nanti bisa diambil dari API
       startDate: "12 Spetember 2025",
       endDate: "25 Desember 2025",
-      title: "Pendaftaran Siswa Baru Tahun Ajaran 2025/2026",
+      title: "Pendaftaran Siswa Baru Tahun Ajaran 2026/2027",
       description:
-        "Pendaftaran siswa baru untuk tahun ajaran 2025/2026 telah dibuka. Silakan lengkapi formulir pendaftaran dengan data yang valid dan upload dokumen yang diperlukan.",
+        "Pendaftaran siswa baru untuk tahun ajaran 2026/2027 telah dibuka. Silakan lengkapi formulir pendaftaran dengan data yang valid dan upload dokumen yang diperlukan.",
     });
 
   // Simulasi fetch status pendaftaran dari API

@@ -1,44 +1,44 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { 
-  Card, 
-  CardHeader, 
-  CardContent, 
-  Typography, 
-  Box, 
+import { useState, useEffect } from "react";
+import {
+  Card,
+  CardHeader,
+  CardContent,
+  Typography,
+  Box,
   Stack,
   Chip,
   IconButton,
   Collapse,
   Alert,
   Skeleton,
-  Button
-} from '@mui/material';
-import { alpha, useTheme } from '@mui/material/styles';
+  Button,
+} from "@mui/material";
+import { alpha, useTheme } from "@mui/material/styles";
 
-import { Iconify } from '@/components/iconify';
-import { 
-  Pengumuman, 
-  getActivePengumuman, 
-  getPengumumanTypeConfig, 
-  formatTanggalPengumuman 
-} from '@/models/pengumuman-service';
+import { Iconify } from "@/components/iconify";
+import {
+  Pengumuman,
+  getActivePengumuman,
+  getPengumumanTypeConfig,
+  formatTanggalPengumuman,
+} from "@/models/pengumuman-service";
 
 // ----------------------------------------------------------------------
 
 interface PengumumanWidgetProps {
-  targetAudience?: 'semua' | 'calon_siswa' | 'admin' | 'panitia';
+  targetAudience?: "semua" | "calon_siswa" | "admin" | "panitia";
   maxItems?: number;
   showViewAll?: boolean;
   onViewAll?: () => void;
 }
 
-export function PengumumanWidget({ 
-  targetAudience = 'semua',
+export function PengumumanWidget({
+  targetAudience = "semua",
   maxItems = 3,
   showViewAll = true,
-  onViewAll
+  onViewAll,
 }: PengumumanWidgetProps) {
   const theme = useTheme();
   const [pengumumanList, setPengumumanList] = useState<Pengumuman[]>([]);
@@ -52,12 +52,12 @@ export function PengumumanWidget({
       try {
         setLoading(true);
         setError(null);
-        
+
         const data = await getActivePengumuman(targetAudience);
         setPengumumanList(data.slice(0, maxItems));
       } catch (err) {
-        console.error('Error loading pengumuman:', err);
-        setError('Gagal memuat pengumuman');
+        console.error("Error loading pengumuman:", err);
+        setError("Gagal memuat pengumuman");
       } finally {
         setLoading(false);
       }
@@ -79,7 +79,8 @@ export function PengumumanWidget({
   const renderPengumumanItem = (pengumuman: Pengumuman) => {
     const typeConfig = getPengumumanTypeConfig(pengumuman.tipe);
     const isExpanded = expandedItems.has(pengumuman.id_pengumuman);
-    const isExpired = pengumuman.tanggal_berakhir && 
+    const isExpired =
+      pengumuman.tanggal_berakhir &&
       new Date(pengumuman.tanggal_berakhir) < new Date();
 
     return (
@@ -92,42 +93,42 @@ export function PengumumanWidget({
           borderRadius: 1,
           mb: 2,
           opacity: isExpired ? 0.7 : 1,
-          transition: 'all 0.2s ease-in-out',
-          '&:hover': {
+          transition: "all 0.2s ease-in-out",
+          "&:hover": {
             boxShadow: theme.shadows[4],
-          }
+          },
         }}
       >
-        <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 2 }}>
+        <Box sx={{ display: "flex", alignItems: "flex-start", gap: 2 }}>
           <Box
             sx={{
               width: 32,
               height: 32,
-              borderRadius: '50%',
+              borderRadius: "50%",
               backgroundColor: typeConfig.bgColor,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
               flexShrink: 0,
-              mt: 0.5
+              mt: 0.5,
             }}
           >
-            <Iconify 
-              icon={typeConfig.icon} 
-              sx={{ 
+            <Iconify
+              icon={typeConfig.icon}
+              sx={{
                 color: typeConfig.textColor,
                 width: 16,
-                height: 16 
-              }} 
+                height: 16,
+              }}
             />
           </Box>
 
           <Box sx={{ flex: 1, minWidth: 0 }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}>
               <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
                 {pengumuman.judul}
               </Typography>
-              {pengumuman.prioritas >= 3 && (
+              {/* {pengumuman.prioritas >= 3 && (
                 <Chip
                   label={`P${pengumuman.prioritas}`}
                   size="small"
@@ -135,32 +136,38 @@ export function PengumumanWidget({
                   variant="filled"
                   sx={{ height: 20, fontSize: '0.7rem' }}
                 />
-              )}
+              )} */}
             </Box>
 
-            <Typography 
-              variant="body2" 
+            <Typography
+              variant="body2"
               color="text.secondary"
-              sx={{ 
+              sx={{
                 mb: 1,
-                display: '-webkit-box',
-                WebkitLineClamp: isExpanded ? 'none' : 2,
-                WebkitBoxOrient: 'vertical',
-                overflow: 'hidden',
-                whiteSpace: isExpanded ? 'pre-line' : 'normal'
+                display: "-webkit-box",
+                WebkitLineClamp: isExpanded ? "none" : 2,
+                WebkitBoxOrient: "vertical",
+                overflow: "hidden",
+                whiteSpace: isExpanded ? "pre-line" : "normal",
               }}
             >
               {pengumuman.konten}
             </Typography>
 
-            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+              }}
+            >
+              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                 <Chip
                   label={pengumuman.tipe}
                   size="small"
                   color={typeConfig.color}
                   variant="outlined"
-                  sx={{ height: 20, fontSize: '0.7rem' }}
+                  sx={{ height: 20, fontSize: "0.7rem" }}
                 />
                 <Typography variant="caption" color="text.disabled">
                   {formatTanggalPengumuman(pengumuman.created_at)}
@@ -172,8 +179,8 @@ export function PengumumanWidget({
                   size="small"
                   onClick={() => handleToggleExpand(pengumuman.id_pengumuman)}
                   sx={{
-                    transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)',
-                    transition: theme.transitions.create('transform', {
+                    transform: isExpanded ? "rotate(180deg)" : "rotate(0deg)",
+                    transition: theme.transitions.create("transform", {
                       duration: theme.transitions.duration.shortest,
                     }),
                   }}
@@ -215,19 +222,19 @@ export function PengumumanWidget({
       return (
         <Box
           sx={{
-            textAlign: 'center',
+            textAlign: "center",
             py: 4,
             px: 2,
           }}
         >
-          <Iconify 
-            icon="eva:file-text-outline" 
-            sx={{ 
-              width: 48, 
-              height: 48, 
-              color: 'text.disabled',
-              mb: 1 
-            }} 
+          <Iconify
+            icon="eva:file-text-outline"
+            sx={{
+              width: 48,
+              height: 48,
+              color: "text.disabled",
+              mb: 1,
+            }}
           />
           <Typography variant="body2" color="text.secondary">
             Tidak ada pengumuman
@@ -236,11 +243,7 @@ export function PengumumanWidget({
       );
     }
 
-    return (
-      <Box sx={{ p: 2 }}>
-        {pengumumanList.map(renderPengumumanItem)}
-      </Box>
-    );
+    return <Box sx={{ p: 2 }}>{pengumumanList.map(renderPengumumanItem)}</Box>;
   };
 
   return (
@@ -249,7 +252,9 @@ export function PengumumanWidget({
         title="Pengumuman"
         subheader={`${pengumumanList.length} pengumuman aktif`}
         action={
-          showViewAll && onViewAll && pengumumanList.length > 0 && (
+          showViewAll &&
+          onViewAll &&
+          pengumumanList.length > 0 && (
             <Button
               size="small"
               color="inherit"
@@ -261,15 +266,13 @@ export function PengumumanWidget({
           )
         }
         sx={{
-          '& .MuiCardHeader-action': {
-            alignSelf: 'center',
+          "& .MuiCardHeader-action": {
+            alignSelf: "center",
           },
         }}
       />
 
-      <CardContent sx={{ p: 0 }}>
-        {renderContent()}
-      </CardContent>
+      <CardContent sx={{ p: 0 }}>{renderContent()}</CardContent>
     </Card>
   );
 }
