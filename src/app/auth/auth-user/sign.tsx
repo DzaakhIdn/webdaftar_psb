@@ -521,7 +521,7 @@ const SignUpPage = () => {
                       <FormControl>
                         <Input
                           type="text"
-                          placeholder="Masukkan nama lengkap"
+                          placeholder="Masukkan nama lengkap calon santri"
                           className="h-12 border-gray-200 focus:border-blue-400 focus:ring-blue-400/20 rounded-xl"
                           {...field}
                         />
@@ -542,7 +542,7 @@ const SignUpPage = () => {
                       <FormControl>
                         <Input
                           type="tel"
-                          placeholder="08xxxxxxxxxx"
+                          placeholder="Contoh: 081234567890"
                           className="h-12 border-gray-200 focus:border-blue-400 focus:ring-blue-400/20 rounded-xl"
                           {...field}
                         />
