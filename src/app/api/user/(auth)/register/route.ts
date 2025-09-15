@@ -26,15 +26,34 @@ export async function POST(req: Request) {
       email: body.email,
       nama_lengkap: body.nama_lengkap,
       no_hp: body.no_hp,
+      jenis_kelamin: body.jenis_kelamin,
+      jalur_final_id: body.jalur_final_id,
       hasPassword: !!body.password,
     });
 
-    const { email, password, nama_lengkap, no_hp } = body;
+    const {
+      email,
+      password,
+      nama_lengkap,
+      no_hp,
+      jenis_kelamin,
+      jalur_final_id,
+    } = body;
 
-    if (!email || !password || !nama_lengkap || !no_hp) {
+    if (
+      !email ||
+      !password ||
+      !nama_lengkap ||
+      !no_hp ||
+      !jenis_kelamin ||
+      !jalur_final_id
+    ) {
       console.log("API Register: Missing required fields");
       return NextResponse.json(
-        { error: "Semua field wajib diisi" },
+        {
+          error:
+            "Semua field wajib diisi termasuk jenis kelamin dan jalur pendaftaran",
+        },
         { status: 400 }
       );
     }
@@ -92,6 +111,8 @@ export async function POST(req: Request) {
           email,
           nama_lengkap,
           no_hp,
+          jenis_kelamin,
+          jalur_final_id,
           status_pendaftaran: "pending",
         },
       ])
@@ -114,6 +135,8 @@ export async function POST(req: Request) {
         email: data.email,
         nama_lengkap: data.nama_lengkap,
         no_hp: data.no_hp,
+        jenis_kelamin: data.jenis_kelamin,
+        jalur_final_id: data.jalur_final_id,
         status_pendaftaran: data.status_pendaftaran,
       },
     });

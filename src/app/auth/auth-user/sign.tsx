@@ -13,6 +13,13 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   GraduationCap,
   Star,
   Shield,
@@ -60,6 +67,15 @@ const formSchema = z
       .string()
       .min(10, "Nomor HP minimal 10 digit")
       .regex(/^[0-9+\-\s()]+$/, "Format nomor HP tidak valid"),
+    jenis_kelamin: z.enum(["laki-laki", "perempuan"], {
+      message: "Pilih jenis kelamin",
+    }),
+    jalur_final_id: z
+      .string()
+      .min(1, "Pilih jalur pendaftaran")
+      .refine((val) => val !== "no-options", {
+        message: "Pilih jalur pendaftaran yang valid",
+      }),
     confirmPassword: z
       .string()
       .min(8, "Konfirmasi password minimal 8 karakter"),
@@ -300,13 +316,38 @@ const SignUpPage = () => {
   const { showSuccess, showError, showInfo } = useToast();
   const buttonRef = useRef<HTMLButtonElement>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [jalurFinalData, setJalurFinalData] = useState<
+    {
+      id_jalur_final: number;
+      nama_jalur_final: string;
+      jenis_kelamin: string;
+    }[]
+  >([]);
   const router = useRouter();
+
+  // Fetch jalur final data
+  useEffect(() => {
+    async function fetchJalurFinal() {
+      try {
+        const response = await fetch("/api/dashboard/jalur-final");
+        if (response.ok) {
+          const data = await response.json();
+          setJalurFinalData(data);
+        }
+      } catch (error) {
+        console.error("Error fetching jalur final:", error);
+      }
+    }
+    fetchJalurFinal();
+  }, []);
 
   const form = useForm<z.infer<typeof formSchema>>({
     defaultValues: {
       email: "",
       nama_lengkap: "",
       no_hp: "",
+      jenis_kelamin: undefined,
+      jalur_final_id: "",
       password_hash: "",
       confirmPassword: "",
     },
@@ -327,6 +368,8 @@ const SignUpPage = () => {
         password: data.password_hash, // API expects 'password', form uses 'password_hash'
         nama_lengkap: data.nama_lengkap,
         no_hp: data.no_hp,
+        jenis_kelamin: data.jenis_kelamin,
+        jalur_final_id: parseInt(data.jalur_final_id),
       };
 
       console.log("Sending API data:", apiData);
@@ -550,6 +593,96 @@ const SignUpPage = () => {
                       <FormMessage />
                     </FormItem>
                   )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="jenis_kelamin"
+                  render={({ field }) => (
+                    <FormItem className="form-field">
+                      <FormLabel className="text-gray-700 font-medium">
+                        Jenis Kelamin
+                      </FormLabel>
+                      <Select
+                        onValueChange={(value) => {
+                          field.onChange(value);
+                          // Reset jalur when gender changes
+                          form.setValue("jalur_final_id", "");
+                        }}
+                        defaultValue={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger className="w-full h-12 border-gray-200 focus:border-blue-400 focus:ring-blue-400/20 rounded-xl">
+                            <SelectValue placeholder="Pilih jenis kelamin" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="laki-laki">
+                            Laki-laki (Ikhwan)
+                          </SelectItem>
+                          <SelectItem value="perempuan">
+                            Perempuan (Akhwat)
+                          </SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="jalur_final_id"
+                  render={({ field }) => {
+                    const selectedGender = form.watch("jenis_kelamin");
+                    const filteredJalur = jalurFinalData.filter(
+                      (jalur) => jalur.jenis_kelamin === selectedGender
+                    );
+
+                    return (
+                      <FormItem className="form-field">
+                        <FormLabel className="text-gray-700 font-medium">
+                          Jalur Pendaftaran
+                        </FormLabel>
+                        <Select
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}
+                          disabled={!selectedGender}
+                        >
+                          <FormControl>
+                            <SelectTrigger className="w-full h-12 border-gray-200 focus:border-blue-400 focus:ring-blue-400/20 rounded-xl">
+                              <SelectValue
+                                placeholder={
+                                  !selectedGender
+                                    ? "Pilih jenis kelamin terlebih dahulu"
+                                    : "Pilih jalur pendaftaran"
+                                }
+                              />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {filteredJalur.length > 0 ? (
+                              filteredJalur.map((jalur) => (
+                                <SelectItem
+                                  key={jalur.id_jalur_final}
+                                  value={jalur.id_jalur_final.toString()}
+                                >
+                                  {jalur.nama_jalur_final}
+                                </SelectItem>
+                              ))
+                            ) : (
+                              <SelectItem value="no-options" disabled>
+                                {!selectedGender
+                                  ? "Pilih jenis kelamin dulu"
+                                  : "Loading jalur..."}
+                              </SelectItem>
+                            )}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    );
+                  }}
                 />
 
                 <FormField
