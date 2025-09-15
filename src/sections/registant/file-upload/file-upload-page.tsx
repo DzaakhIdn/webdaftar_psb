@@ -246,10 +246,10 @@ export function FileUploadPage() {
             onDelete={handleFileDelete(file.id_required)}
           />
         );
+        <Typography variant="caption" color="text.secondary">
+          Allowed *.jpeg, *.jpg, *.png, *.pdf (max 5MB)
+        </Typography>;
       })}
-      <Typography variant="caption" color="text.secondary">
-        Allowed *.jpeg, *.jpg, *.png, *.pdf (max 5MB)
-      </Typography>
     </Box>
   );
 }

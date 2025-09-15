@@ -1,5 +1,6 @@
 import { useCallback } from "react";
 import { usePopover } from "minimal-shared/hooks";
+import { SelectChangeEvent } from "@mui/material/Select";
 
 import Box from "@mui/material/Box";
 import Select from "@mui/material/Select";
@@ -19,9 +20,27 @@ import { CustomPopover } from "@/components/custom-popover";
 
 // ----------------------------------------------------------------------
 
+interface InvoiceFiltersState {
+  name: string;
+  jalur: number[];
+  status: string;
+}
+
+interface InvoiceFilters {
+  state: InvoiceFiltersState;
+  setState: (newState: Partial<InvoiceFiltersState>) => void;
+  resetState: () => void;
+}
+
 interface InvoiceTableToolbarProps {
-  filters: any;
-  options: any;
+  filters: InvoiceFilters;
+  options: {
+    jalur: {
+      id_jalur_final: number;
+      nama_jalur_final: string;
+      jenis_kelamin: string;
+    }[];
+  };
   onResetPage: () => void;
 }
 
@@ -34,39 +53,27 @@ export function InvoiceTableToolbar({
 
   const { state: currentFilters, setState: updateFilters } = filters;
 
+  // // Debug logging
+  // console.log("InvoiceTableToolbar - options.jalur:", options.jalur);
+  // console.log("InvoiceTableToolbar - jalur length:", options.jalur?.length);
+
   const handleFilterName = useCallback(
-    (event: any) => {
+    (event: React.ChangeEvent<HTMLInputElement>) => {
       onResetPage();
       updateFilters({ name: event.target.value });
     },
     [onResetPage, updateFilters]
   );
 
-  const handleFilterService = useCallback(
-    (event: any) => {
+  const handleFilterJalur = useCallback(
+    (event: SelectChangeEvent<number[]>) => {
       const newValue =
         typeof event.target.value === "string"
-          ? event.target.value.split(",")
+          ? event.target.value.split(",").map(Number)
           : event.target.value;
 
       onResetPage();
-      updateFilters({ service: newValue });
-    },
-    [onResetPage, updateFilters]
-  );
-
-  const handleFilterStartDate = useCallback(
-    (newValue: any) => {
-      onResetPage();
-      updateFilters({ startDate: newValue });
-    },
-    [onResetPage, updateFilters]
-  );
-
-  const handleFilterEndDate = useCallback(
-    (newValue: any) => {
-      onResetPage();
-      updateFilters({ endDate: newValue });
+      updateFilters({ jalur: newValue });
     },
     [onResetPage, updateFilters]
   );
@@ -83,12 +90,6 @@ export function InvoiceTableToolbar({
           <Iconify icon="solar:printer-minimalistic-bold" />
           Print
         </MenuItem>
-
-        <MenuItem onClick={() => menuActions.onClose()}>
-          <Iconify icon="solar:import-bold" />
-          Import
-        </MenuItem>
-
         <MenuItem onClick={() => menuActions.onClose()}>
           <Iconify icon="solar:export-bold" />
           Export
@@ -109,67 +110,49 @@ export function InvoiceTableToolbar({
           alignItems: { xs: "flex-end", md: "center" },
         }}
       >
-        <FormControl sx={{ flexShrink: 0, width: { xs: 1, md: 180 } }}>
-          <InputLabel htmlFor="filter-service-select">Pembayaran</InputLabel>
+        <FormControl sx={{ flexShrink: 0, width: { xs: 1, md: 200 } }}>
+          <InputLabel htmlFor="filter-jalur-select">Pilih Jalur</InputLabel>
           <Select
             multiple
-            value={currentFilters.service}
-            onChange={handleFilterService}
-            input={<OutlinedInput label="Pembayaran" />}
+            value={currentFilters.jalur}
+            onChange={handleFilterJalur}
+            input={<OutlinedInput label="Jalur Akhir" />}
             renderValue={(selected) =>
-              selected.map((value: any) => value).join(", ")
+              selected
+                .map((value) => {
+                  const jalur = options.jalur.find(
+                    (j) => j.id_jalur_final === value
+                  );
+                  return jalur ? jalur.nama_jalur_final : value;
+                })
+                .join(", ")
             }
-            inputProps={{ id: "filter-service-select" }}
-            sx={{ textTransform: "capitalize" }}
+            inputProps={{ id: "filter-jalur-select" }}
+            MenuProps={{ PaperProps: { sx: { maxHeight: 240 } } }}
           >
-            {options.services.map((option: any) => (
-              <MenuItem key={option} value={option}>
-                <Checkbox
-                  disableRipple
-                  size="small"
-                  checked={currentFilters.service.includes(option)}
-                  slotProps={{
-                    input: {
-                      id: `${option}-checkbox`,
-                      "aria-label": `${option} checkbox`,
-                    },
-                  }}
-                />
-                {option}
+            {options.jalur && options.jalur.length > 0 ? (
+              options.jalur.map((option) => (
+                <MenuItem
+                  key={option.id_jalur_final}
+                  value={option.id_jalur_final}
+                >
+                  <Checkbox
+                    disableRipple
+                    size="small"
+                    checked={currentFilters.jalur.includes(
+                      option.id_jalur_final
+                    )}
+                  />
+                  {option.nama_jalur_final}
+                </MenuItem>
+              ))
+            ) : (
+              <MenuItem disabled>
+                <em>Loading jalur final...</em>
               </MenuItem>
-            ))}
+            )}
           </Select>
         </FormControl>
-
-        {/* <DatePicker
-          label="Start date"
-          value={currentFilters.startDate}
-          onChange={handleFilterStartDate}
-          slotProps={{ textField: { fullWidth: true } }}
-          sx={{ maxWidth: { md: 180 } }}
-        />
-
-        <DatePicker
-          label="End date"
-          value={currentFilters.endDate}
-          onChange={handleFilterEndDate}
-          slotProps={{
-            textField: {
-              fullWidth: true,
-              error: dateError,
-              helperText: dateError
-                ? "End date must be later than start date"
-                : null,
-            },
-          }}
-          sx={{
-            maxWidth: { md: 180 },
-            [`& .${formHelperTextClasses.root}`]: {
-              bottom: { md: -40 },
-              position: { md: "absolute" },
-            },
-          }}
-        /> */}
 
         <Box
           sx={{

@@ -21,10 +21,7 @@ import IconButton from "@mui/material/IconButton";
 import { paths } from "@/routes/paths";
 import { RouterLink } from "@/routes/components";
 
-import { fIsAfter, fIsBetween } from "@/utils/format-time";
-
 import { DashboardContent } from "@/layout/dashboard";
-import { _invoices, INVOICE_SERVICE_OPTIONS } from "@/_mock";
 
 import { Label } from "@/components/label";
 import { toast } from "@/components/snackbar";
@@ -96,9 +93,39 @@ export function InvoiceListView() {
   const confirmDialog = useBoolean();
   const [tableData, setTableData] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
+  const [jalurFinalData, setJalurFinalData] = useState<
+    {
+      id_jalur_final: number;
+      nama_jalur_final: string;
+      jenis_kelamin: string;
+    }[]
+  >([]);
 
   // Get current admin user
   const { user: currentAdmin } = useCurrentUser("/api/dashboard/user/me");
+
+  // Fetch jalur final data
+  useEffect(() => {
+    async function fetchJalurFinal() {
+      try {
+        const response = await fetch("/api/dashboard/jalur-final");
+        if (response.ok) {
+          const data = await response.json();
+          console.log("Jalur final data loaded:", data);
+          setJalurFinalData(data);
+        } else {
+          console.error(
+            "Failed to fetch jalur final:",
+            response.status,
+            response.statusText
+          );
+        }
+      } catch (error) {
+        console.error("Error fetching jalur final:", error);
+      }
+    }
+    fetchJalurFinal();
+  }, []);
 
   useEffect(() => {
     async function fetchData() {
@@ -201,32 +228,23 @@ export function InvoiceListView() {
 
   const filters = useSetState({
     name: "",
-    service: [],
+    jalur: [] as number[],
     status: "all",
-    startDate: null,
-    endDate: null,
   });
   const { state: currentFilters, setState: updateFilters } = filters;
-
-  const dateError = fIsAfter({
-    startDate: currentFilters.startDate,
-    endDate: currentFilters.endDate,
-  });
 
   const dataFiltered = applyFilter({
     inputData: tableData,
     comparator: getComparator(table.order, table.orderBy),
     filters: currentFilters,
-    dateError,
   });
 
   const dataInPage = rowInPage(dataFiltered, table.page, table.rowsPerPage);
 
   const canReset =
     !!currentFilters.name ||
-    currentFilters.service.length > 0 ||
-    currentFilters.status !== "all" ||
-    (!!currentFilters.startDate && !!currentFilters.endDate);
+    currentFilters.jalur.length > 0 ||
+    currentFilters.status !== "all";
 
   const notFound = (!dataFiltered.length && canReset) || !dataFiltered.length;
 
@@ -529,13 +547,14 @@ export function InvoiceListView() {
             filters={filters}
             onResetPage={table.onResetPage}
             options={{
-              services: INVOICE_SERVICE_OPTIONS.map((option) => option.name),
+              jalur: jalurFinalData,
             }}
           />
           {canReset && (
             <InvoiceTableFiltersResult
               filters={filters}
               totalResults={dataFiltered.length}
+              jalurOptions={jalurFinalData}
               onResetPage={table.onResetPage}
               sx={{ p: 2.5, pt: 0 }}
             />
@@ -645,13 +664,11 @@ function applyFilter({
   filters: {
     name: string;
     status: string;
-    service: string[];
-    startDate: Date | null;
-    endDate: Date | null;
+    jalur: number[];
   };
-  dateError: boolean;
+  dateError?: boolean;
 }): Invoice[] {
-  const { name, status, service, startDate, endDate } = filters;
+  const { name, status, jalur } = filters;
 
   const stabilizedThis = inputData.map(
     (el, index) => [el, index] as [Invoice, number]
@@ -677,18 +694,14 @@ function applyFilter({
     );
   }
 
-  if (service.length) {
-    inputData = inputData.filter(
-      (invoice) => invoice.jenis_bayar && service.includes(invoice.jenis_bayar)
-    );
-  }
-
-  if (!dateError) {
-    if (startDate && endDate) {
-      inputData = inputData.filter((invoice) =>
-        fIsBetween({ inputDate: invoice.tanggal_bayar, startDate, endDate })
-      );
-    }
+  if (jalur.length > 0) {
+    inputData = inputData.filter((invoice) => {
+      if (!invoice.jalur_final_id) {
+        return false;
+      }
+      // Check if invoice's jalur final ID matches the selected jalur final filter
+      return jalur.includes(Number(invoice.jalur_final_id));
+    });
   }
 
   return inputData;

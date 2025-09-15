@@ -1,78 +1,111 @@
-import { useCallback } from 'react';
+import { useCallback } from "react";
 
-import Chip from '@mui/material/Chip';
+import Chip from "@mui/material/Chip";
+import { SxProps, Theme } from "@mui/material/styles";
 
-import { fDateRangeShortLabel } from '@/utils/format-time';
-
-import { chipProps, FiltersBlock, FiltersResult } from '@/components/filters-result';
+import {
+  chipProps,
+  FiltersBlock,
+  FiltersResult,
+} from "@/components/filters-result";
 
 // ----------------------------------------------------------------------
 
-interface InvoiceTableFiltersResultProps {
-  filters: any;
-  totalResults: number;
-  onResetPage: () => void;
-  sx: any;
+interface InvoiceFiltersState {
+  name: string;
+  jalur: number[];
+  status: string;
 }
 
-export function InvoiceTableFiltersResult({ filters, totalResults, onResetPage, sx }: InvoiceTableFiltersResultProps) {
-  const { state: currentFilters, setState: updateFilters, resetState: resetFilters } = filters;
+interface InvoiceFilters {
+  state: InvoiceFiltersState;
+  setState: (newState: Partial<InvoiceFiltersState>) => void;
+  resetState: () => void;
+}
+
+interface InvoiceTableFiltersResultProps {
+  filters: InvoiceFilters;
+  totalResults: number;
+  onResetPage: () => void;
+  jalurOptions?: {
+    id_jalur_final: number;
+    nama_jalur_final: string;
+    jenis_kelamin: string;
+  }[];
+  sx?: SxProps<Theme>;
+}
+
+export function InvoiceTableFiltersResult({
+  filters,
+  totalResults,
+  onResetPage,
+  jalurOptions = [],
+  sx,
+}: InvoiceTableFiltersResultProps) {
+  const {
+    state: currentFilters,
+    setState: updateFilters,
+    resetState: resetFilters,
+  } = filters;
 
   const handleRemoveKeyword = useCallback(() => {
     onResetPage();
-    updateFilters({ name: '' });
+    updateFilters({ name: "" });
   }, [onResetPage, updateFilters]);
 
-  const handleRemoveService = useCallback(
-    (inputValue: any) => {
-      const newValue = currentFilters.service.filter((item: any) => item !== inputValue);
+  const handleRemoveJalur = useCallback(
+    (inputValue: number) => {
+      const newValue = currentFilters.jalur.filter(
+        (item) => item !== inputValue
+      );
 
       onResetPage();
-      updateFilters({ service: newValue });
+      updateFilters({ jalur: newValue });
     },
-    [onResetPage, updateFilters, currentFilters.service]
+    [onResetPage, updateFilters, currentFilters.jalur]
   );
 
   const handleRemoveStatus = useCallback(() => {
     onResetPage();
-    updateFilters({ status: 'all' });
-  }, [onResetPage, updateFilters]);
-
-  const handleRemoveDate = useCallback(() => {
-    onResetPage();
-    updateFilters({ startDate: null, endDate: null });
+    updateFilters({ status: "all" });
   }, [onResetPage, updateFilters]);
 
   return (
-    <FiltersResult totalResults={totalResults} onReset={() => resetFilters()} sx={sx}>
-      <FiltersBlock label="Service:" isShow={!!currentFilters.service.length}>
-        {currentFilters.service.map((item: any) => (
-          <Chip {...chipProps} key={item} label={item} onDelete={() => handleRemoveService(item)} />
-        ))}
+    <FiltersResult
+      totalResults={totalResults}
+      onReset={() => resetFilters()}
+      sx={sx}
+    >
+      <FiltersBlock label="Jalur Akhir:" isShow={!!currentFilters.jalur.length}>
+        {currentFilters.jalur.map((item) => {
+          const jalur = jalurOptions.find((j) => j.id_jalur_final === item);
+          const displayName = jalur ? jalur.nama_jalur_final : item;
+          return (
+            <Chip
+              {...chipProps}
+              key={item}
+              label={displayName}
+              onDelete={() => handleRemoveJalur(item)}
+            />
+          );
+        })}
       </FiltersBlock>
 
-      <FiltersBlock label="Status:" isShow={currentFilters.status !== 'all'}>
+      <FiltersBlock label="Status:" isShow={currentFilters.status !== "all"}>
         <Chip
           {...chipProps}
           label={currentFilters.status}
           onDelete={handleRemoveStatus}
-          sx={{ textTransform: 'capitalize' }}
-        />
-      </FiltersBlock>
-
-      <FiltersBlock
-        label="Date:"
-        isShow={Boolean(currentFilters.startDate && currentFilters.endDate)}
-      >
-        <Chip
-          {...chipProps}
-          label={fDateRangeShortLabel(currentFilters.startDate, currentFilters.endDate)}
-          onDelete={handleRemoveDate}
+          sx={{ textTransform: "capitalize" }}
         />
       </FiltersBlock>
 
       <FiltersBlock label="Keyword:" isShow={!!currentFilters.name}>
-        <Chip {...chipProps} label={currentFilters.name} onDelete={handleRemoveKeyword} />
+        <Chip
+          {...chipProps}
+          label={currentFilters.name}
+          onDelete={handleRemoveKeyword}
+        />
       </FiltersBlock>
     </FiltersResult>
   );

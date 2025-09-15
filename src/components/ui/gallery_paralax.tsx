@@ -114,10 +114,10 @@ export const Header = () => {
   return (
     <div className="max-w-7xl relative mx-auto py-20 md:py-40 px-4 w-full  left-0 top-0">
       <h1 className={`text-4xl md:text-7xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-500 to-blue-600  ${spaceGrotesk.className}`}>
-        Galeri Karya Santri <br /> HSI Boarding School
+        Galeri Kegiatan HSI Boarding School
       </h1>
       <p className="max-w-2xl text-xl md:text-xl mt-8 dark:text-neutral-200">
-        Hasil karya santri selama belajar di HSI Boarding School, project akhir membuaat website portofolio
+        Hasil kegiatan santri selama belajar di HSI Boarding School
       </p>
     </div>
   );

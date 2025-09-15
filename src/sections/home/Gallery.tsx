@@ -7,96 +7,96 @@ export default function HeroParallaxDemo({ id }: { id: string }) {
 }
 export const products = [
   {
-    title: "Moonbeam",
+    title: "IT Learning",
     link: "#",
     thumbnail:
-      "/assets/karya/img-1.png",
+      "/assets/gallery/ikh-1.jpg",
   },
   {
-    title: "Cursor",
+    title: "Apel Pagi",
     link: "#",
     thumbnail:
-      "/assets/karya/img-2.png",
+      "/assets/gallery/ikh-2.jpg",
   },
   {
-    title: "Rogue",
+    title: "Kunjungan Panti Asuhan",
     link: "#",
     thumbnail:
-      "/assets/karya/img-3.png",
-  },
-
-  {
-    title: "Editorially",
-    link: "#",
-    thumbnail:
-      "/assets/karya/img-4.png",
-  },
-  {
-    title: "Editrix AI",
-    link: "#",
-    thumbnail:
-      "/assets/karya/img-5.png",
-  },
-  {
-    title: "Pixel Perfect",
-    link: "#",
-    thumbnail:
-      "/assets/karya/img-6.png",
+      "/assets/gallery/ikh-3.jpg",
   },
 
   {
-    title: "Algochurn",
+    title: "Panti Asuhan",
     link: "#",
     thumbnail:
-      "/assets/karya/img-7.png",
+      "/assets/gallery/ikh-4.jpg",
   },
   {
-    title: "Aceternity UI",
+    title: "Morning Spirit",
     link: "#",
     thumbnail:
-      "/assets/karya/img-8.png",
+      "/assets/gallery/ikh-5.jpg",
   },
   {
-    title: "Tailwind Master Kit",
+    title: "Nusantara Spirit Day",
     link: "#",
     thumbnail:
-      "/assets/karya/img-9.png",
-  },
-  {
-    title: "SmartBridge",
-    link: "#",
-    thumbnail:
-      "/assets/karya/img-10.png",
-  },
-  {
-    title: "Renderwork Studio",
-    link: "#",
-    thumbnail:
-      "/assets/karya/img-11.png",
+      "/assets/gallery/ikh-6.jpg",
   },
 
   {
-    title: "Creme Digital",
+    title: "Eskul Futsal",
     link: "#",
     thumbnail:
-      "/assets/karya/img-12.png",
+      "/assets/gallery/ikh-7.jpg",
   },
   {
-    title: "Golden Bells Academy",
+    title: "Kunjungan",
     link: "#",
     thumbnail:
-      "/assets/karya/img-13.png",
+      "/assets/gallery/ikh-8.jpg",
   },
   {
-    title: "Invoker Labs",
+    title: "Eskul Panahan",
     link: "#",
     thumbnail:
-      "/assets/karya/img-14.png",
+      "/assets/gallery/akh-1.jpg",
   },
   {
-    title: "E Free Invoice",
+    title: "Pelajaran Kelas",
     link: "#",
     thumbnail:
-      "/assets/karya/img-15.png",
+      "/assets/gallery/akh-2.jpg",
+  },
+  {
+    title: "KBM Kelas",
+    link: "#",
+    thumbnail:
+      "/assets/gallery/akh-3.jpg",
+  },
+
+  {
+    title: "Pelajaran",
+    link: "#",
+    thumbnail:
+      "/assets/gallery/akh-4.jpg",
+  },
+  {
+    title: "Rihlah",
+    link: "#",
+    thumbnail:
+      "/assets/gallery/akh-5.jpg",
+  },
+  {
+    title: "Halaqoh",
+    link: "#",
+    thumbnail:
+      "/assets/gallery/akh-6.jpg",
+  },
+  {
+    title: "Kegiatan Luar Asrama",
+    link: "#",
+    thumbnail:
+      "/assets/gallery/akh-7.jpg",
   },
 ];

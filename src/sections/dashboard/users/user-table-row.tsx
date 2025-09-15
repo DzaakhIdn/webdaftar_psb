@@ -217,7 +217,7 @@ export function UserTableRow({
       </MenuList>
     </CustomPopover>
   );
-  
+
   const renderConfirmDialog = () => (
     <ConfirmDialog
       open={confirmDialog.value}
@@ -325,7 +325,21 @@ export function UserTableRow({
 
         <TableCell sx={{ whiteSpace: "nowrap" }}>{row.no_hp}</TableCell>
 
-        <TableCell sx={{ whiteSpace: "nowrap" }}>{row.sekolah_asal}</TableCell>
+        <TableCell sx={{ maxWidth: 200 }}>
+          <Tooltip title={row.sekolah_asal} placement="top" arrow>
+            <Box
+              component="span"
+              sx={{
+                display: "block",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                whiteSpace: "nowrap",
+              }}
+            >
+              {row.sekolah_asal}
+            </Box>
+          </Tooltip>
+        </TableCell>
 
         <TableCell sx={{ whiteSpace: "nowrap" }}>
           {row.jalurfinal?.nama_jalur_final || "-"}

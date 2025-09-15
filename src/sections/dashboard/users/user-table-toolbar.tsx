@@ -86,11 +86,6 @@ export function UserTableToolbar({
         </MenuItem>
 
         <MenuItem onClick={() => menuActions.onClose()}>
-          <Iconify icon="solar:import-bold" />
-          Import
-        </MenuItem>
-
-        <MenuItem onClick={() => menuActions.onClose()}>
           <Iconify icon="solar:export-bold" />
           Export
         </MenuItem>
