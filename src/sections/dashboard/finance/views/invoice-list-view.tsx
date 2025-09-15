@@ -65,6 +65,7 @@ interface Invoice {
   nama_siswa: string | null;
   register_id: string | null;
   no_hp: string | null;
+  jalur_final_id: string | null;
   pembayaran: {
     kode_bayar: string;
     tanggal_bayar: string;
@@ -78,6 +79,7 @@ interface Invoice {
 const TABLE_HEAD = [
   { id: "kode_bayar", label: "Kode Bayar" },
   { id: "nama_lengkap", label: "Nama Lengkap" },
+  { id: "jalur_akhir", label: "Jalur Akhir" },
   { id: "tanggal_bayar", label: "Tanggal Bayar" },
   { id: "total_bayar", label: "Total Bayar" },
   { id: "status", label: "Status", align: "center" },
@@ -129,58 +131,17 @@ export function InvoiceListView() {
 
   useEffect(() => {
     async function fetchData() {
-      console.log("Starting fetchData...");
       setLoading(true);
       try {
-        console.log("Calling getPembayaranGroupedByUser...");
         let data = await getPembayaranGroupedByUser();
         console.log("Received data from getPembayaranGroupedByUser:", data);
 
-        // If no data, create dummy data for testing
+        // If no data, set empty array
         if (!data || data.length === 0) {
-          console.log("No data found, creating dummy data for testing...");
-          data = [
-            {
-              nama_siswa: "John Doe",
-              register_id: "REG001",
-              no_hp: "081234567890",
-              pembayaran: [
-                {
-                  kode_bayar: "PAY001",
-                  tanggal_bayar: "2024-01-15",
-                  jenis_bayar: "Uang Pendaftaran",
-                  bukti_bayar_path: null,
-                  jumlah_bayar: 500000,
-                  status_verifikasi: "sukses",
-                },
-                {
-                  kode_bayar: "PAY002",
-                  tanggal_bayar: "2024-01-20",
-                  jenis_bayar: "SPP Bulan 1",
-                  bukti_bayar_path: null,
-                  jumlah_bayar: 300000,
-                  status_verifikasi: "pending",
-                },
-              ],
-            },
-            {
-              nama_siswa: "Jane Smith",
-              register_id: "REG002",
-              no_hp: "081234567891",
-              pembayaran: [
-                {
-                  kode_bayar: "PAY003",
-                  tanggal_bayar: "2024-01-18",
-                  jenis_bayar: "Uang Pendaftaran",
-                  bukti_bayar_path: null,
-                  jumlah_bayar: 500000,
-                  status_verifikasi: "ditolak",
-                },
-              ],
-            },
-          ];
-
-          console.log("Using dummy data:", data);
+          console.log("No data found from API");
+          setTableData([]);
+          setLoading(false);
+          return;
         }
 
         // Transform grouped data to individual invoice records for table display
@@ -207,6 +168,7 @@ export function InvoiceListView() {
             nama_siswa: userGroup.nama_siswa,
             register_id: userGroup.register_id,
             no_hp: userGroup.no_hp,
+            jalur_final_id: userGroup.jalur_final_id,
             pembayaran: userGroup.pembayaran, // Keep all payments for second row
           };
 
@@ -331,6 +293,7 @@ export function InvoiceListView() {
             nama_siswa: userGroup.nama_siswa,
             register_id: userGroup.register_id,
             no_hp: userGroup.no_hp,
+            jalur_final_id: userGroup.jalur_final_id,
             pembayaran: userGroup.pembayaran,
           };
         });
@@ -374,6 +337,7 @@ export function InvoiceListView() {
             nama_siswa: userGroup.nama_siswa,
             register_id: userGroup.register_id,
             no_hp: userGroup.no_hp,
+            jalur_final_id: userGroup.jalur_final_id,
             pembayaran: userGroup.pembayaran,
           };
         });
@@ -615,6 +579,7 @@ export function InvoiceListView() {
                         onDeleteRow={() => handleDeleteRow(row.id_biaya)}
                         onApprovePayment={handleApprovePayment}
                         onRejectPayment={handleRejectPayment}
+                        jalurFinalData={jalurFinalData}
                         detailsHref={paths.dashboard.finance.overview}
                       />
                     ))}
@@ -657,7 +622,6 @@ function applyFilter({
   inputData,
   comparator,
   filters,
-  dateError,
 }: {
   inputData: Invoice[];
   comparator: (a: Invoice, b: Invoice) => number;
@@ -666,7 +630,6 @@ function applyFilter({
     status: string;
     jalur: number[];
   };
-  dateError?: boolean;
 }): Invoice[] {
   const { name, status, jalur } = filters;
 

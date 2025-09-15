@@ -39,7 +39,7 @@ export async function getPembayaranGroupedByUser() {
         diverifikasi_oleh,
         jumlah_bayar,
         biaya (nama_biaya),
-        calonsiswa (id_siswa, nama_lengkap, register_id, no_hp),
+        calonsiswa (id_siswa, nama_lengkap, register_id, no_hp, jalur_final_id),
         users!diverifikasi_oleh (nama_lengkap, username)
       `
       )
@@ -60,6 +60,7 @@ export async function getPembayaranGroupedByUser() {
         nama_siswa: string | null;
         register_id: string | null;
         no_hp: string | null;
+        jalur_final_id: string | null;
         pembayaran: Record<
           string,
           {
@@ -69,6 +70,9 @@ export async function getPembayaranGroupedByUser() {
             bukti_bayar_path: string | null;
             jumlah_bayar: number;
             status_verifikasi: string;
+            diverifikasi_oleh: string | null;
+            diverifikasi_oleh_nama: string | null;
+            tanggal_verifikasi: string | null;
           }
         >;
       }
@@ -95,6 +99,7 @@ export async function getPembayaranGroupedByUser() {
           nama_siswa: calonsiswa?.nama_lengkap || null,
           register_id: calonsiswa?.register_id || null,
           no_hp: calonsiswa?.no_hp || null,
+          jalur_final_id: calonsiswa?.jalur_final_id || null,
           pembayaran: {},
         };
         console.log(`Created new group for userId ${userId}:`, grouped[userId]);

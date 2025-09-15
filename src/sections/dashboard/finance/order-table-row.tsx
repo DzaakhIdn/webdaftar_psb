@@ -48,6 +48,11 @@ interface OrderTableRowProps {
   onDeleteRow: () => void;
   onApprovePayment?: (kode_bayar: string) => void;
   onRejectPayment?: (kode_bayar: string) => void;
+  jalurFinalData?: {
+    id_jalur_final: number;
+    nama_jalur_final: string;
+    jenis_kelamin: string;
+  }[];
   detailsHref: string;
 }
 
@@ -58,6 +63,7 @@ export function OrderTableRow({
   onDeleteRow,
   onApprovePayment,
   onRejectPayment,
+  jalurFinalData = [],
   detailsHref,
 }: OrderTableRowProps) {
   const confirmDialog = useBoolean();
@@ -110,6 +116,33 @@ export function OrderTableRow({
             </Box>
           </Stack>
         </Box>
+      </TableCell>
+
+      <TableCell sx={{ maxWidth: 150 }}>
+        {row.jalur_final_id ? (
+          <Box
+            component="span"
+            sx={{
+              display: "block",
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              whiteSpace: "nowrap",
+              color: "text.secondary",
+              fontSize: "0.875rem",
+            }}
+          >
+            {(() => {
+              const jalur = jalurFinalData.find(
+                (j) => j.id_jalur_final === Number(row.jalur_final_id)
+              );
+              return jalur
+                ? jalur.nama_jalur_final
+                : `Jalur #${row.jalur_final_id}`;
+            })()}
+          </Box>
+        ) : (
+          <Box sx={{ color: "text.disabled", fontSize: "0.875rem" }}>-</Box>
+        )}
       </TableCell>
 
       <TableCell>{row.tanggal_bayar}</TableCell>
