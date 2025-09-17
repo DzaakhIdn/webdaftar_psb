@@ -1,7 +1,5 @@
-import { OverviewBookingView } from "@/overview/view";
+import { OverviewBookingView } from "@/overview/view/overview-booking-view";
 
-export default function Home() {
-  return (
-    <OverviewBookingView />
-  );
+export default function DashboardPage() {
+  return <OverviewBookingView />;
 }

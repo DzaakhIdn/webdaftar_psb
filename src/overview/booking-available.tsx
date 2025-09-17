@@ -32,11 +32,11 @@ export function BookingAvailable({
 
   const total = sumBy(chart.series, (series) => series.value);
 
+  const soldOutItem = chart.series.filter(
+    (i: { label: string }) => i.label === "Terisi"
+  )[0];
   const chartSeries =
-    (chart.series.filter((i: { label: string }) => i.label === "Sold out")[0]
-      .value /
-      total) *
-    100;
+    soldOutItem && total > 0 ? (soldOutItem.value / total) * 100 : 0;
 
   const chartColors = chart.colors ?? [
     theme.palette.primary.light,
@@ -65,7 +65,7 @@ export function BookingAvailable({
         dataLabels: {
           name: { offsetY: -12 },
           value: { offsetY: 6 },
-          total: { label: "Tours", formatter: () => fNumber(total) },
+          total: { label: "Kuota", formatter: () => fNumber(total) },
         },
       },
     },
@@ -107,13 +107,13 @@ export function BookingAvailable({
                 height: 16,
                 borderRadius: 0.75,
                 bgcolor: varAlpha(theme.vars.palette.grey["500Channel"], 0.16),
-                ...(item.label === "Sold out" && { bgcolor: chartColors[1] }),
+                ...(item.label === "Terisi" && { bgcolor: chartColors[1] }),
               }}
             />
             <Box sx={{ color: "text.secondary", flexGrow: 1 }}>
               {item.label}
             </Box>
-            {item.value} tours
+            {item.value} kuota
           </Box>
         ))}
       </Box>

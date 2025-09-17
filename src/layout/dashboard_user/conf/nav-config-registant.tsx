@@ -27,7 +27,7 @@ export const navData = [
         path: paths.registant.biodata.form,
         icon: ICONS.biodata,
       },
-      { title: "Files", path: paths.registant.biodata.file, icon: ICONS.files },
+      { title: "Upload File", path: paths.registant.biodata.file, icon: ICONS.files },
     ],
   },
   {

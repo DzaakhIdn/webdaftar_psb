@@ -55,6 +55,24 @@ export default function Administration({ id }: { id: string }) {
   const contentRef = useRef<HTMLDivElement>(null);
   const controlRef = useRef<HTMLDivElement>(null);
   const [activeTab, setActiveTab] = useState<tab>("persyaratan");
+  const [showBrosurModal, setShowBrosurModal] = useState(false);
+  const modalRef = useRef<HTMLDivElement>(null);
+
+  const handleDownloadBrosur = (type: "ikhwan" | "akhwat") => {
+    const fileName =
+      type === "ikhwan" ? "brosur_ikhwan.pdf" : "brosur_akhwat.pdf";
+    const filePath = `/assets/brosur/${fileName}`;
+
+    // Create a temporary link element to trigger download
+    const link = document.createElement("a");
+    link.href = filePath;
+    link.download = fileName;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    setShowBrosurModal(false);
+  };
 
   useEffect(() => {
     const ctx = gsap.context(() => {
@@ -146,6 +164,26 @@ export default function Administration({ id }: { id: string }) {
     return () => ctx.revert();
   }, [activeTab]);
 
+  // Modal animation
+  useEffect(() => {
+    if (showBrosurModal && modalRef.current) {
+      const ctx = gsap.context(() => {
+        gsap.fromTo(
+          modalRef.current,
+          { opacity: 0, scale: 0.8 },
+          {
+            opacity: 1,
+            scale: 1,
+            duration: 0.3,
+            ease: "back.out(1.7)",
+          }
+        );
+      }, modalRef);
+
+      return () => ctx.revert();
+    }
+  }, [showBrosurModal]);
+
   return (
     <>
       <section
@@ -165,7 +203,8 @@ export default function Administration({ id }: { id: string }) {
               </span>
             </h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Lengkapi syarat, catat jadwal, dan mulai perjalanan sekolah seru bersama kami!
+              Lengkapi syarat, catat jadwal, dan mulai perjalanan sekolah seru
+              bersama kami!
             </p>
           </div>
           <div className="w-full grid grid-cols-1 lg:grid-cols-2 gap-8 mt-10">
@@ -196,13 +235,57 @@ export default function Administration({ id }: { id: string }) {
                 size="lg"
                 isGradient={false}
                 text="Download brosur pendaftaran"
-                onClick={() => console.log("Daftar Sekarang")}
+                onClick={() => setShowBrosurModal(true)}
                 className="mt-10 w-full"
               />
             </div>
           </div>
         </div>
       </section>
+
+      {/* Brosur Download Modal */}
+      {showBrosurModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div
+            ref={modalRef}
+            className="bg-white rounded-2xl p-8 max-w-md w-full mx-4 transform transition-all duration-300 scale-100"
+          >
+            <div className="text-center">
+              <h3
+                className={`${spaceGrotesk.className} text-2xl font-bold text-gray-900 mb-4`}
+              >
+                Pilih Brosur
+              </h3>
+              <p className="text-gray-600 mb-8">
+                Pilih brosur yang ingin Anda download
+              </p>
+
+              <div className="space-y-4">
+                <button
+                  onClick={() => handleDownloadBrosur("ikhwan")}
+                  className="w-full bg-gradient-to-r from-blue-600 to-blue-500 text-white py-4 px-6 rounded-xl font-semibold hover:from-blue-700 hover:to-blue-600 transition-all duration-300 transform hover:scale-105 shadow-lg"
+                >
+                  📄 Download Brosur Ikhwan
+                </button>
+
+                <button
+                  onClick={() => handleDownloadBrosur("akhwat")}
+                  className="w-full bg-gradient-to-r from-pink-600 to-pink-500 text-white py-4 px-6 rounded-xl font-semibold hover:from-pink-700 hover:to-pink-600 transition-all duration-300 transform hover:scale-105 shadow-lg"
+                >
+                  📄 Download Brosur Akhwat
+                </button>
+              </div>
+
+              <button
+                onClick={() => setShowBrosurModal(false)}
+                className="mt-6 text-gray-500 hover:text-gray-700 transition-colors duration-200"
+              >
+                Batal
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }

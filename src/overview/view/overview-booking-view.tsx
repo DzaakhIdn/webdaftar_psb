@@ -1,7 +1,9 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
+import CircularProgress from "@mui/material/CircularProgress";
 
 import { DashboardContent } from "@/layout/dashboard/content";
 import {
@@ -10,23 +12,44 @@ import {
   _bookingReview,
   _bookingsOverview,
 } from "@/_mock";
-import {
-  BookingIllustration,
-  CheckInIllustration,
-  CheckoutIllustration,
-} from "@/assets/illustrations";
 
 import { BookingBooked } from "../booking-booked";
-import { BookingNewest } from "../booking-newest";
 import { BookingDetails } from "../booking-details";
 import { BookingAvailable } from "../booking-available";
 import { BookingStatistics } from "../booking-statistics";
 import { BookingTotalIncomes } from "../booking-total-incomes";
 import { BookingWidgetSummary } from "../booking-widget-summary";
 import { BookingCheckInWidgets } from "../booking-check-in-widgets";
-import { BookingCustomerReviews } from "../booking-customer-reviews";
+import { Iconify } from "@/components/iconify";
 
 // ----------------------------------------------------------------------
+
+const ICON = {
+  totalPendaftar: (
+    <Iconify
+      icon="solar:users-group-rounded-bold-duotone"
+      width={48}
+      height={48}
+      color="primary.main"
+    />
+  ),
+  diterima: (
+    <Iconify
+      icon="solar:check-read-bold-duotone"
+      width={48}
+      height={48}
+      color="success.main"
+    />
+  ),
+  pending: (
+    <Iconify
+      icon="solar:clock-circle-bold-duotone"
+      width={48}
+      height={48}
+      color="warning.main"
+    />
+  ),
+};
 
 export function OverviewBookingView() {
   return (
@@ -37,7 +60,7 @@ export function OverviewBookingView() {
             title="Total Pendaftar"
             percent={2.6}
             total={714000}
-            icon={<BookingIllustration />}
+            icon={ICON.totalPendaftar}
           />
         </Grid>
 
@@ -46,7 +69,7 @@ export function OverviewBookingView() {
             title="Diterima"
             percent={0.2}
             total={311000}
-            icon={<CheckInIllustration />}
+            icon={ICON.diterima}
           />
         </Grid>
 
@@ -55,7 +78,7 @@ export function OverviewBookingView() {
             title="Pending"
             percent={-0.1}
             total={124000}
-            icon={<CheckoutIllustration />}
+            icon={ICON.pending}
           />
         </Grid>
 
@@ -87,46 +110,30 @@ export function OverviewBookingView() {
               >
                 <BookingTotalIncomes
                   sx={{ boxShadow: { md: "none" } }}
-                  title="Total incomes"
+                  title="Total Pembayaran (IDR)"
                   total={18765}
                   percent={2.6}
                   chart={{
                     categories: [
-                      "Jan",
-                      "Feb",
-                      "Mar",
-                      "Apr",
-                      "May",
-                      "Jun",
-                      "Jul",
-                      "Aug",
-                      "Sep",
+                      "Senin",
+                      "Selasa",
+                      "Rabu",
+                      "Kamis",
+                      "Jumat",
+                      "Sabtu",
+                      "Minggu",
                     ],
-                    series: [10, 41, 35, 51, 49, 62, 69, 91, 148],
+                    series: [10, 41, 35, 51, 49, 62],
                   }}
                 />
 
                 <BookingBooked
-                  subheader="Booked"
-                  title="Booked"
+                  subheader="Ringkasan Statistik Pembayaran"
+                  title="Pembayaran"
                   data={_bookingsOverview}
                   sx={{ boxShadow: { md: "none" } }}
                 />
               </Box>
-
-              <BookingCheckInWidgets
-                chart={{
-                  series: [
-                    { label: "Sold", percent: 73.9, total: 38566 },
-                    {
-                      label: "Pending for payment",
-                      percent: 45.6,
-                      total: 18472,
-                    },
-                  ],
-                }}
-                sx={{ boxShadow: { md: "none" } }}
-              />
             </Box>
           </Grid>
 
@@ -134,8 +141,8 @@ export function OverviewBookingView() {
             <Box sx={{ gap: 3, display: "flex", flexDirection: "column" }}>
               <BookingAvailable
                 sx={{ boxShadow: { md: "none" } }}
-                subheader="Available"
-                title="Tours available"
+                subheader="Ringkasan Statistik Pendaftar"
+                title="Kuota Tersedia"
                 chart={{
                   series: [
                     { label: "Sold out", value: 120 },

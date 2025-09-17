@@ -87,9 +87,15 @@ export function BookingWidgetSummary({
         sx={{
           width: 120,
           height: 120,
-          lineHeight: 0,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
           borderRadius: "50%",
           bgcolor: "background.neutral",
+          "& svg": {
+            width: 48,
+            height: 48,
+          },
         }}
       >
         {icon}

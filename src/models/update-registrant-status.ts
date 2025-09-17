@@ -79,8 +79,8 @@ export const STATUS_OPTIONS = [
     label: "Verifikasi Pembayaran",
     color: "info",
   },
-  { value: "tes wawancara", label: "Tes Wawancara", color: "primary" },
   { value: "sedang tes", label: "Sedang Tes", color: "info" },
+  { value: "tes wawancara", label: "Tes Wawancara", color: "primary" },
   { value: "diterima", label: "Diterima", color: "success" },
   { value: "ditolak", label: "Ditolak", color: "error" },
 ] as const;
